@@ -1,6 +1,6 @@
 from hrt_storage import HrtStorage  # Assuming hrt_storage.py exists
 from hrt_type import hrt_type_hex_to, hrt_type_hex_from  # Assuming hrt_type.py exists
-from hrt_settings import instrument_type, hrt_settings
+from hrt_settings import hrt_settings
 
 class HrtTransmitter:
     def __init__(self, caminho_excel: str):

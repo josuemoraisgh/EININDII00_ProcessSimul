@@ -149,10 +149,10 @@ def _hrt_type_time2_hex(valor: time) -> str:
     return (part1 + part2 + part3 + part4).upper()
 
 def _hrt_type_hex2_enum(index, valor):
-    find_value_in_dict(hrt_enum[index],valor)
+    return find_value_in_dict(hrt_enum[index],valor)
 
 def _hrt_type_enum2_hex(index, valor):
-    hrt_enum[index][valor]
+    return hrt_enum[index][valor]
 
 def find_value_in_dict(range_dict, value):
     """
@@ -211,7 +211,7 @@ def hrt_type_hex_to(valor: str, type_str: str):
         return _hrt_type_hex2_int(valor)
     elif t in ['PASCII', 'PACKED_ASCII']:
         return _hrt_type_hex2_pascii(valor)
-    elif t in ['TIME']:
+    elif t.__contains__['BIT_ENUM']:
         return _hrt_type_hex2_time(valor)
     else:
         return _hrt_type_hex2_enum(int(t[4:]), valor)
