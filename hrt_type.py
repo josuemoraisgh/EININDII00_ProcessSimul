@@ -2,6 +2,7 @@ import math
 import random
 from datetime import date, time, datetime
 from hrt_enum import hrt_enum
+from hrt_bitenum import hrt_bitEnum
 
 # Funções auxiliares para manipulação de bits
 def get_bits(value: int, start: int, count: int) -> int:
@@ -148,13 +149,10 @@ def _hrt_type_time2_hex(valor: time) -> str:
     part4 = format(get_bits(aux, 0, 8), 'x').zfill(2)
     return (part1 + part2 + part3 + part4).upper()
 
-def _hrt_type_hex2_enum(index, valor):
-    return find_value_in_dict(hrt_enum[index],valor)
-
 def _hrt_type_enum2_hex(index, valor):
     return hrt_enum[index][valor]
 
-def find_value_in_dict(range_dict, value):
+def _hrt_type_hex2_enum(range_dict, value):
     """
     Procura no dicionário se o valor fornecido corresponde a uma chave exata ou está dentro de um intervalo.
 
@@ -195,6 +193,15 @@ def find_value_in_dict(range_dict, value):
     # Se não encontrar o valor, retorna None
     return "INVALID TYPE"
 
+def _hrt_type_hex2_bitenum(id, hex_value):
+    erros = []
+    for bit, mensagem in hrt_bitEnum[id].items():
+        if hex_value & bit:
+            erros.append(mensagem)
+    if not erros:
+        return "NOTHING"
+    return ", ".join(erros)
+
 # Funções principais
 
 def hrt_type_hex_to(valor: str, type_str: str):
@@ -212,9 +219,9 @@ def hrt_type_hex_to(valor: str, type_str: str):
     elif t in ['PASCII', 'PACKED_ASCII']:
         return _hrt_type_hex2_pascii(valor)
     elif t.__contains__['BIT_ENUM']:
-        return _hrt_type_hex2_time(valor)
+        return _hrt_type_hex2_bitenum(hrt_bitEnum(int(t[4:])), valor)
     else:
-        return _hrt_type_hex2_enum(int(t[4:]), valor)
+        return _hrt_type_hex2_enum(hrt_enum(int(t[4:])), valor)
 
 def hrt_type_hex_from(valor, type_str: str) -> str:
     t = type_str.upper()
