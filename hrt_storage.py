@@ -2,6 +2,8 @@ import re
 from asteval import Interpreter
 from typing import Union
 import pandas as pd
+from functools import reduce
+import operator
 
 class HrtStorage:
     def __init__(self, caminho_excel: str):
@@ -12,14 +14,42 @@ class HrtStorage:
         return self.df['Variavel'].tolist()
 
     def get_variable(self, id_variable: str, column: str) -> Union[str, float]:
-        row = self.df.loc[self.df['Variavel'] == id_variable]
-        if not row.empty and column in row.columns:
-            if row.iloc[0][column][1] == '@' :
-                return self._evaluate_expression(row.iloc[0][column], column)
-            else: 
-                return row.iloc[0][column]
-        return "ERROR"
+        # Identifica o operador bitwise e separa as variáveis
+        if '|' in id_variable:
+            variables = id_variable.split(' | ')
+            operation = operator.or_
+        elif '&' in id_variable:
+            variables = id_variable.split(' & ')
+            operation = operator.and_
+        else:
+            variables = [id_variable]
+            operation = None
 
+        # Função para obter o valor de uma variável
+        def get_value(var: str) -> Union[int, str]:
+            row = self.df.loc[self.df['Variavel'] == var]
+            if not row.empty and column in row.columns:
+                value = row.iloc[0][column]
+                if isinstance(value, str) and value.startswith('@'):
+                    return self._evaluate_expression(value, column)
+                else:
+                    return int(value)
+            return "ERROR"
+
+        # Obtém os valores das variáveis
+        values = [get_value(var) for var in variables]
+
+        # Verifica se houve algum erro na obtenção dos valores
+        if "ERROR" in values:
+            return "ERROR"
+
+        # Aplica a operação bitwise, se houver mais de uma variável
+        if operation:
+            result = reduce(operation, values)
+            return result
+        else:
+            return values[0]
+        
     def set_variable(self, id_variable: str, column: str, value: str):
         if id_variable in self.df['Variavel'].values:
             self.df.loc[self.df['Variavel'] == id_variable, column] = value

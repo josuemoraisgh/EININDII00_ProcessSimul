@@ -8,9 +8,9 @@ hrt_settings: Dict[str, Tuple[Union[int, float], str, Union[str, Dict[str, str]]
     'ramdom_value': (4, 'FLOAT', '@ramdom_value'),
     'frame_type': (1, 'UNSIGNED', '06'),
     'address_type': (1, 'UNSIGNED', '00'),
-    'error_code': (2, 'ENUM00', '0040'),
+    'error_code': (2, 'ENUM00', '0000'),
     'response_code': (1, 'ENUM27', '30'),
-    'device_status': (1, 'BIT_ENUM02', '20'),
+    'device_status': (1, 'BIT_ENUM02', '00'),
     'comm_status': (1, 'BIT_ENUM03', '00'),
     'master_address': (1, 'BIT_ENUM01', '80'),
     'manufacturer_id': (1, 'ENUM08', '3E'),
@@ -21,7 +21,7 @@ hrt_settings: Dict[str, Tuple[Union[int, float], str, Union[str, Dict[str, str]]
     'software_revision': (1, 'UNSIGNED', '04'),
     'hardware_revision': (1, 'UNSIGNED', '01'),
     'device_flags': (1, 'BIT_ENUM04', '00'),
-    'device_id': (3, 'UNSIGNED', '001E66'),
+    'device_id': (5, 'UNSIGNED', '1F00000010'),
     'polling_address': (1, 'UNSIGNED', '80'),
     'tag': (
         8,
@@ -50,7 +50,7 @@ hrt_settings: Dict[str, Tuple[Union[int, float], str, Union[str, Dict[str, str]]
     'loop_current': (4, 'FLOAT', '@(percent_of_range * 0.16) + 4'),
     'write_protect': (1, 'ENUM00', '00'),
     'private_label_distributor': (1, 'ENUM00', '00'),
-    'final_assembly_number': (3, 'UNSIGNED', '000000'),
+    'final_assembly_number': (3, 'UNSIGNED', '00FBC6'),
     'physical_signaling_code': (1, 'ENUM10', '00'),  # (Bell 202 Current)
     'units_code': (1, 'ENUM02', '20'),  # (32 - Degrees Celsius)
     'transfer_function_code': (1, 'ENUM03', '00'),  # (0 - Linear)

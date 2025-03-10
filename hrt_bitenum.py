@@ -1,6 +1,6 @@
 hrt_bitEnum = {
     # device_status
-    1: {
+    2: {
     0x01: "Variável Primária Fora dos Limites",
     0x02: "Variável Não-Primária Fora dos Limites",
     0x04: "Corrente de Loop Saturada",
@@ -11,7 +11,7 @@ hrt_bitEnum = {
     0x80: "Mau Funcionamento do Dispositivo"
     },
     # comm_status
-    2: {
+    3: {
         0x01: "Erro de Paridade",
         0x02: "Reservado",
         0x04: "Erro de Overrun",

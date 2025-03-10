@@ -1,17 +1,14 @@
-import hrt_transmitter
-import hrt_frame
+from hrt_transmitter import HrtTransmitter
+from hrt_frame import HrtFrame
 
 class HrtBuild:
-
     def __init__(self, hrt_transmitter, hrt_frame_read):
         self._hrt_frame_write = HrtFrame()
         self._hrt_frame_write.command = hrt_frame_read.command
         self._hrt_frame_write.address_type = hrt_frame_read.address_type
-        hrt_transmitter.set_variable(
-            'address_type', '00' if hrt_frame_read.address_type == False else '80')
+        hrt_transmitter.set_variable('address_type', ('00' if hrt_frame_read.address_type == False else '80'))
         self._hrt_frame_write.frame_type = hrt_transmitter.get_variable('frame_type')
-        self._hrt_frame_write.master_address = True if hrt_transmitter.get_variable(
-            'master_address') == "00" else False
+        self._hrt_frame_write.master_address = (True if hrt_transmitter.get_variable('master_address') == "00" else False)
 
         if self._hrt_frame_write.address_type:
             self._hrt_frame_write.manufacter_id = hrt_transmitter.get_variable('manufacturer_id')
@@ -65,7 +62,7 @@ class HrtBuild:
     def _response(self, hrt_transmitter, hrt_frame_read):
         command = hrt_frame_read.command
         if command == '00':  # Identity Command
-            self._hrt_frame_write.body = "0000"  # error_code
+            self._hrt_frame_write.body = f"{hrt_transmitter.get_variable('error_code')}"
             self._hrt_frame_write.body += "FE"
             self._hrt_frame_write.body += f"{hrt_transmitter.get_variable('master_address') | hrt_transmitter.get_variable('manufacturer_id')}"
             self._hrt_frame_write.body += f"{hrt_transmitter.get_variable('device_type')}"
@@ -77,15 +74,15 @@ class HrtBuild:
             self._hrt_frame_write.body += f"{hrt_transmitter.get_variable('device_flags')}"
             self._hrt_frame_write.body += f"{hrt_transmitter.get_variable('device_id')}"
         elif command == '01':  # Read Primary Variable
-            self._hrt_frame_write.body = "0000"  # error_code
+            self._hrt_frame_write.body = f"{hrt_transmitter.get_variable('error_code')}"
             self._hrt_frame_write.body += f"{hrt_transmitter.get_variable('unit_code')}"
             self._hrt_frame_write.body += f"{hrt_transmitter.get_variable('PROCESS_VARIABLE')}"
         elif command == '02':  # Read Loop Current And Percent Of Range
-            self._hrt_frame_write.body = "0000"  # error_code
+            self._hrt_frame_write.body = f"{hrt_transmitter.get_variable('error_code')}"
             self._hrt_frame_write.body += f"{hrt_transmitter.get_variable('loop_current')}"
             self._hrt_frame_write.body += f"{hrt_transmitter.get_variable('percent_of_range')}"
         elif command == '03':  # Read Dynamic Variables And Loop Current
-            self._hrt_frame_write.body = "0000"  # error_code
+            self._hrt_frame_write.body = f"{hrt_transmitter.get_variable('error_code')}"
             self._hrt_frame_write.body += f"{hrt_transmitter.get_variable('loop_current')}"
             self._hrt_frame_write.body += f"{hrt_transmitter.get_variable('unit_code')}"
             self._hrt_frame_write.body += f"{hrt_transmitter.get_variable('PROCESS_VARIABLE')}"
@@ -96,31 +93,31 @@ class HrtBuild:
             self._hrt_frame_write.body += f"{hrt_transmitter.get_variable('unit_code')}"
             self._hrt_frame_write.body += f"{hrt_transmitter.get_variable('PROCESS_VARIABLE')}"
         elif command == '04':  #
-            self._hrt_frame_write.body = "0000"
+            self._hrt_frame_write.body = f"{hrt_transmitter.get_variable('error_code')}"
         elif command == '05':  #
-            self._hrt_frame_write.body = "0000"
+            self._hrt_frame_write.body = f"{hrt_transmitter.get_variable('error_code')}"
         elif command == '06':  # Write Polling Address
             polling_address = hrt_frame_read.body[:2]
             loop_current_mode = hrt_frame_read.body[2:]
             hrt_transmitter.set_variable('polling_address', polling_address)
             hrt_transmitter.set_variable('loop_current_mode', loop_current_mode)
-            self._hrt_frame_write.body = "0000"  # error_code
+            self._hrt_frame_write.body = f"{hrt_transmitter.get_variable('error_code')}"
             self._hrt_frame_write.body += f"{polling_address}"
             self._hrt_frame_write.body += f"{loop_current_mode}"
         elif command == '07':  # Read Loop Configuration
-            self._hrt_frame_write.body = "0000"  # error_code
+            self._hrt_frame_write.body = f"{hrt_transmitter.get_variable('error_code')}"
             self._hrt_frame_write.body += f"{hrt_transmitter.get_variable('polling_address')}"
             self._hrt_frame_write.body += f"{hrt_transmitter.get_variable('loop_current_mode')}"
         elif command == '08':  # Read Dynamic Variable Classifications
-            self._hrt_frame_write.body = "0000"  # error_code
+            self._hrt_frame_write.body = f"{hrt_transmitter.get_variable('error_code')}"
             self._hrt_frame_write.body += f"{hrt_transmitter.get_variable('primary_variable_classification')}"
             self._hrt_frame_write.body += f"{hrt_transmitter.get_variable('secondary_variable_classification')}"
             self._hrt_frame_write.body += f"{hrt_transmitter.get_variable('tertiary_variable_classification')}"
             self._hrt_frame_write.body += f"{hrt_transmitter.get_variable('quaternary_variable_classification')}"
         elif command == '09':  # Read Device Variables with Status
-            self._hrt_frame_write.body = "0000"
+            self._hrt_frame_write.body = f"{hrt_transmitter.get_variable('error_code')}"
         elif command == '0A':  # (10)
-            self._hrt_frame_write.body = "0000"
+            self._hrt_frame_write.body = f"{hrt_transmitter.get_variable('error_code')}"
         elif command == '0B':  # Read Unique Identifier Associated With Tag (11)
             self._hrt_frame_write.body = "00" if (
                 hrt_frame_read.body == hrt_transmitter.get_variable('tag')) else '01'
@@ -135,10 +132,10 @@ class HrtBuild:
             self._hrt_frame_write.body += f"{hrt_transmitter.get_variable('device_flags')}"
             self._hrt_frame_write.body += f"{hrt_transmitter.get_variable('device_id')}"
         elif command == '0C':  # Read Message (12)
-            self._hrt_frame_write.body = "0000"  # error_code
+            self._hrt_frame_write.body = f"{hrt_transmitter.get_variable('error_code')}"
             self._hrt_frame_write.body += f"{hrt_transmitter.get_variable('message')}"
         elif command == '0D':  # Read Tag, Descriptor, Date (13)
-            self._hrt_frame_write.body = "0000"  # error_code
+            self._hrt_frame_write.body = f"{hrt_transmitter.get_variable('error_code')}"
             self._hrt_frame_write.body += f"{hrt_transmitter.get_variable('tag')}"
             self._hrt_frame_write.body += f"{hrt_transmitter.get_variable('descriptor')}"
             self._hrt_frame_write.body += f"{hrt_transmitter.get_variable('date')}"
@@ -147,7 +144,8 @@ class HrtBuild:
         elif command == '0F':  # Read Device Information (15)
             self._hrt_frame_write.body = '01002343BA933342924CCC3F800000013E'
         elif command == '10':  # Read Final Assembly Number (16)
-            self._hrt_frame_write.body = '000000FBC6'
+            self._hrt_frame_write.body = f"{hrt_transmitter.get_variable('error_code')}"
+            self._hrt_frame_write.body += f"{hrt_transmitter.get_variable('final_assembly_number')}"
         elif command == '11':  # Write Message (17)
             self._hrt_frame_write.body = ''
         elif command == '12':  # Write Tag, Descriptor, Date (18)
@@ -222,7 +220,7 @@ class HrtBuild:
             self._hrt_frame_write.body = '00000242C800003B801132B51B057FAC932D1D'
 
 # Example usage (assuming you have instances of HrtTransmitter and HrtFrame)
-hrt_transmitter = HrtTransmitter()
+hrt_transmitter = HrtTransmitter('TIT100','dados.xlsx')
 hrt_frame_read = HrtFrame()
 hrt_frame_read.command = '00'
 hrt_frame_read.address_type = False

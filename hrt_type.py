@@ -193,13 +193,14 @@ def _hrt_type_hex2_enum(range_dict, value):
     # Se não encontrar o valor, retorna None
     return "INVALID TYPE"
 
-def _hrt_type_hex2_bitenum(id, hex_value):
+def _hrt_type_hex2_bitenum(hrt_bitEnum_id, str_value):
     erros = []
-    for bit, mensagem in hrt_bitEnum[id].items():
+    hex_value = int(str_value, 16)
+    for bit, mensagem in hrt_bitEnum_id.items():
         if hex_value & bit:
             erros.append(mensagem)
     if not erros:
-        return "NOTHING"
+        return "NO ERROR"
     return ", ".join(erros)
 
 # Funções principais
@@ -218,10 +219,10 @@ def hrt_type_hex_to(valor: str, type_str: str):
         return _hrt_type_hex2_int(valor)
     elif t in ['PASCII', 'PACKED_ASCII']:
         return _hrt_type_hex2_pascii(valor)
-    elif t.__contains__['BIT_ENUM']:
-        return _hrt_type_hex2_bitenum(hrt_bitEnum(int(t[4:])), valor)
+    elif t[:4] in ['BIT_']:
+        return _hrt_type_hex2_bitenum(hrt_bitEnum[int(t[8:])], valor)
     else:
-        return _hrt_type_hex2_enum(hrt_enum(int(t[4:])), valor)
+        return _hrt_type_hex2_enum(hrt_enum[int(t[4:])], valor)
 
 def hrt_type_hex_from(valor, type_str: str) -> str:
     t = type_str.upper()
