@@ -64,7 +64,7 @@ class HrtBuild:
         if command == '00':  # Identity Command
             self._hrt_frame_write.body = f"{hrt_transmitter.get_variable('error_code')}"
             self._hrt_frame_write.body += "FE"
-            self._hrt_frame_write.body += f"{hrt_transmitter.get_variable('master_address') | hrt_transmitter.get_variable('manufacturer_id')}"
+            self._hrt_frame_write.body += f"{hrt_transmitter.get_variable('master_address | manufacturer_id')}"
             self._hrt_frame_write.body += f"{hrt_transmitter.get_variable('device_type')}"
             self._hrt_frame_write.body += f"{hrt_transmitter.get_variable('request_preambles')}"
             self._hrt_frame_write.body += f"{hrt_transmitter.get_variable('hart_revision')}"
@@ -122,7 +122,7 @@ class HrtBuild:
             self._hrt_frame_write.body = "00" if (
                 hrt_frame_read.body == hrt_transmitter.get_variable('tag')) else '01'
             self._hrt_frame_write.body += "FE"
-            self._hrt_frame_write.body += f"{hrt_transmitter.get_variable('master_slave') | hrt_transmitter.get_variable('manufacturer_id')}"
+            self._hrt_frame_write.body += f"{hrt_transmitter.get_variable('master_slave | manufacturer_id')}"
             self._hrt_frame_write.body += f"{hrt_transmitter.get_variable('device_type')}"
             self._hrt_frame_write.body += f"{hrt_transmitter.get_variable('request_preambles')}"
             self._hrt_frame_write.body += f"{hrt_transmitter.get_variable('hart_revision')}"
