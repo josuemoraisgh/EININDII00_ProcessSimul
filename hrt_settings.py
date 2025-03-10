@@ -14,11 +14,7 @@ hrt_settings: Dict[str, Tuple[Union[int, float], str, Union[str, Dict[str, str]]
     'comm_status': (1, 'BIT_ENUM03', '00'),
     'master_address': (1, 'BIT_ENUM01', '80'),
     'manufacturer_id': (1, 'ENUM08', '3E'),
-    'device_type': (
-        1,
-        'ENUM01',
-        {'TT301': '02', 'LD301': '01', 'FY301': '01', 'DT301': '06'}
-    ),
+    'device_type': (1, 'ENUM01', '02'),
     'request_preambles': (1, 'UNSIGNED', '05'),
     'hart_revision': (1, 'UNSIGNED', '05'),
     'transmitter_revision': (1, 'UNSIGNED', '30'),
@@ -30,33 +26,17 @@ hrt_settings: Dict[str, Tuple[Union[int, float], str, Union[str, Dict[str, str]]
     'tag': (
         8,
         'PACKED_ASCII',
-        {
-            'TT301': '514CF0C60820',
-            'LD301': '304CF0C60820',
-            'FY301': '199CF0C60820',
-            'DT301': '114CF0C60820'
-        }
+        '514CF0C60820',
     ),  # TT301
     'message': (
         32,
         'PACKED_ASCII',
-        {
-            'TT301': '34510910F4A010581414D405481515481820820820820820',
-            'LD301': '34510910F4A01058104854D304F820820820820820820820',
-            'FY301': '40F4C90C93CE0443D280416058131654C060820820820820',
-            'DT301': '34510910F4A010580414E4C9101105820820820820820820',
-        }
+        '34510910F4A010581414D405481515481820820820820820',
     ),  # MEDIDOR DE TEMPERATURA
     'descriptor': (
         16,
         'PACKED_ASCII',
-        {
-            'TT301': '505350152054552060820820',
-            'LD301': '4121534C13E0820820820820',
-            'FY301': '40F4C90C93CE0443D2820820',
-            'DT301': '105393244044160820820820',
-        }
-    ),  # TEMPERATURA
+        '505350152054552060820820'),  # TEMPERATURA
     'date': (3, 'DATE', '130879'),  # 19/08/2021
     'upper_range_value': (4, 'FLOAT', '44548000'),  # 850
     'lower_range_value': (4, 'FLOAT', 'C3480000'),  # -200

@@ -1,5 +1,6 @@
 import re
 from asteval import Interpreter
+from typing import Union
 import pandas as pd
 
 class HrtStorage:
@@ -10,11 +11,14 @@ class HrtStorage:
     def keys(self):
         return self.df['Variavel'].tolist()
 
-    def get_variable(self, id_variable: str, column: str):
+    def get_variable(self, id_variable: str, column: str) -> Union[str, float]:
         row = self.df.loc[self.df['Variavel'] == id_variable]
         if not row.empty and column in row.columns:
-            return self._evaluate_expression(row.iloc[0][column], column)
-        return None
+            if row.iloc[0][column][1] == '@' :
+                return self._evaluate_expression(row.iloc[0][column], column)
+            else: 
+                return row.iloc[0][column]
+        return "ERROR"
 
     def set_variable(self, id_variable: str, column: str, value: str):
         if id_variable in self.df['Variavel'].values:

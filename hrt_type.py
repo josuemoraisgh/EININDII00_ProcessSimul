@@ -1,6 +1,7 @@
 import math
 import random
 from datetime import date, time, datetime
+from hrt_enum import hrt_enum
 
 # Funções auxiliares para manipulação de bits
 def get_bits(value: int, start: int, count: int) -> int:
@@ -147,6 +148,53 @@ def _hrt_type_time2_hex(valor: time) -> str:
     part4 = format(get_bits(aux, 0, 8), 'x').zfill(2)
     return (part1 + part2 + part3 + part4).upper()
 
+def _hrt_type_hex2_enum(index, valor):
+    find_value_in_dict(hrt_enum[index],valor)
+
+def _hrt_type_enum2_hex(index, valor):
+    hrt_enum[index][valor]
+
+def find_value_in_dict(range_dict, value):
+    """
+    Procura no dicionário se o valor fornecido corresponde a uma chave exata ou está dentro de um intervalo.
+
+    :param range_dict: Dicionário com chaves que podem ser valores exatos ou intervalos.
+    :param value: Valor a ser procurado. Pode ser um número ou uma string hexadecimal.
+    :return: O valor correspondente no dicionário se encontrado, None caso contrário.
+    """
+
+    # Converte o valor para hexadecimal se for um número
+    if isinstance(value, int):
+        value_hex = f"{value:02x}"
+    elif isinstance(value, str):
+        if value.startswith('0x'):
+            value_hex = value[2:]
+        else:
+            value_hex = value
+    else:
+        raise ValueError("Valor deve ser um número ou uma string hexadecimal")
+
+    # Converte o valor para int para comparações
+    value_int = int(value_hex, 16)
+
+    # Percorre o dicionário
+    for key in range_dict:
+        # Verifica se a chave é um intervalo
+        if '-' in key:
+            start, end = key.split('-')
+            start_int = int(start, 16)
+            end_int = int(end, 16)
+            # Verifica se o valor está dentro do intervalo
+            if start_int <= value_int <= end_int:
+                return range_dict[key]
+        else:
+            # Se a chave não é um intervalo, compara diretamente
+            if key == value_hex:
+                return range_dict[key]
+
+    # Se não encontrar o valor, retorna None
+    return "INVALID TYPE"
+
 # Funções principais
 
 def hrt_type_hex_to(valor: str, type_str: str):
@@ -166,7 +214,7 @@ def hrt_type_hex_to(valor: str, type_str: str):
     elif t in ['TIME']:
         return _hrt_type_hex2_time(valor)
     else:
-        return 'Type Invalida'
+        return _hrt_type_hex2_enum(int(t[4:]), valor)
 
 def hrt_type_hex_from(valor, type_str: str) -> str:
     t = type_str.upper()
@@ -183,7 +231,7 @@ def hrt_type_hex_from(valor, type_str: str) -> str:
     elif t in ['TIME']:
         return _hrt_type_time2_hex(valor)
     else:
-        return 'Type inválido'
+        return _hrt_type_enum2_hex(float(t[4:]), valor)
 
 # Exemplo de uso
 if __name__ == "__main__":
