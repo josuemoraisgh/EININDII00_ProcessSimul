@@ -13,7 +13,7 @@ class HrtStorage:
     def keys(self):
         return self.df['Variavel'].tolist()
 
-    def get_variable(self, id_variable: str, column: str) -> Union[str, float]:
+    def get_variable(self, id_variable: str, column: str) -> str:
         # Identifica o operador bitwise e separa as variáveis
         if '|' in id_variable:
             variables = id_variable.split(' | ')
@@ -26,15 +26,15 @@ class HrtStorage:
             operation = None
 
         # Função para obter o valor de uma variável
-        def get_value(var: str) -> Union[int, str]:
+        def get_value(var: str) -> str:
             row = self.df.loc[self.df['Variavel'] == var]
             if not row.empty and column in row.columns:
                 value = row.iloc[0][column]
-                if isinstance(value, str) and value.startswith('@'):
+                if value.startswith('@'):
                     return self._evaluate_expression(value, column)
                 else:
-                    return int(value)
-            return "ERROR"
+                    return value
+            return "00"
 
         # Obtém os valores das variáveis
         values = [get_value(var) for var in variables]
