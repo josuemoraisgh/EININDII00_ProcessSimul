@@ -160,7 +160,6 @@ def _hrt_type_hex2_enum(range_dict, value):
     :param value: Valor a ser procurado. Pode ser um número ou uma string hexadecimal.
     :return: O valor correspondente no dicionário se encontrado, None caso contrário.
     """
-
     # Converte o valor para hexadecimal se for um número
     if isinstance(value, int):
         value_hex = f"{value:02x}"
@@ -171,10 +170,8 @@ def _hrt_type_hex2_enum(range_dict, value):
             value_hex = value
     else:
         raise ValueError("Valor deve ser um número ou uma string hexadecimal")
-
     # Converte o valor para int para comparações
     value_int = int(value_hex, 16)
-
     # Percorre o dicionário
     for key in range_dict:
         # Verifica se a chave é um intervalo
@@ -189,7 +186,6 @@ def _hrt_type_hex2_enum(range_dict, value):
             # Se a chave não é um intervalo, compara diretamente
             if key == value_hex:
                 return range_dict[key]
-
     # Se não encontrar o valor, retorna None
     return "INVALID TYPE"
 

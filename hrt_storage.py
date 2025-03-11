@@ -1,6 +1,3 @@
-import re
-from asteval import Interpreter
-from typing import Union
 import pandas as pd
 from functools import reduce
 import operator
@@ -30,25 +27,23 @@ class HrtStorage:
             row = self.df.loc[self.df['Variavel'] == var]
             if not row.empty and column in row.columns:
                 value = row.iloc[0][column]
-                if value.startswith('@'):
-                    return self._evaluate_expression(value, column)
-                else:
-                    return value
-            return "00"
+                if not value.startswith('@'):
+                    return int(value,base=16)
+            return None
 
         # Obtém os valores das variáveis
         values = [get_value(var) for var in variables]
 
         # Verifica se houve algum erro na obtenção dos valores
-        if "ERROR" in values:
-            return "ERROR"
+        if any(x in values for x in ["ERROR", None]):
+            return None
 
         # Aplica a operação bitwise, se houver mais de uma variável
         if operation:
             result = reduce(operation, values)
-            return result
+            return str(result)
         else:
-            return values[0]
+            return str(values[0])
         
     def set_variable(self, id_variable: str, column: str, value: str):
         if id_variable in self.df['Variavel'].values:
@@ -58,22 +53,6 @@ class HrtStorage:
             self.df = pd.concat([self.df, new_row], ignore_index=True)
         self.df.to_excel(self.caminho_excel, index=False)
         
-    def _evaluate_expression(self, func: str, column: str) -> float:
-        evaluator = Interpreter()
-        expr_str = func[1:]  # Remove o caractere '@' inicial
-        tokens = re.findall(r'[A-Za-z_]\w*', expr_str)
-        context = {}
-        for token in tokens:
-            var_val = self.get_variable(token, column)
-            if var_val is not None:
-                evaluator.symtable[token] = float(var_val)
-        try:
-            result = evaluator(expr_str)
-            return float(result)
-        except Exception as e:
-            print("Erro ao avaliar expressão:", e)
-            return 0.0
-
 
 # Exemplo de uso
 if __name__ == '__main__':
