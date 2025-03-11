@@ -4,11 +4,11 @@ from numpy import equal
 from PySide6.QtWidgets import(QApplication, QDialog, QFileDialog,
  QMainWindow, QMessageBox, QTreeWidgetItem, QWidget)
 import sys
-from ui_main import Ui_Dialog
+from ui_main import Ui_MainWindow
 
-class Login(QDialog, Ui_Dialog):
+class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self) -> None:
-        super(Login, self).__init__()
+        super(MainWindow, self).__init__()
         self.setupUi(self)
         self.setWindowTitle("Login do Sistema")
         # appIcon = QIcon('_imgs/logo.PNG')
@@ -17,6 +17,6 @@ class Login(QDialog, Ui_Dialog):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    window = Login()
+    window = MainWindow()
     window.show()
     app.exec()
