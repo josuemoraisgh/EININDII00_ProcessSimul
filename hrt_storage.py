@@ -7,6 +7,7 @@ class HrtStorage(QObject):
     data_updated = Signal()  # 🔥 Declarando o sinal corretamente
     
     def __init__(self, caminho_excel: str):
+        super().__init__()  # 🔥 Inicializa QObject explicitamente        
         self.caminho_excel = caminho_excel
         try:
             self.df = pd.read_excel(self.caminho_excel)

@@ -4,11 +4,8 @@ from hrt_settings import hrt_settings
 import re
 from asteval import Interpreter
 from typing import Union
-from PySide6.QtCore import Signal
-
-
 class HrtData(HrtStorage):
-    def __init__(self, instrument: str, caminho_excel: str):
+    def __init__(self, caminho_excel: str, instrument: str):
         super().__init__(caminho_excel)  # 🔥 Chama o construtor da classe Pai
         self._instrument = instrument
         
@@ -72,7 +69,7 @@ class HrtData(HrtStorage):
 
 # Exemplo de uso
 if __name__ == '__main__':
-    hrtData = HrtData('TIT100','dados.xlsx')
+    hrtData = HrtData('dados.xlsx','TIT100')
 
     # Definir variável para o instrumento TIT100
     for key in hrtData.keys():
