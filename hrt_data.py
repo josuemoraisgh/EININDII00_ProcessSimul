@@ -4,21 +4,32 @@ from hrt_settings import hrt_settings
 import re
 from asteval import Interpreter
 from typing import Union
+from PySide6.QtCore import Signal
 
 
-class HrtData:
+class HrtData(HrtStorage):
     def __init__(self, instrument: str, caminho_excel: str):
+        super().__init__(caminho_excel)  # 🔥 Chama o construtor da classe Pai
         self._instrument = instrument
-        self.HrtStorage = HrtStorage(caminho_excel)
         
     def setInstrument(self, instrument: str):
         self._instrument = instrument
         
     def keys(self):
-        return self.HrtStorage.keys()
+        return super().keys()
     
-    def get_variable(self, id_variable: str, machineValue: bool = True):
-        value = self.HrtStorage.get_variable(id_variable, self._instrument)    
+    def get_dataframe(self, machineValue: bool = True):
+        return super().df
+
+    def set_pos_datframe(self, row, col, value, machineValue: bool = True):
+        """Atualiza o DataFrame quando a célula for alterada."""
+        return 0.0
+   
+    def get_variable(self, id_variable: str, machineValue: Union[bool, str] = True):
+        if type(machineValue) == str:
+            return super().get_variable(id_variable, machineValue) 
+        else: 
+            value = super().get_variable(id_variable, self._instrument) 
         if value.startswith('@'):
             return self._evaluate_expression(value, machineValue)
         else:    
@@ -27,12 +38,15 @@ class HrtData:
             else:
                 return hrt_type_hex_to(self.HrtStorage.get_variable(id_variable, self._instrument), self.HrtStorage.get_variable(id_variable, "Tipo"))
 
-    def set_variable(self, id_variable: str, value: str ,machineValue: bool = True):
-        if machineValue:
-            return self.HrtStorage.set_variable(id_variable, self._instrument, value)
+    def set_variable(self, value: str , id_variable: str, machineValue: Union[bool, str] = True):
+        if type(machineValue) == str:
+            return super().set_variable(id_variable, machineValue, value)
         else:
-            return self.HrtStorage.set_variable(id_variable, self._instrument, hrt_type_hex_from(value, self.HrtStorage.get_variable(id_variable, "Tipo")))
-    
+            if machineValue:
+                return super().set_variable(id_variable, self._instrument, value)
+            else:
+                return super().set_variable(id_variable, self._instrument, hrt_type_hex_from(value, super().get_variable(id_variable, "Tipo")))
+        
     def _evaluate_expression(self, id_variable: str, func: str, machineValue: bool = True) -> Union[float, str]:
         evaluator = Interpreter()
         expr_str = func[1:]  # Remove o caractere '@' inicial
@@ -47,7 +61,7 @@ class HrtData:
             if not machineValue:
                 return result
             else:
-                return hrt_type_hex_from(result, self.HrtStorage.get_variable(id_variable, "Tipo")).zfill(self.HrtStorage.get_variable(id_variable, "Tamanho"))
+                return hrt_type_hex_from(result, super().get_variable(id_variable, "Tipo")).zfill(super().get_variable(id_variable, "Tamanho"))
         except Exception as e:
             print("Erro ao avaliar expressão:", e)
             if not machineValue:
@@ -63,8 +77,8 @@ if __name__ == '__main__':
     # Definir variável para o instrumento TIT100
     for key in hrtData.keys():
         try:
-            hrtData.HrtStorage.set_variable(key, "Tipo", hrt_settings[key][1])
-            hrtData.set_variable(key, hrt_settings[key][2], machineValue=True)
+            hrtData.set_variable(hrt_settings[key][1], key, "Tipo")
+            hrtData.set_variable(hrt_settings[key][2], key, machineValue=True)
         except Exception as e:
             print(f"An error occurred: {e}")
         

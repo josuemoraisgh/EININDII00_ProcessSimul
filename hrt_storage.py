@@ -1,15 +1,36 @@
 import pandas as pd
 from functools import reduce
+from PySide6.QtCore import Signal, QObject
 import operator
 
-class HrtStorage:
+class HrtStorage(QObject):
+    data_updated = Signal()  # 🔥 Declarando o sinal corretamente
+    
     def __init__(self, caminho_excel: str):
         self.caminho_excel = caminho_excel
-        self.df = pd.read_excel(self.caminho_excel)
-
+        try:
+            self.df = pd.read_excel(self.caminho_excel)
+        except FileNotFoundError:
+            # Se o arquivo não existir, cria uma tabela vazia
+            self.df = pd.DataFrame(columns=["Variavel", "Tipo", "Tamanho", "TIT100"])
+            self.save_data()
+    
+    def get_dataframe(self):
+        return self.df
+    
+    def save_data(self):
+        """Escreve os dados de volta ao arquivo Excel."""
+        self.df.to_excel(self.caminho_excel, index=False)
+        self.data_updated.emit()  # Emite o sinal de atualização 
+        
+    def set_pos_datframe(self, row, col, value):
+        """Atualiza o DataFrame quando a célula for alterada."""
+        self.df.iloc[row, col] = value
+        self.save_data()  # Salva automaticamente no Excel               
+        
     def keys(self):
         return self.df['Variavel'].tolist()
-
+    
     def get_variable(self, id_variable: str, column: str) -> str:
         # Identifica o operador bitwise e separa as variáveis
         if '|' in id_variable:
@@ -51,7 +72,7 @@ class HrtStorage:
         else:
             new_row = pd.DataFrame({'Variavel': [id_variable], column: [value]})
             self.df = pd.concat([self.df, new_row], ignore_index=True)
-        self.df.to_excel(self.caminho_excel, index=False)
+        self.save_data()    
         
 
 # Exemplo de uso
