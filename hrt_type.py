@@ -138,15 +138,15 @@ def hrt_type_hex_to(valor: str, type_str: str):
 def hrt_type_hex_from(valor, type_str: str) -> str:
     t = type_str.upper()
     if t == 'UINT':
-        return _hrt_type_uint2_hex(valor)
+        return _hrt_type_uint2_hex(int(valor))
     elif t in ['SREAL', 'FLOAT']:
-        return _hrt_type_sreal2_hex(valor)
+        return _hrt_type_sreal2_hex(float(valor))
     elif t == 'DATE':
         return _hrt_type_date2_hex(valor)
     elif t == 'TIME':
         return _hrt_type_time2_hex(valor)
     elif t == 'INT':
-        return _hrt_type_int2_hex(valor)
+        return _hrt_type_int2_hex(int(valor))
     elif t in ['PASCII', 'PACKED_ASCII']:
         return _hrt_type_pascii2_hex(valor)
     else:

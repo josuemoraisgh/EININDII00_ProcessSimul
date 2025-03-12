@@ -39,7 +39,7 @@ class HrtData(HrtStorage):
             if machineValue:
                 return super().set_variable(id_variable, instrument, str(value))
             else:
-                return super().set_variable(id_variable, instrument, hrt_type_hex_from(value, super().get_variable(id_variable, "Tipo")))
+                return super().set_variable(id_variable, instrument, hrt_type_hex_from(value, super().get_variable(id_variable, "TYPE")))
         
     def _evaluate_expression(self, func: str, id_variable: str, instrument: str, machineValue: bool = True) -> Union[float, str]:
         evaluator = Interpreter()
@@ -66,7 +66,7 @@ class HrtData(HrtStorage):
 
 # Exemplo de uso
 if __name__ == '__main__':
-    hrtData = HrtData('dados.xls')
+    hrtData = HrtData('dados.xlsx')
 
     # Definir variável para o instrumento TIT100
     for key in hrtData.keys():

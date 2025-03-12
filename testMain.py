@@ -44,7 +44,9 @@ class ExcelTable(QMainWindow, Ui_MainWindow):
                     widget = QLineEdit()
                     widget.setStyleSheet("QLineEdit { background-color: white;}")
                     widget.setText(cell_value)
-                    widget.editingFinished.connect(lambda w=widget, r=row, c=col: self.hrt_data.set_variable_with_pos(w.text(), r, c, machineValue= c <= 2))
+                    widget.editingFinished.connect(lambda w=widget, r=row, c=col: 
+                        self.hrt_data.set_variable_with_pos(w.text(), r, c, machineValue= c <= 2)
+                    )
                     self.tableWidget.setCellWidget(row, col, widget)
 
                 elif col > 2 and row_type == 1:
@@ -55,7 +57,9 @@ class ExcelTable(QMainWindow, Ui_MainWindow):
                         dados = list(hrt_bitEnum[int(widget_row_types[row][8:])].values())
                     widget.addItems(dados)
                     widget.setCurrentText(cell_value)
-                    widget.currentIndexChanged.connect(lambda _, w=widget, r=row, c=col: self.hrt_data.set_variable_with_pos(w.currentText(), r, c, machineValue= c <= 2))
+                    widget.currentIndexChanged.connect(lambda _, w=widget, r=row, c=col: 
+                        self.hrt_data.set_variable_with_pos(w.currentText(), r, c, machineValue= c <= 2)
+                    )
                     self.tableWidget.setCellWidget(row, col, widget)
                 
                 else:
@@ -71,7 +75,7 @@ class ExcelTable(QMainWindow, Ui_MainWindow):
         
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    hrt_data = HrtData('dados.xls')
+    hrt_data = HrtData('dados.xlsx')
     window = ExcelTable(hrt_data)
     window.show()
 

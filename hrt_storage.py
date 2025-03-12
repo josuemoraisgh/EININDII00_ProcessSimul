@@ -77,7 +77,7 @@ class HrtStorage(QObject):
 
 # Exemplo de uso
 if __name__ == '__main__':
-    storage = HrtStorage('dados.xls')
+    storage = HrtStorage('dados.xlsx')
 
     # Definir variável para o instrumento LD301
     storage.set_variable('response_code', 'TI100', '4.0')
