@@ -23,12 +23,7 @@ class HrtStorage(QObject):
     def save_data(self):
         """Escreve os dados de volta ao arquivo Excel."""
         self.df.to_excel(self.caminho_excel, index=False)
-        self.data_updated.emit()  # Emite o sinal de atualização 
-        
-    def set_pos_datframe(self, row, col, value):
-        """Atualiza o DataFrame quando a célula for alterada."""
-        self.df.iloc[row, col] = value
-        self.save_data()  # Salva automaticamente no Excel               
+        self.data_updated.emit()  # Emite o sinal de atualização              
         
     def keys(self):
         return self.df['NAME'].tolist()

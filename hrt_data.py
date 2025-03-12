@@ -1,23 +1,24 @@
-from hrt_storage import HrtStorage  # Assuming hrt_storage.py exists
+from hrt_storage_sqlite import HrtStorage  # Assuming hrt_storage.py exists
 from hrt_type import hrt_type_hex_to, hrt_type_hex_from  # Assuming hrt_type.py exists
 from hrt_settings import hrt_settings
 from asteval import Interpreter
 from typing import Union
 import re
 class HrtData(HrtStorage):
-    def __init__(self, caminho_excel: str):
-        super().__init__(caminho_excel)  # 🔥 Chama o construtor da classe Pai
+    def __init__(self):
+        super().__init__('banco.db', 'hrt_tabela')  # 🔥 Chama o construtor da classe Pai quando sqlite
+        # super().__init__('dados.xls')  # 🔥 Chama o construtor da classe Pai quando xlsx
         
     def keys(self):
         return super().keys()
 
     def get_variable_with_pos(self, row: int, col: int, machineValue: bool = True):
         """Atualiza o DataFrame quando a célula for alterada."""
-        return self.get_variable(self.df.iloc[row, 0], self.df.keys()[col], machineValue)
+        return self.get_variable(self.get_dataframe().iloc[row, 0], self.keys()[col], machineValue)
    
     def set_variable_with_pos(self, value, row: int, col: int, machineValue: bool = True):
         """Atualiza o DataFrame quando a célula for alterada."""
-        return self.set_variable(value, self.df.iloc[row, 0], self.df.keys()[col], machineValue)
+        return self.set_variable(value, self.get_dataframe().iloc[row, 0], self.keys()[col], machineValue)
 
     def get_variable(self, id_variable: str, instrument: str, machineValue: bool = True):
         if id_variable == instrument or instrument == 'NAME':
@@ -66,7 +67,7 @@ class HrtData(HrtStorage):
 
 # Exemplo de uso
 if __name__ == '__main__':
-    hrtData = HrtData('dados.xlsx')
+    hrtData = HrtData()
 
     # Definir variável para o instrumento TIT100
     for key in hrtData.keys():
