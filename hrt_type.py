@@ -122,7 +122,7 @@ def hrt_type_hex_to(valor: str, type_str: str):
     t = type_str.upper()
     if t == 'UINT':
         return _hrt_type_hex2_uint(valor)
-    elif t == 'SREAL':
+    elif t in ['SREAL', 'FLOAT']:
         return _hrt_type_hex2_sreal(valor)
     elif t == 'DATE':
         return _hrt_type_hex2_date(valor)
@@ -139,7 +139,7 @@ def hrt_type_hex_from(valor, type_str: str) -> str:
     t = type_str.upper()
     if t == 'UINT':
         return _hrt_type_uint2_hex(valor)
-    elif t == 'SREAL':
+    elif t in ['SREAL', 'FLOAT']:
         return _hrt_type_sreal2_hex(valor)
     elif t == 'DATE':
         return _hrt_type_date2_hex(valor)

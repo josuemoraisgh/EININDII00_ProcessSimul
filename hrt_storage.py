@@ -1,6 +1,6 @@
-import pandas as pd
 from functools import reduce
 from PySide6.QtCore import Signal, QObject
+import pandas as pd
 import operator
 
 class HrtStorage(QObject):
@@ -10,10 +10,11 @@ class HrtStorage(QObject):
         super().__init__()  # 🔥 Inicializa QObject explicitamente        
         self.caminho_excel = caminho_excel
         try:
-            self.df = pd.read_excel(self.caminho_excel)
+            self.df = pd.read_excel(self.caminho_excel, skiprows=2) # , usecols=lambda x: x not in ['A']
+            self.df = self.df.iloc[:, 1:]
         except FileNotFoundError:
             # Se o arquivo não existir, cria uma tabela vazia
-            self.df = pd.DataFrame(columns=["Variavel", "Tipo", "Tamanho", "TIT100"])
+            self.df = pd.DataFrame(columns=["NAME", "BYTE_SIZE", "TYPE", "TIT100"])
             self.save_data()
     
     def get_dataframe(self):
@@ -30,7 +31,7 @@ class HrtStorage(QObject):
         self.save_data()  # Salva automaticamente no Excel               
         
     def keys(self):
-        return self.df['Variavel'].tolist()
+        return self.df['NAME'].tolist()
     
     def get_variable(self, id_variable: str, column: str) -> str:
         # Identifica o operador bitwise e separa as variáveis
@@ -46,11 +47,9 @@ class HrtStorage(QObject):
 
         # Função para obter o valor de uma variável
         def get_value(var: str) -> str:
-            row = self.df.loc[self.df['Variavel'] == var]
+            row = self.df.loc[self.df['NAME'] == var]
             if not row.empty and column in row.columns:
-                value = row.iloc[0][column]
-                if not value.startswith('@'):
-                    return int(value,base=16)
+                return row.iloc[0][column]
             return None
 
         # Obtém os valores das variáveis
@@ -68,21 +67,21 @@ class HrtStorage(QObject):
             return str(values[0])
         
     def set_variable(self, id_variable: str, column: str, value: str):
-        if id_variable in self.df['Variavel'].values:
-            self.df.loc[self.df['Variavel'] == id_variable, column] = value
+        if id_variable in self.df['NAME'].values:
+            self.df.loc[self.df['NAME'] == id_variable, column] = value
         else:
-            new_row = pd.DataFrame({'Variavel': [id_variable], column: [value]})
+            new_row = pd.DataFrame({'NAME': [id_variable], column: [value]})
             self.df = pd.concat([self.df, new_row], ignore_index=True)
         self.save_data()    
         
 
 # Exemplo de uso
 if __name__ == '__main__':
-    storage = HrtStorage('dados.xlsx')
+    storage = HrtStorage('dados.xls')
 
     # Definir variável para o instrumento LD301
     storage.set_variable('response_code', 'TI100', '4.0')
 
     # Obter variável do instrumento LD301
-    valor = storage.get_variable('tag', 'PI100')
+    valor = storage.get_variable('tag', 'TI100')
     print(f"Valor obtido para 'input_value' em LD301: {valor}")
