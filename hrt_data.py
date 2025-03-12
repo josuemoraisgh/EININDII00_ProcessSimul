@@ -69,15 +69,16 @@ class HrtData(HrtStorage):
 # Exemplo de uso
 if __name__ == '__main__':
     hrtData = HrtData()
-
+    hrtData.data_updated.connect(lambda: print("Dados foram atualizados!"))
     # Definir variável para o instrumento TIT100
-    for key in hrtData.keys():
-        try:
-            hrtData.set_variable(hrt_settings[key][1], key, "TYPE", machineValue=True)
-            hrtData.set_variable(hrt_settings[key][2], key, "TIT100", machineValue=True)
-        except Exception as e:
-            print(f"An error occurred: {e}")
-        
+    # for key in hrtData.keys():
+    #     try:
+    #         hrtData.set_variable(hrt_settings[key][1], key, "TYPE", machineValue=True)
+    #         hrtData.set_variable(hrt_settings[key][2], key, "TIT100", machineValue=True)
+    #     except Exception as e:
+    #         print(f"An error occurred: {e}")
+        # Definir variável para o instrumento LD301
+    hrtData.set_variable('4.0', 'PROCESS_VARIABLE', 'TIT100', machineValue=False)
     # Definir variável para o instrumento TIT100
-    valor = hrtData.get_variable('tag', "TIT100")
-    print(f"Valor obtido para 'input_value' em LD301: {valor}")
+    valor = hrtData.get_variable('PROCESS_VARIABLE', "TIT100", machineValue=False)
+    print(f"Valor obtido para 'PROCESS_VARIABLE' em LD301: {valor}")

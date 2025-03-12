@@ -90,6 +90,6 @@ if __name__ == '__main__':
     storage = HrtStorage('banco.db', 'minha_tabela')
     storage.data_updated.connect(lambda: print("Dados foram atualizados!"))
     
-    storage.set_variable('response_code', 'TIT100', '4.0')
-    valor = storage.get_variable('response_code', 'TIT100')
-    print(f"Valor obtido para 'response_code' em TIT100: {valor}")
+    storage.set_variable('PROCESS_VARIABLE', 'TIT100', '42480000')
+    valor = storage.get_variable('PROCESS_VARIABLE', 'TIT100')
+    print(f"Valor obtido para 'PROCESS_VARIABLE' em TIT100: {valor}")

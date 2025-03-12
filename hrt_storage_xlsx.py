@@ -74,10 +74,8 @@ class HrtStorage(QObject):
 # Exemplo de uso
 if __name__ == '__main__':
     storage = HrtStorage('dados.xlsx')
-
-    # Definir variável para o instrumento LD301
-    storage.set_variable('response_code', 'TI100', '4.0')
-
-    # Obter variável do instrumento LD301
-    valor = storage.get_variable('tag', 'TI100')
-    print(f"Valor obtido para 'input_value' em LD301: {valor}")
+    storage.data_updated.connect(lambda: print("Dados foram atualizados!"))
+    
+    storage.set_variable('PROCESS_VARIABLE', 'TIT100', '42480000')
+    valor = storage.get_variable('PROCESS_VARIABLE', 'TIT100')
+    print(f"Valor obtido para 'PROCESS_VARIABLE' em TIT100: {valor}")
