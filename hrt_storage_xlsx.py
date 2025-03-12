@@ -10,8 +10,9 @@ class HrtStorage(QObject):
         super().__init__()  # 🔥 Inicializa QObject explicitamente        
         self.caminho_excel = caminho_excel
         try:
-            self.df = pd.read_excel(self.caminho_excel, skiprows=2) # , usecols=lambda x: x not in ['A']
-            self.df = self.df.iloc[:, 1:]
+            #self.df = pd.read_excel(self.caminho_excel, skiprows=2) # , usecols=lambda x: x not in ['A']
+            #self.df = self.df.iloc[:, 1:]
+            self.df = pd.read_excel(self.caminho_excel)
         except FileNotFoundError:
             # Se o arquivo não existir, cria uma tabela vazia
             self.df = pd.DataFrame(columns=["NAME", "BYTE_SIZE", "TYPE", "TIT100"])
@@ -26,7 +27,7 @@ class HrtStorage(QObject):
         self.data_updated.emit()  # Emite o sinal de atualização              
         
     def keys(self):
-        return self.df['NAME'].tolist()
+        return self.df.columns
     
     def get_variable(self, id_variable: str, column: str) -> str:
         # Identifica o operador bitwise e separa as variáveis
