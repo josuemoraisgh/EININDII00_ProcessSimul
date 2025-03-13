@@ -2,7 +2,6 @@ from PySide6.QtWidgets import QTableWidget, QLineEdit, QComboBox, QTableWidgetIt
 from PySide6.QtGui import QColor
 from PySide6.QtCore import Qt
 from functools import partial
-from uis.ui_main import Ui_MainWindow  # Interface do Qt Designer
 from hrt.hrt_data import HrtData
 from hrt.hrt_enum import hrt_enum
 from hrt.hrt_bitenum import hrt_bitEnum
