@@ -1,6 +1,6 @@
 import serial
 from typing import List, Optional, Callable
-from comm_serial import CommSerial
+from conn.comm_serial import CommSerial
 
 class HrtComm:
     def __init__(self, port: Optional[str] = None, func_read: Optional[Callable[[str], None]] = None):

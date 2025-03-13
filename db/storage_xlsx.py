@@ -3,7 +3,7 @@ from PySide6.QtCore import Signal, QObject
 import pandas as pd
 import operator
 
-class HrtStorage(QObject):
+class Storage(QObject):
     data_updated = Signal()  # 🔥 Declarando o sinal corretamente
     
     def __init__(self, caminho_excel: str):
@@ -73,7 +73,7 @@ class HrtStorage(QObject):
 
 # Exemplo de uso
 if __name__ == '__main__':
-    storage = HrtStorage('dados.xlsx')
+    storage = Storage('dados.xlsx')
     storage.data_updated.connect(lambda: print("Dados foram atualizados!"))
     
     storage.set_variable('PROCESS_VARIABLE', 'TIT100', '42480000')

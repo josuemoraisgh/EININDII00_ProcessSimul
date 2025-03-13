@@ -1,7 +1,7 @@
-# from hrt_storage_sqlite import HrtStorage  # Assuming hrt_storage.py exists
-from hrt_storage_xlsx import HrtStorage  # Assuming hrt_storage.py exists
+# from db.storage_sqlite import HrtStorage  # Assuming hrt_storage.py exists
+from db.storage_xlsx import HrtStorage  # Assuming hrt_storage.py exists
 from hrt_type import hrt_type_hex_to, hrt_type_hex_from  # Assuming hrt_type.py exists
-from hrt_settings import hrt_settings
+from hrt.old.hrt_settings import hrt_settings
 from asteval import Interpreter
 from typing import Union
 import re
