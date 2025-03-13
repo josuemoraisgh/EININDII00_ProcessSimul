@@ -120,7 +120,7 @@ def _hrt_type_time2_hex(valor: datetime) -> str:
 # Funções principais
 def hrt_type_hex_to(valor: str, type_str: str):
     t = type_str.upper()
-    if t == 'UINT':
+    if t in ['UINT', 'UNSIGNED']:
         return _hrt_type_hex2_uint(valor)
     elif t in ['SREAL', 'FLOAT']:
         return _hrt_type_hex2_sreal(valor)
@@ -137,7 +137,7 @@ def hrt_type_hex_to(valor: str, type_str: str):
 
 def hrt_type_hex_from(valor, type_str: str) -> str:
     t = type_str.upper()
-    if t == 'UINT':
+    if t in ['UINT', 'UNSIGNED']:
         return _hrt_type_uint2_hex(int(valor))
     elif t in ['SREAL', 'FLOAT']:
         return _hrt_type_sreal2_hex(float(valor))
