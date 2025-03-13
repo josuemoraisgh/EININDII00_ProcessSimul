@@ -1,8 +1,8 @@
-import math
 from datetime import date, time, datetime
 from hrt.hrt_enum import hrt_enum
 from hrt.hrt_bitenum import hrt_bitEnum
 import unittest
+import math
 
 # Funções auxiliares para manipulação de bits
 def get_bits(value: int, start: int, count: int) -> int:
@@ -18,6 +18,12 @@ def set_bits(value: int, start: int, count: int, new_value: int) -> int:
 def split_by_length(s: str, n: int) -> list:
     return [s[i:i+n] for i in range(0, len(s), n)]
 
+def to_signed_16(value):
+    value &= 0xFFFF  # Garante que o valor esteja dentro de 16 bits
+    if value >= 0x8000:  # Se o bit mais significativo estiver definido, é um número negativo
+        value -= 0x10000
+    return value
+
 # Funções de conversão de HEX para os tipos
 def _hrt_type_hex2_uint(str_uint: str) -> int:
     if not str_uint:
@@ -32,7 +38,7 @@ def _hrt_type_hex2_int(str_int: str) -> int:
     if len(str_int) > 4:
         raise ValueError("Função _hrt_type_hex2_int recebeu hex com mais de 4 caracteres")
     val = int(str_int, 16)
-    return val - 0x10000 if val >= 0x8000 else val
+    return to_signed_16(val)
 
 def _hrt_type_hex2_sreal(str_float: str) -> float:
     number = int(str_float, 16)
@@ -121,7 +127,7 @@ def _hrt_type_time2_hex(valor: datetime) -> str:
 def hrt_type_hex_to(valor: str, type_str: str):
     t = type_str.upper()
     if t in ['UINT', 'UNSIGNED']:
-        return _hrt_type_hex2_uint(valor)
+        return ''.join(map(_hrt_type_hex2_uint, split_by_length(valor, 2)))
     elif t in ['SREAL', 'FLOAT']:
         return _hrt_type_hex2_sreal(valor)
     elif t == 'DATE':
@@ -264,3 +270,10 @@ class TestHrtType(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+    def processar_valor(valor):
+        return ''.join(map(_hrt_type_hex2_uint, split_by_length(valor, 2)))
+
+    # Exemplo de uso:
+    valor = "1A2B3C4D"
+    resultado = processar_valor(valor)
+    print(resultado)
