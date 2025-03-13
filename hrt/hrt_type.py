@@ -3,8 +3,11 @@ from hrt.hrt_enum import hrt_enum
 from hrt.hrt_bitenum import hrt_bitEnum
 import unittest
 import math
-
+###################################################################################
+###################################################################################
 # Funções auxiliares para manipulação de bits
+###################################################################################
+###################################################################################
 def get_bits(value: int, start: int, count: int) -> int:
     mask = (1 << count) - 1
     return (value >> start) & mask
@@ -23,8 +26,11 @@ def to_signed_16(value):
     if value >= 0x8000:  # Se o bit mais significativo estiver definido, é um número negativo
         value -= 0x10000
     return value
-
+###################################################################################
+###################################################################################
 # Funções de conversão de HEX para os tipos
+###################################################################################
+###################################################################################
 def _hrt_type_hex2_uint(str_uint: str) -> int:
     if not str_uint:
         raise ValueError("Função _hrt_type_hex2_uint recebeu string vazia")
@@ -83,53 +89,36 @@ def _hrt_type_hex2_time(valor: str) -> datetime:
     milliseconds = int(total_ms % 1000)
     return datetime(1900, 1, 1, hours, minutes, seconds, milliseconds * 1000)
 
-# Funções de conversão dos tipos para HEX
-def _hrt_type_uint2_hex(u_int: int) -> str:
-    if u_int > 65535:
-        raise ValueError("Valor acima do limite máximo")
-    return format(u_int, '04X')
-
-def _hrt_type_int2_hex(i_val: int) -> str:
-    if not (-32768 <= i_val <= 65535):
-        raise ValueError("Valor fora do intervalo permitido")
-    if i_val < 0:
-        i_val = (i_val + (1 << 16)) % (1 << 16)
-    return format(i_val, '04X')
-
-def _hrt_type_sreal2_hex(valor_float: float) -> str:
-    bits_array = 0
-    if valor_float < 0:
-        bits_array = set_bits(bits_array, 31, 1, 1)
-        valor_float = -valor_float
-    e = 127 + math.floor(math.log(valor_float, 2))
-    bits_array = set_bits(bits_array, 23, 8, e)
-    f = math.floor(((valor_float / (2 ** (e - 127))) - 1) * 8388608)
-    bits_array = set_bits(bits_array, 0, 23, f)
-    return format(bits_array, '08x').lower()
-
-def _hrt_type_pascii2_hex(valor: str) -> str:
-    encoded_values = [ord(c) for c in valor]
-    binary_values = [bin(get_bits(e, 0, 6))[2:].zfill(6) for e in encoded_values]
-    binary_str = ''.join(binary_values).zfill((6*len(encoded_values))+8-(6*len(encoded_values))%8)
-    eight_bit_chunks = split_by_length(binary_str, 8)
-    hex_str = ''.join(f"{int(chunk, 2):02X}" for chunk in eight_bit_chunks)
-    return hex_str
-
-def _hrt_type_date2_hex(valor: date) -> str:
-    return f"{valor.day:02X}{valor.month:02X}{valor.year - 1900:02X}"
-
-def _hrt_type_time2_hex(valor: datetime) -> str:
-    total_ms = valor.hour * 3600000 + valor.minute * 60000 + valor.second * 1000 + int(valor.microsecond / 1000)
-    aux = int(total_ms / 0.03125)
-    return f"{(aux >> 24) & 0xFF:02X}{(aux >> 16) & 0xFF:02X}{(aux >> 8) & 0xFF:02X}{aux & 0xFF:02X}"
+def encontrar_valor_no_dicionario(dicionario, valor):
+    """
+    Varre um dicionário e verifica se a chave é igual ao valor ou,
+    caso a chave contenha um intervalo (A-B), verifica se o valor está na faixa.
+    
+    :param dicionario: Dicionário onde as chaves podem ser valores únicos ou intervalos (ex: "F0-F9")
+    :param valor: O valor hexadecimal a ser buscado (ex: "F1")
+    :return: O valor correspondente à chave encontrada, ou None se não encontrar.
+    """
+    for chave, v in dicionario.items():
+        if "-" in chave:  # Se a chave for um intervalo (ex: "F0-F9")
+            inicio, fim = chave.split("-")  # Divide o intervalo
+            if int(inicio, 16) <= int(valor, 16) <= int(fim, 16):  # Converte para int e verifica a faixa
+                return v  # Retorna o valor correspondente
+        elif int(chave, 16) == int(valor, 16):  # Se for uma correspondência exata
+            return v
+    
+    return None  # Se não encontrar, retorna None
 
 # Funções principais
 def hrt_type_hex_to(valor: str, type_str: str):
     t = type_str.upper()
     if t in ['UINT', 'UNSIGNED']:
-        return ''.join(map(_hrt_type_hex2_uint, split_by_length(valor, 2)))
+        return int(''.join(str(_hrt_type_hex2_uint(e)) for e in split_by_length(valor, 2)))
     elif t in ['SREAL', 'FLOAT']:
         return _hrt_type_hex2_sreal(valor)
+    elif t[:4] == "ENUM":
+        return encontrar_valor_no_dicionario(hrt_enum[int(t[4:])],valor)
+    elif t[:4] == "BIT_":
+        return hrt_bitEnum[int(t[4:])][int(valor,16)]   
     elif t == 'DATE':
         return _hrt_type_hex2_date(valor)
     elif t == 'TIME':
@@ -140,21 +129,69 @@ def hrt_type_hex_to(valor: str, type_str: str):
         return _hrt_type_hex2_pascii(valor)
     else:
         return "INVALID TYPE"
+###################################################################################
+###################################################################################
+# Funções de conversão dos tipos para HEX
+###################################################################################
+###################################################################################
+def _hrt_type_uint2_hex(u_int: int, byte_size: int) -> str:
+    if u_int > 65535:
+        raise ValueError("Valor acima do limite máximo")
+    return format(u_int, f'0{2*byte_size}X')
 
-def hrt_type_hex_from(valor, type_str: str) -> str:
+def _hrt_type_int2_hex(i_val: int, byte_size: int) -> str:
+    if not (-32768 <= i_val <= 65535):
+        raise ValueError("Valor fora do intervalo permitido")
+    if i_val < 0:
+        i_val = (i_val + (1 << 16)) % (1 << 16)
+    return format(i_val, f'0{2*byte_size}X')
+
+def _hrt_type_sreal2_hex(valor_float: float, byte_size: int) -> str:
+    bits_array = 0
+    if valor_float < 0:
+        bits_array = set_bits(bits_array, 31, 1, 1)
+        valor_float = -valor_float
+    e = 127 + math.floor(math.log(valor_float, 2))
+    bits_array = set_bits(bits_array, 23, 8, e)
+    f = math.floor(((valor_float / (2 ** (e - 127))) - 1) * 8388608)
+    bits_array = set_bits(bits_array, 0, 23, f)
+    return format(bits_array, f'0{2*byte_size}X').lower()
+
+def _hrt_type_pascii2_hex(valor: str, byte_size: int) -> str:
+    encoded_values = [ord(c) for c in valor]
+    binary_values = [bin(get_bits(e, 0, 6))[2:].zfill(6) for e in encoded_values]
+    binary_str = ''.join(binary_values).zfill((6*len(encoded_values))+8-(6*len(encoded_values))%8)
+    eight_bit_chunks = split_by_length(binary_str, 8)
+    hex_str = ''.join(f"{int(chunk, 2):02X}" for chunk in eight_bit_chunks)
+    return hex_str.zfill(2*byte_size)
+
+def _hrt_type_date2_hex(valor: date, byte_size: int) -> str:
+    return f"{valor.day:02X}{valor.month:02X}{valor.year - 1900:02X}".zfill(2*byte_size)
+
+def _hrt_type_time2_hex(valor: datetime, byte_size: int) -> str:
+    total_ms = valor.hour * 3600000 + valor.minute * 60000 + valor.second * 1000 + int(valor.microsecond / 1000)
+    aux = int(total_ms / 0.03125)
+    return f"{(aux >> 24) & 0xFF:02X}{(aux >> 16) & 0xFF:02X}{(aux >> 8) & 0xFF:02X}{aux & 0xFF:02X}".zfill(2*byte_size)
+
+
+def hrt_type_hex_from(valor, type_str: str, byte_size: int) -> str:
     t = type_str.upper()
     if t in ['UINT', 'UNSIGNED']:
-        return _hrt_type_uint2_hex(int(valor))
+        return _hrt_type_uint2_hex(int(valor), byte_size)
     elif t in ['SREAL', 'FLOAT']:
-        return _hrt_type_sreal2_hex(float(valor))
+        return _hrt_type_sreal2_hex(float(valor), byte_size)
+    elif t[:4] == "ENUM":
+        return next((k for k, v in hrt_enum[int(t[4:])].items() if v == valor), None)        
+    elif t[:4] == "BIT_":
+        return next((k for k, v in hrt_bitEnum[int(t[4:])].items() if v == valor), None)         
     elif t == 'DATE':
-        return _hrt_type_date2_hex(valor)
+        return _hrt_type_date2_hex(valor, byte_size)
     elif t == 'TIME':
-        return _hrt_type_time2_hex(valor)
+        return _hrt_type_time2_hex(valor, byte_size)
     elif t == 'INT':
-        return _hrt_type_int2_hex(int(valor))
+        return _hrt_type_int2_hex(int(valor), byte_size)    
     elif t in ['PASCII', 'PACKED_ASCII']:
-        return _hrt_type_pascii2_hex(valor)
+        return _hrt_type_pascii2_hex(valor, byte_size)    
     else:
         return "INVALID TYPE"
 
@@ -192,7 +229,7 @@ class TestHrtType(unittest.TestCase):
     # Teste para data
     def test_valor_date_para_hex_12032024(self):
         valor_date = datetime(2024, 3, 12)
-        resultado = hrt_type_hex_from(valor_date, 'Date')
+        resultado = hrt_type_hex_from(valor_date, 'Date', 3)
         self.assertEqual(resultado, '0C037C')
 
     def test_valor_hex_para_date_12032024(self):
@@ -203,7 +240,7 @@ class TestHrtType(unittest.TestCase):
     # Teste para PASCII
     def test_transmissor_para_hex(self):
         valor = 'TRANSMISSOR DE TEMPERATURA'
-        self.assertEqual(hrt_type_hex_from(valor, 'PAscii'), '051204E4CD2534CF4A010581414D405481515481')
+        self.assertEqual(hrt_type_hex_from(valor, 'PAscii', 20), '051204E4CD2534CF4A010581414D405481515481')
      
     def test_transmissor_para_hex(self):
         valor_hex = '051204E4CD2534CF4A010581414D405481515481' 
@@ -211,7 +248,7 @@ class TestHrtType(unittest.TestCase):
                     
     def test_abacate_para_hex(self):
         valor = 'ABACATE'
-        self.assertEqual(hrt_type_hex_from(valor, 'PAscii'), '0010810C1505')
+        self.assertEqual(hrt_type_hex_from(valor, 'PAscii', 6), '0010810C1505')
 
     def test_hex_para_abacate(self):
         valor_hex = '0010810C1505'
@@ -220,7 +257,7 @@ class TestHrtType(unittest.TestCase):
     # Teste para SREAL
     def test_double_para_hex(self):
         valor = 1.4861602783203125
-        self.assertEqual(hrt_type_hex_from(valor, 'SReal'), '3fbe3a80')
+        self.assertEqual(hrt_type_hex_from(valor, 'SReal', 4), '3fbe3a80')
 
     def test_hex_para_double(self):
         valor_hex = '3FBE3A80'
@@ -229,7 +266,7 @@ class TestHrtType(unittest.TestCase):
     # Teste para TIME
     def test_datetime_para_hex(self):
         valor = datetime.strptime('1900-01-01 00:23:18.526', '%Y-%m-%d %H:%M:%S.%f')
-        self.assertEqual(hrt_type_hex_from(valor, 'Time'), '02AADFC0')
+        self.assertEqual(hrt_type_hex_from(valor, 'Time', 4), '02AADFC0')
 
     def test_hex_para_datetime(self):
         valor_esperado = datetime.strptime('1900-01-01 00:23:18.526', '%Y-%m-%d %H:%M:%S.%f')
@@ -239,11 +276,11 @@ class TestHrtType(unittest.TestCase):
     def test_int_maior_65535_deve_erro(self):
         valor_int = 65536
         with self.assertRaises(ValueError):
-            hrt_type_hex_from(valor_int, 'UInt')
+            hrt_type_hex_from(valor_int, 'UInt', 1)
 
     def test_int_para_hex(self):
         valor_int = 255
-        self.assertEqual(hrt_type_hex_from(valor_int, 'UInt'), '00FF')
+        self.assertEqual(hrt_type_hex_from(valor_int, 'UInt', 2), '00FF')
 
     def test_hex_vazio_deve_erro(self):
         valor_hex = ''

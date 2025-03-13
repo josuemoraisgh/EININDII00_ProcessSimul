@@ -41,7 +41,7 @@ class HrtData(Storage):
             if machineValue:
                 return super().set_variable(id_variable, instrument, str(value))
             else:
-                return super().set_variable(id_variable, instrument, hrt_type_hex_from(value, super().get_variable(id_variable, "TYPE")))
+                return super().set_variable(id_variable, instrument, hrt_type_hex_from(value, super().get_variable(id_variable, "TYPE"), int(super().get_variable(id_variable, "BYTE_SIZE"))))
         
     def _evaluate_expression(self, func: str, id_variable: str, instrument: str, machineValue: bool = True) -> Union[float, str]:
         evaluator = Interpreter()
@@ -57,7 +57,7 @@ class HrtData(Storage):
             if not machineValue:
                 return result
             else:
-                return hrt_type_hex_from(result, super().get_variable(id_variable, "TYPE")).zfill(super().get_variable(id_variable, "BYTE_SIZE"))
+                return hrt_type_hex_from(result, super().get_variable(id_variable, "TYPE")).zfill(super().get_variable(id_variable, "BYTE_SIZE"), int(super().get_variable(id_variable, "BYTE_SIZE")))
         except Exception as e:
             print("Erro ao avaliar expressão:", e)
             if not machineValue:
