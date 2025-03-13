@@ -17,13 +17,16 @@
    <layout class="QHBoxLayout" name="horizontalLayout">
     <item>
      <widget class="QTabWidget" name="tabWidget">
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
       <widget class="QWidget" name="BDados">
        <attribute name="title">
         <string>Tab 1</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
-         <widget class="QTableWidget" name="tableWidget"/>
+         <widget class="QWidget" name="oldTableWidget" native="true"/>
         </item>
        </layout>
       </widget>
@@ -31,6 +34,11 @@
        <attribute name="title">
         <string>Tab 2</string>
        </attribute>
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <widget class="QWidget" name="oldOpenGLWidget" native="true"/>
+        </item>
+       </layout>
       </widget>
      </widget>
     </item>

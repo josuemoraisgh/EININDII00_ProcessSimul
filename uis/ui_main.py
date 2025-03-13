@@ -15,9 +15,8 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QHBoxLayout, QHeaderView, QMainWindow,
-    QSizePolicy, QStatusBar, QTabWidget, QTableWidget,
-    QTableWidgetItem, QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QApplication, QHBoxLayout, QMainWindow, QSizePolicy,
+    QStatusBar, QTabWidget, QVBoxLayout, QWidget)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -34,14 +33,21 @@ class Ui_MainWindow(object):
         self.BDados.setObjectName(u"BDados")
         self.verticalLayout = QVBoxLayout(self.BDados)
         self.verticalLayout.setObjectName(u"verticalLayout")
-        self.tableWidget = QTableWidget(self.BDados)
-        self.tableWidget.setObjectName(u"tableWidget")
+        self.oldTableWidget = QWidget(self.BDados)
+        self.oldTableWidget.setObjectName(u"oldTableWidget")
 
-        self.verticalLayout.addWidget(self.tableWidget)
+        self.verticalLayout.addWidget(self.oldTableWidget)
 
         self.tabWidget.addTab(self.BDados, "")
         self.CtrlNivel = QWidget()
         self.CtrlNivel.setObjectName(u"CtrlNivel")
+        self.horizontalLayout_2 = QHBoxLayout(self.CtrlNivel)
+        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
+        self.oldOpenGLWidget = QWidget(self.CtrlNivel)
+        self.oldOpenGLWidget.setObjectName(u"oldOpenGLWidget")
+
+        self.horizontalLayout_2.addWidget(self.oldOpenGLWidget)
+
         self.tabWidget.addTab(self.CtrlNivel, "")
 
         self.horizontalLayout.addWidget(self.tabWidget)
@@ -52,6 +58,9 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
 
         self.retranslateUi(MainWindow)
+
+        self.tabWidget.setCurrentIndex(0)
+
 
         QMetaObject.connectSlotsByName(MainWindow)
     # setupUi

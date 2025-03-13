@@ -7,4 +7,7 @@ CALL pip install control
 CALL pip install pyside6
 CALL pip install openpyxl
 CALL pip install xlrd
+CALL pip install PyOpenGL 
+CALL pip install PyOpenGL-accelerate
+
 @REM pyside6-uic main.ui -o ui_main.py
