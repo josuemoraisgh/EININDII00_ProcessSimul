@@ -11,9 +11,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         super().__init__()
         self.resize(800, 600)  # Defina o tamanho desejado
         self.setupUi(self)  # Configura a interface do Qt Designer        
-        self.oldTableWidget.setBaseData(hrt_data)
+        self.oldDBTableWidget.setBaseData(hrt_data)
         image_path = os.path.abspath("img/caldeira.jpg")
-        self.oldOpenGLWidget.setBackgroundImage(image_path)
+        self.oldCtrlGLWidget.setBackgroundImage(image_path)
         self.centralizar_janela()
 
     def centralizar_janela(self):

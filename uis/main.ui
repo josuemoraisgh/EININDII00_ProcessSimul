@@ -17,34 +17,18 @@
    <layout class="QHBoxLayout" name="horizontalLayout">
     <item>
      <widget class="QTabWidget" name="tabWidget">
-      <property name="accessibleName">
-       <string/>
-      </property>
-      <property name="tabShape">
-       <enum>QTabWidget::TabShape::Triangular</enum>
-      </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
-      <widget class="QWidget" name="BDados">
+      <widget class="DBTableWidget" name="oldDBTableWidget">
        <attribute name="title">
-        <string>BDados</string>
+        <string>DBase</string>
        </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout">
-        <item>
-         <widget class="DBTableWidget" name="oldTableWidget" native="true"/>
-        </item>
-       </layout>
       </widget>
-      <widget class="QWidget" name="CtrlNivel">
+      <widget class="CtrlGLWidget" name="oldCtrlGLWidget">
        <attribute name="title">
-        <string>CtrlNivel</string>
+        <string>CtrlNível</string>
        </attribute>
-       <layout class="QHBoxLayout" name="horizontalLayout_2">
-        <item>
-         <widget class="CtrlGLWidget" name="oldOpenGLWidget" native="true"/>
-        </item>
-       </layout>
       </widget>
      </widget>
     </item>
@@ -56,13 +40,13 @@
   <customwidget>
    <class>DBTableWidget</class>
    <extends>QWidget</extends>
-   <header location="global">dbtablewidget.h</header>
+   <header>dbtablewidget.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>CtrlGLWidget</class>
    <extends>QWidget</extends>
-   <header location="global">ctrlglwidget.h</header>
+   <header>ctrlglwidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

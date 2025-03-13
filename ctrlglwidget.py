@@ -8,10 +8,17 @@ class CtrlGLWidget(QOpenGLWidget):
         self.texture_id = None
         
     def setBackgroundImage(self, image_path: str):
+        """Define a imagem de fundo e agenda a atualização"""
         self.image_path = image_path
+        self.update()  # Força a renderização chamando `paintGL()`
+
+    def initializeGL(self):
+        """Configurações iniciais do OpenGL"""
         glEnable(GL_TEXTURE_2D)
         glClearColor(1, 1, 1, 1)  # Fundo branco
-        self.load_texture()
+
+        if self.image_path:  # Só carrega se a imagem já tiver sido definida
+            self.load_texture()
 
     def load_texture(self):
         """Carrega a imagem e a converte em textura OpenGL"""
