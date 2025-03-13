@@ -1,7 +1,7 @@
 import math
 from datetime import date, time, datetime
-from hrt_enum import hrt_enum
-from hrt_bitenum import hrt_bitEnum
+from hrt.hrt_enum import hrt_enum
+from hrt.hrt_bitenum import hrt_bitEnum
 import unittest
 
 # Funções auxiliares para manipulação de bits
