@@ -1,11 +1,6 @@
-from PySide6.QtWidgets import QApplication, QMainWindow, QLineEdit, QComboBox, QTableWidgetItem
-from PySide6.QtGui import QColor
-from PySide6.QtCore import Qt
-from functools import partial
+from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QLayout
 from uis.ui_main import Ui_MainWindow  # Interface do Qt Designer
 from hrt.hrt_data import HrtData
-from hrt.hrt_enum import hrt_enum
-from hrt.hrt_bitenum import hrt_bitEnum
 from abaData import DBTableWidget
 from abaNivel import ImageGLWidget
 import sys
@@ -22,7 +17,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.substituir_widget("oldOpenGLWidget", ImageGLWidget(image_path))          
         self.centralizar_janela()
 
-    def substituir_widget(self, widget_nome, novo_widget):
+    def substituir_widget(self, widget_nome: str, novo_widget: QWidget):
         """
         Substitui um widget existente na interface por um novo widget.
 
@@ -30,11 +25,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         :param novo_widget: Instância do novo widget que substituirá o original.
         """
         # 🔹 Encontrar o widget que será substituído
-        placeholder = getattr(self, widget_nome, None)
+        placeholder:QWidget = getattr(self, widget_nome, None)
 
         if placeholder:
             # Obter o layout do widget pai
-            parent_layout = placeholder.parentWidget().layout()
+            parent_layout: QLayout = placeholder.parentWidget().layout()
 
             if parent_layout:
                 # 🔹 Substituir o widget
