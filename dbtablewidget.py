@@ -7,8 +7,10 @@ from hrt.hrt_enum import hrt_enum
 from hrt.hrt_bitenum import hrt_bitEnum
 
 class DBTableWidget(QTableWidget):
-    def __init__(self, parent):
-        super().__init__(parent=parent)    
+    def __init__(self):
+    # def __init__(self, parent: None):
+        super().__init__() 
+        # super().__init__(parent=parent)
         
     def setBaseData(self, hrt_data: HrtData):
         self.hrt_data = hrt_data
@@ -70,11 +72,13 @@ class DBTableWidget(QTableWidget):
                     self.setCellWidget(row, col-1, widget)
                 
                 else:
-                    item = QTableWidgetItem(cell_value)
-                    item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEditable)  # Não editável
-                    item.setBackground(QColor("#D3D3D3"))  # Define fundo cinza claro
-                    self.setItem(row, col-1, item)
-                self.setColumnWidth(col-1, 100)
+                    widget = QTableWidgetItem()
+                    widget.setFlags(widget.flags() & ~Qt.ItemFlag.ItemIsEditable)  # Não editável
+                    widget.setBackground(QColor("#D3D3D3"))  # Define fundo cinza claro
+                    widget.setText(cell_value)
+                    self.setItem(row, col-1, widget)
+                    
+                self.setColumnWidth(col-1, 150)
 
         self.blockSignals(False)  # Libera sinais após a configuração da tabela
         self.viewport().update()  # Atualiza a interface

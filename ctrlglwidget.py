@@ -4,7 +4,9 @@ from OpenGL.GL import *
 
 class CtrlGLWidget(QOpenGLWidget):
     def __init__(self):
-        super().__init__()
+    # def __init__(self, parent: None):
+        super().__init__() 
+        # super().__init__(parent=parent)
         self.texture_id = None
         
     def setBackgroundImage(self, image_path: str):

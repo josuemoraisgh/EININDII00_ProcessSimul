@@ -1,6 +1,7 @@
 from datetime import date, time, datetime
 from hrt.hrt_enum import hrt_enum
 from hrt.hrt_bitenum import hrt_bitEnum
+from typing import Union
 import unittest
 import math
 ###################################################################################
@@ -165,8 +166,17 @@ def _hrt_type_pascii2_hex(valor: str, byte_size: int) -> str:
     hex_str = ''.join(f"{int(chunk, 2):02X}" for chunk in eight_bit_chunks)
     return hex_str.zfill(2*byte_size)
 
-def _hrt_type_date2_hex(valor: date, byte_size: int) -> str:
-    return f"{valor.day:02X}{valor.month:02X}{valor.year - 1900:02X}".zfill(2*byte_size)
+def _hrt_type_date2_hex(valor: Union[str, date], byte_size: int) -> str:
+    if type(valor) == str:
+        parts = valor.replace("-", "")
+        parts = split_by_length(parts, 2)
+        aux = [int(p) for p in parts]
+        if len(aux) < 3:
+            raise ValueError("Formato de DATE para hex incorreto")
+        resp = date(1900 + aux[2], aux[1], aux[0])
+    else: 
+        resp = valor
+    return f"{resp.day:02X}{resp.month:02X}{resp.year - 1900:02X}".zfill(2*byte_size)
 
 def _hrt_type_time2_hex(valor: datetime, byte_size: int) -> str:
     total_ms = valor.hour * 3600000 + valor.minute * 60000 + valor.second * 1000 + int(valor.microsecond / 1000)

@@ -34,7 +34,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout.setObjectName(u"horizontalLayout")
         self.tabWidget = QTabWidget(self.centralwidget)
         self.tabWidget.setObjectName(u"tabWidget")
-        self.tabdbase = QWidget()
+        self.tabdbase = DBTableWidget()
         self.tabdbase.setObjectName(u"tabdbase")
         self.verticalLayout_3 = QVBoxLayout(self.tabdbase)
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
@@ -62,15 +62,9 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_3.addLayout(self.horizontalLayout_3)
 
-        self.oldDBTableWidget = DBTableWidget(self.tabdbase)
-        self.oldDBTableWidget.setObjectName(u"oldDBTableWidget")
-        sizePolicy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Expanding)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.oldDBTableWidget.sizePolicy().hasHeightForWidth())
-        self.oldDBTableWidget.setSizePolicy(sizePolicy)
+        self.verticalSpacer_2 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
-        self.verticalLayout_3.addWidget(self.oldDBTableWidget)
+        self.verticalLayout_3.addItem(self.verticalSpacer_2)
 
         self.tabWidget.addTab(self.tabdbase, "")
         self.oldCtrlGLWidget = CtrlGLWidget()
@@ -160,7 +154,6 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
 
         self.retranslateUi(MainWindow)
-        self.radioButtonHrt.toggled.connect(self.oldDBTableWidget.changeType)
 
         self.tabWidget.setCurrentIndex(0)
 

@@ -20,7 +20,7 @@
       <property name="currentIndex">
        <number>0</number>
       </property>
-      <widget class="QWidget" name="tabdbase">
+      <widget class="DBTableWidget" name="oldDBTableWidget">
        <attribute name="title">
         <string>DBase</string>
        </attribute>
@@ -66,14 +66,17 @@
          </layout>
         </item>
         <item>
-         <widget class="DBTableWidget" name="oldDBTableWidget" native="true">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
+         <spacer name="verticalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Orientation::Vertical</enum>
           </property>
-         </widget>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
         </item>
        </layout>
       </widget>
@@ -203,24 +206,7 @@
   </customwidget>
  </customwidgets>
  <resources/>
- <connections>
-  <connection>
-   <sender>radioButtonHrt</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>oldDBTableWidget</receiver>
-   <slot>changeType(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>96</x>
-     <y>54</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>96</x>
-     <y>157</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
  <buttongroups>
   <buttongroup name="buttonGroup"/>
  </buttongroups>
