@@ -51,7 +51,7 @@ class DBTableWidget(QTableWidget):
                 data = self.hrt_data.get_variable_with_pos(row, col, machineValue=(col <= 2) or self.state) 
                 cell_value = f"{data:.2f}" if isinstance(data, float) else str(data)
 
-                if col == 2 or ((col >= 2 or self.state) and row_type == 2):
+                if col == 2 or (col >= 2 and (row_type == 2 or self.state)):
                     widget = QLineEdit()
                     widget.setStyleSheet("QLineEdit { background-color: white; }")
                     widget.setText(cell_value)
