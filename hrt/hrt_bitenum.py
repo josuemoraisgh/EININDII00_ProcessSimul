@@ -6,8 +6,15 @@ hrt_bitEnum = {
     },
     # Sem Nada
     1: {
-        0x00: "OK",
-        0x01: "Fora dos Limites",
+        0x00: "Verificar 00",        
+        0x01: "Verificar 00",
+        0x02: "Verificar 00",
+        0x04: "Verificar 00",
+        0x08: "Verificar 00",
+        0x10: "Verificar 00",
+        0x20: "Verificar 00",
+        0x40: "Verificar 00",
+        0x80: "Verificar 00"
     },    
     # device_status
     2: {

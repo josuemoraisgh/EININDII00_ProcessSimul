@@ -118,7 +118,7 @@ def hrt_type_hex_to(valor: str, type_str: str):
     elif t[:4] == "ENUM":
         return encontrar_valor_no_dicionario(hrt_enum[int(t[4:])],valor)
     elif t[:4] == "BIT_":
-        return hrt_bitEnum[int(t[4:])][int(valor,16)]   
+        return hrt_bitEnum[int(t[8:])][int(valor,16)]   
     elif t == 'DATE':
         return _hrt_type_hex2_date(valor)
     elif t == 'TIME':
@@ -181,9 +181,9 @@ def hrt_type_hex_from(valor, type_str: str, byte_size: int) -> str:
     elif t in ['SREAL', 'FLOAT']:
         return _hrt_type_sreal2_hex(float(valor), byte_size)
     elif t[:4] == "ENUM":
-        return next((k for k, v in hrt_enum[int(t[4:])].items() if v == valor), None)        
+        return next((k[:2] for k, v in hrt_enum[int(t[4:])].items() if v == valor), None)        
     elif t[:4] == "BIT_":
-        return next((k for k, v in hrt_bitEnum[int(t[4:])].items() if v == valor), None)         
+        return next((k[:2] for k, v in hrt_bitEnum[int(t[8:])].items() if v == valor), None)         
     elif t == 'DATE':
         return _hrt_type_date2_hex(valor, byte_size)
     elif t == 'TIME':

@@ -57,7 +57,7 @@ class HrtData(Storage):
             if not machineValue:
                 return result
             else:
-                return hrt_type_hex_from(result, super().get_variable(id_variable, "TYPE")).zfill(super().get_variable(id_variable, "BYTE_SIZE"), int(super().get_variable(id_variable, "BYTE_SIZE")))
+                return hrt_type_hex_from(result, super().get_variable(id_variable, "TYPE"), super().get_variable(id_variable, "BYTE_SIZE"))
         except Exception as e:
             print("Erro ao avaliar expressão:", e)
             if not machineValue:
