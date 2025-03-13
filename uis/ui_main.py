@@ -18,6 +18,9 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
 from PySide6.QtWidgets import (QApplication, QHBoxLayout, QMainWindow, QSizePolicy,
     QStatusBar, QTabWidget, QVBoxLayout, QWidget)
 
+from ctrlglwidget import CtrlGLWidget
+from dbtablewidget import DBTableWidget
+
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
@@ -29,11 +32,12 @@ class Ui_MainWindow(object):
         self.horizontalLayout.setObjectName(u"horizontalLayout")
         self.tabWidget = QTabWidget(self.centralwidget)
         self.tabWidget.setObjectName(u"tabWidget")
+        self.tabWidget.setTabShape(QTabWidget.TabShape.Triangular)
         self.BDados = QWidget()
         self.BDados.setObjectName(u"BDados")
         self.verticalLayout = QVBoxLayout(self.BDados)
         self.verticalLayout.setObjectName(u"verticalLayout")
-        self.oldTableWidget = QWidget(self.BDados)
+        self.oldTableWidget = DBTableWidget(self.BDados)
         self.oldTableWidget.setObjectName(u"oldTableWidget")
 
         self.verticalLayout.addWidget(self.oldTableWidget)
@@ -43,7 +47,7 @@ class Ui_MainWindow(object):
         self.CtrlNivel.setObjectName(u"CtrlNivel")
         self.horizontalLayout_2 = QHBoxLayout(self.CtrlNivel)
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
-        self.oldOpenGLWidget = QWidget(self.CtrlNivel)
+        self.oldOpenGLWidget = CtrlGLWidget(self.CtrlNivel)
         self.oldOpenGLWidget.setObjectName(u"oldOpenGLWidget")
 
         self.horizontalLayout_2.addWidget(self.oldOpenGLWidget)
@@ -59,7 +63,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(1)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -67,7 +71,10 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.BDados), QCoreApplication.translate("MainWindow", u"Tab 1", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.CtrlNivel), QCoreApplication.translate("MainWindow", u"Tab 2", None))
+#if QT_CONFIG(accessibility)
+        self.tabWidget.setAccessibleName("")
+#endif // QT_CONFIG(accessibility)
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.BDados), QCoreApplication.translate("MainWindow", u"BDados", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.CtrlNivel), QCoreApplication.translate("MainWindow", u"CtrlNivel", None))
     # retranslateUi
 

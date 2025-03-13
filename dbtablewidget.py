@@ -5,16 +5,15 @@ from functools import partial
 from hrt.hrt_data import HrtData
 from hrt.hrt_enum import hrt_enum
 from hrt.hrt_bitenum import hrt_bitEnum
-from OpenGL.GL import *
-import sys
-import os
 
 class DBTableWidget(QTableWidget):
-    def __init__(self, hrt_data: HrtData):
-        super().__init__()
+    def __init__(self):
+        super().__init__()    
+        
+    def setBaseData(self, hrt_data: HrtData):
         self.hrt_data = hrt_data
         self.hrt_data.data_updated.connect(self.redraw)  # Conecta sinal de atualização
-        self.cellChanged.connect(self.on_cell_changed)  # Detecta edições na tabela        
+        self.cellChanged.connect(self.on_cell_changed)  # Detecta edições na tabela  
         self.redraw()
         
     def redraw(self):   

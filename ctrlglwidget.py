@@ -2,14 +2,13 @@ from PySide6.QtOpenGLWidgets import QOpenGLWidget
 from PySide6.QtGui import QImage
 from OpenGL.GL import *
 
-class ImageGLWidget(QOpenGLWidget):
-    def __init__(self, image_path):
+class CtrlGLWidget(QOpenGLWidget):
+    def __init__(self):
         super().__init__()
-        self.image_path = image_path
         self.texture_id = None
-
-    def initializeGL(self):
-        """Configurações iniciais do OpenGL"""
+        
+    def setBackgroundImage(self, image_path: str):
+        self.image_path = image_path
         glEnable(GL_TEXTURE_2D)
         glClearColor(1, 1, 1, 1)  # Fundo branco
         self.load_texture()
