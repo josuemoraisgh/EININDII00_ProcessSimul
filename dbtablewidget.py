@@ -7,10 +7,10 @@ from hrt.hrt_enum import hrt_enum
 from hrt.hrt_bitenum import hrt_bitEnum
 
 class DBTableWidget(QTableWidget):
-    def __init__(self):
-    # def __init__(self, parent: None):
-        super().__init__() 
-        # super().__init__(parent=parent)
+    # def __init__(self):
+    def __init__(self, parent: None):
+        # super().__init__() 
+        super().__init__(parent=parent)
         
     def setBaseData(self, hrt_data: HrtData):
         self.hrt_data = hrt_data

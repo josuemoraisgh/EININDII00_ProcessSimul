@@ -10,7 +10,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, hrt_data: HrtData):
         super().__init__()
         self.resize(800, 600)  # Defina o tamanho desejado
-        self.setupUi(self)  # Configura a interface do Qt Designer        
+        self.setupUi(self)  # Configura a interface do Qt Designer  
+        # self.radioButtonHex.clicked["bool"].connect(self.oldDBTableWidget.changeType)      
         self.oldDBTableWidget.setBaseData(hrt_data)
         image_path = os.path.abspath("img/caldeira.jpg")
         self.oldCtrlGLWidget.setBackgroundImage(image_path)
