@@ -34,21 +34,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         parent_width = event.size().width()
         parent_height = event.size().height()
         # meu_botao = self.findChild(QWidget, "widgetCtrlLIC100")
-        self.widgetCtrlLI100.move(parent_width * 0.58,parent_height * 0.02)
+        self.widgetLI100.move(parent_width * 0.58,parent_height * 0.02)
+        self.widgetFI100A.move(parent_width * 0.54, parent_height * 0.56)
+        # self.verticalSliderFV100B.move(parent_width * 0.54, parent_height * 0.56)
         
-        self.verticalSliderFV100A.move(parent_width * 0.54, parent_height * 0.56)
-        self.widgetCtrlFV100A.move(parent_width * 0.54, parent_height * 0.56)
-        self.widgetCtrlFI100A.move(parent_width * 0.54, parent_height * 0.56)
+        self.widgetFI100B.move(parent_width * 0.78, parent_height * 0.02)
+        self.widgetVI100.move(parent_width * 0.54, parent_height * 0.56)
         
-        self.widgetCtrlFV100B.move(parent_width * 0.15, parent_height * 0.10)
-        self.verticalSliderFV100B.move(parent_width * 0.54, parent_height * 0.56)
+        self.widgetPI100.move(parent_width * 0.30, parent_height * 0.25)
         
-        self.widgetCtrlFI100B.move(parent_width * 0.15, parent_height * 0.10)
-        self.verticalSliderFI100B.move(parent_width * 0.54, parent_height * 0.56)
-        
-        self.widgetCtrlPI100.move(parent_width * 0.30, parent_height * 0.25)
-        
-        self.widgetCtrlTI100.move(parent_width * 0.35, parent_height * 0.40)
+        self.widgetTI100.move(parent_width * 0.35, parent_height * 0.40)
         # self.resizeEventSignal.emit(event)
         super().resizeEvent(event)
 
