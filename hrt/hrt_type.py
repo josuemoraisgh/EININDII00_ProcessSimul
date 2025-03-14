@@ -112,9 +112,9 @@ def encontrar_valor_no_dicionario(dicionario, valor):
 # Funções principais
 def hrt_type_hex_to(valor: str, type_str: str):
     t = type_str.upper()
-    if any(t.find(palavra) != -1 for palavra in ['UINT', 'UNSIGNED']):
+    if t.find('UNSIGNED') != -1:
         return int(''.join(str(_hrt_type_hex2_uint(e)) for e in split_by_length(valor, 2)))
-    elif any(t.find(palavra) != -1 for palavra in ['SREAL', 'FLOAT']):
+    elif t.find('FLOAT') != -1:
         return _hrt_type_hex2_sreal(valor)
     elif t.find("ENUM") != -1:
         return encontrar_valor_no_dicionario(hrt_enum[int(t[-2:])],valor)
@@ -124,9 +124,9 @@ def hrt_type_hex_to(valor: str, type_str: str):
         return _hrt_type_hex2_date(valor)
     elif t.find('TIME') != -1:
         return _hrt_type_hex2_time(valor)
-    elif t.find('INT') != -1:
+    elif t.find('INTEGER') != -1:
         return _hrt_type_hex2_int(valor)
-    elif any(t.find(palavra) != -1 for palavra in ['PASCII', 'PACKED_ASCII']):
+    elif t.find("PACKED") != -1:
         return _hrt_type_hex2_pascii(valor)
     else:
         return "INVALID TYPE"
@@ -156,7 +156,7 @@ def _hrt_type_sreal2_hex(valor_float: float, byte_size: int) -> str:
     bits_array = set_bits(bits_array, 23, 8, e)
     f = math.floor(((valor_float / (2 ** (e - 127))) - 1) * 8388608)
     bits_array = set_bits(bits_array, 0, 23, f)
-    return format(bits_array, f'0{2*byte_size}X').lower()
+    return format(bits_array, f'0{2*byte_size}X').upper()
 
 def _hrt_type_pascii2_hex(valor: str, byte_size: int) -> str:
     encoded_values = [ord(c) for c in valor]
@@ -186,9 +186,9 @@ def _hrt_type_time2_hex(valor: datetime, byte_size: int) -> str:
 
 def hrt_type_hex_from(valor, type_str: str, byte_size: int) -> str:
     t = type_str.upper()
-    if any(t.find(palavra) != -1 for palavra in ['UINT', 'UNSIGNED']):
+    if t.find('UNSIGNED') != -1:
         return _hrt_type_uint2_hex(int(valor), byte_size)
-    elif any(t.find(palavra) != -1 for palavra in ['SREAL', 'FLOAT']):
+    elif t.find('FLOAT') != -1:
         return _hrt_type_sreal2_hex(float(valor), byte_size)
     elif t.find("ENUM") != -1:
         return next((k[:2] for k, v in hrt_enum[int(t[-2:])].items() if v == valor), None)        
@@ -198,9 +198,9 @@ def hrt_type_hex_from(valor, type_str: str, byte_size: int) -> str:
         return _hrt_type_date2_hex(valor, byte_size)
     elif t.find('TIME') != -1:
         return _hrt_type_time2_hex(valor, byte_size)
-    elif t.find('INT') != -1:
+    elif t.find('INTEGER') != -1:
         return _hrt_type_int2_hex(int(valor), byte_size)    
-    elif any(t.find(palavra) != -1 for palavra in ['PASCII', 'PACKED_ASCII']):
+    elif t.find('PACKED') != -1:
         return _hrt_type_pascii2_hex(valor, byte_size)    
     else:
         return "INVALID TYPE"

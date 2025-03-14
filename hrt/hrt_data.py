@@ -25,14 +25,15 @@ class HrtData(Storage):
         if id_variable == instrument or instrument == 'NAME':
             return id_variable
         else: 
-            value = super().get_variable(id_variable, instrument) 
-            if str(value).startswith('@'):
+            value = super().get_variable(id_variable, instrument)
+            type = super().get_variable(id_variable, "TYPE")
+            if not instrument in ["NAME", "TYPE", "BYTE_SIZE"] and str(type).startswith('@'):
                 return self._evaluate_expression(value, id_variable, instrument, machineValue)
             else:    
                 if machineValue:
                     return value
                 else:
-                    return hrt_type_hex_to(super().get_variable(id_variable, instrument), super().get_variable(id_variable, "TYPE"))
+                    return hrt_type_hex_to(super().get_variable(id_variable, instrument), type)
 
     def set_variable(self, value, id_variable: str, instrument: str, machineValue:bool = True):
         if id_variable == instrument or instrument == 'NAME':
@@ -45,19 +46,19 @@ class HrtData(Storage):
         
     def _evaluate_expression(self, func: str, id_variable: str, instrument: str, machineValue: bool = True) -> Union[float, str]:
         evaluator = Interpreter()
-        expr_str = func[1:]  # Remove o caractere '@' inicial
-        tokens = re.findall(r'[A-Za-z_]\w*', expr_str)
-        context = {}
+        # expr_str = func[1:]  # Remove o caractere '@' inicial
+        tokens = re.findall(r'[A-Za-z_]\w*', func)
         for token in tokens:
+            # Fazer no futuro: Checar se todas as variaves são do mesmo tipo ?
             var_val = self.get_variable(token, instrument, False)
             if var_val is not None:
                 evaluator.symtable[token] = var_val
         try:
-            result = evaluator(expr_str)
+            result = evaluator(func)
             if not machineValue:
                 return result
             else:
-                return hrt_type_hex_from(result, super().get_variable(id_variable, "TYPE"), super().get_variable(id_variable, "BYTE_SIZE"))
+                return hrt_type_hex_from(result, super().get_variable(id_variable, "TYPE"), int(super().get_variable(id_variable, "BYTE_SIZE")))
         except Exception as e:
             print("Erro ao avaliar expressão:", e)
             if not machineValue:

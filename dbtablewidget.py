@@ -42,18 +42,19 @@ class DBTableWidget(QTableWidget):
                 
         widget_row_types = self.df['TYPE']    
         for row in range(rows): 
-            if any(widget_row_types[row][:4].find(x)==-1 for x in ["PACK", "ASCI", "UNSI", "FLOA", "INTE", "INDE"]):  # "QLineEdit"
+            if self.state or any(widget_row_types[row].find(x)==-1 for x in ["PACKED", "UNSIGNED", "FLOAT", "INTEGER"]):  # "QLineEdit"
                 row_type = 2
-            elif any(widget_row_types[row][:4].find(x)==-1 for x in ["ENUM", "BIT_"]):  # "QComboBox"
+            elif any(widget_row_types[row].find(x)==-1 for x in ["ENUM", "BIT_ENUM"]):  # "QComboBox"
                 row_type = 1
             else:
                 row_type = 0
               
             for col in range(1, cols): 
-                data = self.hrt_data.get_variable_with_pos(row, col, machineValue=(col <= 2) or self.state) 
-                cell_value = f"{data:.2f}" if isinstance(data, float) else str(data)
+                machineValue = (col <= 2) or self.state
+                data = self.hrt_data.get_variable_with_pos(row, col, machineValue) 
+                cell_value = f"{data:.2f}" if not machineValue and isinstance(data, float) else str(data)
 
-                if col == 2 or (col >= 2 and (row_type == 2 or self.state)):
+                if col == 2 or (col >= 2 and row_type == 2 ):
                     widget = QLineEdit()
                     widget.setStyleSheet("QLineEdit { background-color: white; }")
                     widget.setText(cell_value)
