@@ -30,7 +30,7 @@
           <item>
            <widget class="QRadioButton" name="radioButtonHex">
             <property name="text">
-             <string>Hex</string>
+             <string>Machine Value</string>
             </property>
             <property name="checked">
              <bool>true</bool>
@@ -43,7 +43,7 @@
           <item>
            <widget class="QRadioButton" name="radioButtonHrt">
             <property name="text">
-             <string>Hart</string>
+             <string>Human Value</string>
             </property>
             <attribute name="buttonGroup">
              <string notr="true">buttonGroup</string>

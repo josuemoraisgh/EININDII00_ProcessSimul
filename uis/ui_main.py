@@ -207,8 +207,8 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
-        self.radioButtonHex.setText(QCoreApplication.translate("MainWindow", u"Hex", None))
-        self.radioButtonHrt.setText(QCoreApplication.translate("MainWindow", u"Hart", None))
+        self.radioButtonHex.setText(QCoreApplication.translate("MainWindow", u"Machine Value", None))
+        self.radioButtonHrt.setText(QCoreApplication.translate("MainWindow", u"Human Value", None))
         self.label_4.setText(QCoreApplication.translate("MainWindow", u"Para equa\u00e7\u00f5es inicie o campo 'TYPE' com '@'.", None))
         self.label_5.setText(QCoreApplication.translate("MainWindow", u"Para fun\u00e7\u00f5es de transfer\u00eancia em 'S' inicie o campo 'TYPE' com '$'.", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabdbase), QCoreApplication.translate("MainWindow", u"DBase", None))

@@ -17,9 +17,10 @@ class DBTableWidget(QTableWidget):
         self.hrt_data.data_updated.connect(self.redraw)  # Conecta sinal de atualização
         self.cellChanged.connect(self.on_cell_changed)  # Detecta edições na tabela  
         
-        header_font = QFont("Arial", 12, QFont.Bold)  # Fonte maior e em negrito
-        self.horizontalHeader().setFont(header_font)
-        self.verticalHeader().setFont(header_font)        
+        horizontalHeader_font = QFont("Arial", 12, QFont.Bold)  # Fonte maior e em negrito
+        self.horizontalHeader().setFont(horizontalHeader_font)
+        verticalHeader_font = QFont("Arial", 10, QFont.Bold)  # Fonte maior e em negrito
+        self.verticalHeader().setFont(verticalHeader_font)        
         # Criar uma fonte com tamanho 14
         # fonte = QFont("Arial", 14)
         # # Aplicar a fonte na tabela inteira
@@ -42,7 +43,7 @@ class DBTableWidget(QTableWidget):
                 
         widget_row_types = self.df['TYPE']    
         for row in range(rows): 
-            if self.state or any(widget_row_types[row].find(x)!=-1 for x in ["PACKED", "UNSIGNED", "FLOAT", "INTEGER"]):  # "QLineEdit"
+            if not widget_row_types[row].startswith('@') and (self.state or any(widget_row_types[row].find(x)!=-1 for x in ["PACKED", "UNSIGNED", "FLOAT", "INTEGER"])):  # "QLineEdit"
                 row_type = 2
             elif any(widget_row_types[row].find(x)!=-1 for x in ["ENUM", "BIT_ENUM"]):  # "QComboBox"
                 row_type = 1
