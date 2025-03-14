@@ -42,9 +42,9 @@ class DBTableWidget(QTableWidget):
                 
         widget_row_types = self.df['TYPE']    
         for row in range(rows): 
-            if self.state or any(widget_row_types[row].find(x)==-1 for x in ["PACKED", "UNSIGNED", "FLOAT", "INTEGER"]):  # "QLineEdit"
+            if self.state or any(widget_row_types[row].find(x)!=-1 for x in ["PACKED", "UNSIGNED", "FLOAT", "INTEGER"]):  # "QLineEdit"
                 row_type = 2
-            elif any(widget_row_types[row].find(x)==-1 for x in ["ENUM", "BIT_ENUM"]):  # "QComboBox"
+            elif any(widget_row_types[row].find(x)!=-1 for x in ["ENUM", "BIT_ENUM"]):  # "QComboBox"
                 row_type = 1
             else:
                 row_type = 0
@@ -54,7 +54,7 @@ class DBTableWidget(QTableWidget):
                 data = self.hrt_data.get_variable_with_pos(row, col, machineValue) 
                 cell_value = f"{data:.2f}" if not machineValue and isinstance(data, float) else str(data)
 
-                if col == 2 or (col >= 2 and row_type == 2 ):
+                if col == 2 or (col > 2 and row_type == 2 ):
                     widget = QLineEdit()
                     widget.setStyleSheet("QLineEdit { background-color: white; }")
                     widget.setText(cell_value)
@@ -63,7 +63,7 @@ class DBTableWidget(QTableWidget):
 
                 elif col > 2 and row_type == 1:
                     widget = QComboBox()
-                    if widget_row_types[row][:4] == "ENUM":
+                    if widget_row_types[row].find("BIT_") == -1:
                         dados = list(hrt_enum[int(widget_row_types[row][4:])].values())
                     else:
                         dados = list(hrt_bitEnum[int(widget_row_types[row][8:])].values())
