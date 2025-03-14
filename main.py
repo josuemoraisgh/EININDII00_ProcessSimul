@@ -1,8 +1,6 @@
-from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QLayout
+from PySide6.QtWidgets import QApplication, QMainWindow
 from uis.ui_main import Ui_MainWindow  # Interface do Qt Designer
 from hrt.hrt_data import HrtData
-from dbtablewidget import DBTableWidget
-from ctrlglwidget import CtrlGLWidget
 import sys
 import os
 

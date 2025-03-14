@@ -42,9 +42,9 @@ class DBTableWidget(QTableWidget):
                 
         widget_row_types = self.df['TYPE']    
         for row in range(rows): 
-            if any(x in widget_row_types[row][:4] for x in ["PACK", "ASCI", "UNSI", "FLOA", "INTE", "INDE"]):  # "QLineEdit"
+            if any(widget_row_types[row][:4].find(x)==-1 for x in ["PACK", "ASCI", "UNSI", "FLOA", "INTE", "INDE"]):  # "QLineEdit"
                 row_type = 2
-            elif any(x in widget_row_types[row][:4] for x in ["ENUM", "BIT_"]):  # "QComboBox"
+            elif any(widget_row_types[row][:4].find(x)==-1 for x in ["ENUM", "BIT_"]):  # "QComboBox"
                 row_type = 1
             else:
                 row_type = 0
