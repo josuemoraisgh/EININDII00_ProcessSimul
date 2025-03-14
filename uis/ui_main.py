@@ -36,10 +36,10 @@ class Ui_MainWindow(object):
         self.tabWidget.setObjectName(u"tabWidget")
         self.tabdbase = QWidget()
         self.tabdbase.setObjectName(u"tabdbase")
-        self.verticalLayout_3 = QVBoxLayout(self.tabdbase)
-        self.verticalLayout_3.setObjectName(u"verticalLayout_3")
-        self.horizontalLayout_3 = QHBoxLayout()
-        self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
+        self.verticalLayout_4 = QVBoxLayout(self.tabdbase)
+        self.verticalLayout_4.setObjectName(u"verticalLayout_4")
+        self.horizontalLayout_9 = QHBoxLayout()
+        self.horizontalLayout_9.setObjectName(u"horizontalLayout_9")
         self.radioButtonHex = QRadioButton(self.tabdbase)
         self.buttonGroup = QButtonGroup(MainWindow)
         self.buttonGroup.setObjectName(u"buttonGroup")
@@ -47,20 +47,57 @@ class Ui_MainWindow(object):
         self.radioButtonHex.setObjectName(u"radioButtonHex")
         self.radioButtonHex.setChecked(True)
 
-        self.horizontalLayout_3.addWidget(self.radioButtonHex)
+        self.horizontalLayout_9.addWidget(self.radioButtonHex)
 
         self.radioButtonHrt = QRadioButton(self.tabdbase)
         self.buttonGroup.addButton(self.radioButtonHrt)
         self.radioButtonHrt.setObjectName(u"radioButtonHrt")
 
-        self.horizontalLayout_3.addWidget(self.radioButtonHrt)
+        self.horizontalLayout_9.addWidget(self.radioButtonHrt)
 
+        self.verticalLayout_3 = QVBoxLayout()
+        self.verticalLayout_3.setObjectName(u"verticalLayout_3")
+        self.horizontalLayout_8 = QHBoxLayout()
+        self.horizontalLayout_8.setObjectName(u"horizontalLayout_8")
         self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
-        self.horizontalLayout_3.addItem(self.horizontalSpacer_2)
+        self.horizontalLayout_8.addItem(self.horizontalSpacer_2)
+
+        self.label_4 = QLabel(self.tabdbase)
+        self.label_4.setObjectName(u"label_4")
+
+        self.horizontalLayout_8.addWidget(self.label_4)
+
+        self.horizontalSpacer_3 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_8.addItem(self.horizontalSpacer_3)
+
+
+        self.verticalLayout_3.addLayout(self.horizontalLayout_8)
+
+        self.horizontalLayout_3 = QHBoxLayout()
+        self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
+        self.horizontalSpacer_4 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_3.addItem(self.horizontalSpacer_4)
+
+        self.label_5 = QLabel(self.tabdbase)
+        self.label_5.setObjectName(u"label_5")
+
+        self.horizontalLayout_3.addWidget(self.label_5)
+
+        self.horizontalSpacer_5 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_3.addItem(self.horizontalSpacer_5)
 
 
         self.verticalLayout_3.addLayout(self.horizontalLayout_3)
+
+
+        self.horizontalLayout_9.addLayout(self.verticalLayout_3)
+
+
+        self.verticalLayout_4.addLayout(self.horizontalLayout_9)
 
         self.oldDBTableWidget = DBTableWidget(self.tabdbase)
         self.oldDBTableWidget.setObjectName(u"oldDBTableWidget")
@@ -70,7 +107,7 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(self.oldDBTableWidget.sizePolicy().hasHeightForWidth())
         self.oldDBTableWidget.setSizePolicy(sizePolicy)
 
-        self.verticalLayout_3.addWidget(self.oldDBTableWidget)
+        self.verticalLayout_4.addWidget(self.oldDBTableWidget)
 
         self.tabWidget.addTab(self.tabdbase, "")
         self.oldCtrlGLWidget = CtrlGLWidget()
@@ -172,6 +209,8 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
         self.radioButtonHex.setText(QCoreApplication.translate("MainWindow", u"Hex", None))
         self.radioButtonHrt.setText(QCoreApplication.translate("MainWindow", u"Hart", None))
+        self.label_4.setText(QCoreApplication.translate("MainWindow", u"Para equa\u00e7\u00f5es inicie o campo 'TYPE' com '@'.", None))
+        self.label_5.setText(QCoreApplication.translate("MainWindow", u"Para fun\u00e7\u00f5es de transfer\u00eancia em 'S' inicie o campo 'TYPE' com '$'.", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabdbase), QCoreApplication.translate("MainWindow", u"DBase", None))
         self.label.setText(QCoreApplication.translate("MainWindow", u"PV", None))
         self.label_2.setText(QCoreApplication.translate("MainWindow", u"SP", None))
