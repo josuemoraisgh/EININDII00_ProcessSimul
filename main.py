@@ -1,13 +1,16 @@
-from PySide6.QtWidgets import QApplication, QMainWindow
+from PySide6.QtWidgets import QApplication, QMainWindow, QWidget
+from PySide6.QtCore import Signal
 from uis.ui_main import Ui_MainWindow  # Interface do Qt Designer
 from hrt.hrt_data import HrtData
 import sys
 import os
 
 class MainWindow(QMainWindow, Ui_MainWindow):
+    # resizeEventSignal = Signal()  # 🔥 Declarando o sinal corretamente
+    
     def __init__(self, hrt_data: HrtData):
         super().__init__()
-        self.resize(800, 600)  # Defina o tamanho desejado
+        self.resize(800, 500)  # Defina o tamanho desejado
         self.setupUi(self)  # Configura a interface do Qt Designer  
         # self.radioButtonHex.clicked["bool"].connect(self.oldDBTableWidget.changeType)      
         self.oldDBTableWidget.setBaseData(hrt_data)
@@ -26,6 +29,29 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         janela_geometry.moveCenter(center_point)
         # Aplica a posição calculada
         self.move(janela_geometry.topLeft())
+    
+    def resizeEvent(self, event):
+        parent_width = event.size().width()
+        parent_height = event.size().height()
+        # meu_botao = self.findChild(QWidget, "widgetCtrlLIC100")
+        self.widgetCtrlLI100.move(parent_width * 0.58,parent_height * 0.02)
+        
+        self.verticalSliderFV100A.move(parent_width * 0.54, parent_height * 0.56)
+        self.widgetCtrlFV100A.move(parent_width * 0.54, parent_height * 0.56)
+        self.widgetCtrlFI100A.move(parent_width * 0.54, parent_height * 0.56)
+        
+        self.widgetCtrlFV100B.move(parent_width * 0.15, parent_height * 0.10)
+        self.verticalSliderFV100B.move(parent_width * 0.54, parent_height * 0.56)
+        
+        self.widgetCtrlFI100B.move(parent_width * 0.15, parent_height * 0.10)
+        self.verticalSliderFI100B.move(parent_width * 0.54, parent_height * 0.56)
+        
+        self.widgetCtrlPI100.move(parent_width * 0.30, parent_height * 0.25)
+        
+        self.widgetCtrlTI100.move(parent_width * 0.35, parent_height * 0.40)
+        # self.resizeEventSignal.emit(event)
+        super().resizeEvent(event)
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

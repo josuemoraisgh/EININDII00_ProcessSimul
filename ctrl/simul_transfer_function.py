@@ -5,16 +5,16 @@ import numpy as np
 import control as ctrl
 
 class TransferFunction:
-    def __init__(self, numerator, denominator, sampling_time, plant_output_callback=None):
+    def __init__(self, numerator, denominator, stepTime, plant_output_callback=None):
         """
         numerator: lista de coeficientes do numerador.
         denominator: lista de coeficientes do denominador.
-        sampling_time: tempo de amostragem em segundos.
+        stepTime: tempo do passo de integração em segundos.
         plant_output_callback: função callback com a assinatura callback(output, state)
         """
         self.numerator = numerator
         self.denominator = denominator
-        self.sampling_time = sampling_time  # em segundos
+        self.stepTime = stepTime  # em segundos
         self.plant_output_callback = plant_output_callback
         self.input_value = 0.0
 
@@ -22,7 +22,7 @@ class TransferFunction:
         sys_tf = ctrl.TransferFunction(numerator, denominator)
         sys_ss = ctrl.tf2ss(sys_tf)
         # Converte o modelo contínuo para discreto usando Tustin (bilinear)
-        sysd = ctrl.c2d(sys_ss, sampling_time, method='tustin')
+        sysd = ctrl.c2d(sys_ss, stepTime, method='tustin')
         self.A = np.array(sysd.A)
         self.B = np.array(sysd.B)
         self.C = np.array(sysd.C)
@@ -73,7 +73,7 @@ class TransferFunction:
             if self.plant_output_callback is not None:
                 self.plant_output_callback(current_output, current_state)
             # Aguarda até o próximo instante de amostragem
-            next_time += self.sampling_time
+            next_time += self.stepTime
             sleep_time = next_time - time.time()
             if sleep_time > 0:
                 time.sleep(sleep_time)
@@ -86,7 +86,7 @@ if __name__ == "__main__":
     # Exemplo: função de transferência de primeira ordem: G(s) = 1/(s+1)
     num = [1.0]
     den = [1.0, 1.0]
-    Ts = 0.1  # 100 ms de amostragem
+    Ts = 0.1  # 100 ms tempo de integração
 
     plant = TransferFunction(num, den, Ts, plant_output_callback=update_output)
     plant.start()

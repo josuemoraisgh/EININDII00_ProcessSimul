@@ -3,6 +3,7 @@ from db.storage_xlsx import Storage  # Assuming hrt_storage.py exists
 from hrt.hrt_type import hrt_type_hex_to, hrt_type_hex_from  # Assuming hrt_type.py exists
 from hrt.old.hrt_settings import hrt_settings
 from asteval import Interpreter
+from ctrl.simul_transfer_function import TransferFunction as tf
 from typing import Union
 import re
 class HrtData(Storage):
@@ -27,13 +28,14 @@ class HrtData(Storage):
         else: 
             value = super().get_variable(id_variable, instrument)
             type = super().get_variable(id_variable, "TYPE")
-            if not instrument in ["NAME", "TYPE", "BYTE_SIZE"] and str(type).startswith('@'):
-                return self._evaluate_expression(value, id_variable, instrument, machineValue)
-            else:    
-                if machineValue:
-                    return value
-                else:
+            if not instrument in ["NAME", "TYPE", "BYTE_SIZE"]:
+                if str(type).startswith('@'):
+                    return self._evaluate_expression(value, id_variable, instrument, machineValue)
+                elif str(type).startswith('$'):   
+                    return self._evaluate_expression(value, id_variable, instrument, machineValue)
+                elif not machineValue:
                     return hrt_type_hex_to(super().get_variable(id_variable, instrument), type)
+            return value
 
     def set_variable(self, value, id_variable: str, instrument: str, machineValue:bool = True):
         if id_variable == instrument or instrument == 'NAME':
