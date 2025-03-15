@@ -3,7 +3,7 @@ from db.storage_sqlite import Storage  # Assuming hrt_storage.py exists
 from hrt.hrt_type import hrt_type_hex_to, hrt_type_hex_from  # Assuming hrt_type.py exists
 from hrt.old.hrt_settings import hrt_settings
 from asteval import Interpreter
-from ctrl.simul_transfer_function import TransferFunction as tf
+from ctrl.simul_tf import TransferFunction as tf
 from typing import Union
 import re
 class HrtData(Storage):

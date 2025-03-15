@@ -3,7 +3,7 @@ import control as ctrl
 from react.repeatFunction import RepeatFunction 
 from react.reactiveVariable import ReactiveVariable 
 
-class TransferFunction:
+class simul_tf:
     def __init__(self, numerator, denominator, stepTime, outputReactiveVariable: ReactiveVariable):
         """
         numerator: lista de coeficientes do numerador.
@@ -36,6 +36,7 @@ class TransferFunction:
         self.numerator = numerator
         self.denominator = denominator
         self.stepTime = stepTime  # em milisegundos
+        self._repeated_function.changeInterval(stepTime)
 
     def start(self):
         """Inicia a execução da simulação."""
