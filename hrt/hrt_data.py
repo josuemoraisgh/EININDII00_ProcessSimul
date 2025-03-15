@@ -3,24 +3,30 @@ from db.storage_sqlite import Storage  # Assuming hrt_storage.py exists
 from hrt.hrt_type import hrt_type_hex_to, hrt_type_hex_from  # Assuming hrt_type.py exists
 from hrt.old.hrt_settings import hrt_settings
 from asteval import Interpreter
-from ctrl.simul_tf import TransferFunction as tf
+from react.reactiveVariable import ReactiveVariable 
+from ctrl.simul_tf import SimulTf
 from typing import Union
+import pandas as pd
 import re
 class HrtData(Storage):
     def __init__(self):
         super().__init__('db/banco.db', 'hrt_tabela')  # 🔥 Chama o construtor da classe Pai quando sqlite
         # super().__init__('db/dados.xlsx')  # 🔥 Chama o construtor da classe Pai quando xlsx
+        self.reactiveResultTf = pd.DataFrame(columns=self.colKeys())
+        # Retorna todos os índices que atendem à condição
+        mask = self.df["TYPE"].str.startswith("$")
+        row = self.df[mask].index.tolist()              
+        for col in range(len(self.df.columns)-3): 
+            self.reactiveResultTf[row] = ReactiveVariable("0")
         
-    def keys(self):
-        return super().keys()
-
+        
     def get_variable_with_pos(self, row: int, col: int, machineValue: bool = True):
         """Atualiza o DataFrame quando a célula for alterada."""
-        return self.get_variable(self.get_dataframe().iloc[row, 0], self.keys()[col], machineValue)
+        return self.get_variable(self.get_dataframe().iloc[row, 0], self.colKeys()[col], machineValue)
    
     def set_variable_with_pos(self, value, row: int, col: int, machineValue: bool = True):
         """Atualiza o DataFrame quando a célula for alterada."""
-        return self.set_variable(value, self.get_dataframe().iloc[row, 0], self.keys()[col], machineValue)
+        return self.set_variable(value, self.get_dataframe().iloc[row, 0], self.colKeys()[col], machineValue)
 
     def get_variable(self, id_variable: str, instrument: str, machineValue: bool = True):
         if id_variable == instrument or instrument == 'NAME':
@@ -45,7 +51,7 @@ class HrtData(Storage):
                 return super().set_variable(id_variable, instrument, str(value))
             else:
                 return super().set_variable(id_variable, instrument, hrt_type_hex_from(value, super().get_variable(id_variable, "TYPE"), int(super().get_variable(id_variable, "BYTE_SIZE"))))
-        
+    
     def _evaluate_expression(self, func: str, id_variable: str, instrument: str, machineValue: bool = True) -> Union[float, str]:
         evaluator = Interpreter()
         # expr_str = func[1:]  # Remove o caractere '@' inicial

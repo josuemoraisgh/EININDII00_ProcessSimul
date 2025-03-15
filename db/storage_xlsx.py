@@ -16,18 +16,21 @@ class Storage(QObject):
         except FileNotFoundError:
             # Se o arquivo não existir, cria uma tabela vazia
             self.df = pd.DataFrame(columns=["NAME", "BYTE_SIZE", "TYPE", "TIT100"])
-            self.save_data()
+            self.saveAllData()
     
     def get_dataframe(self):
         return self.df
     
-    def save_data(self):
+    def saveAllData(self):
         """Escreve os dados de volta ao arquivo Excel."""
         self.df.to_excel(self.caminho_excel, index=False)
         self.data_updated.emit()  # Emite o sinal de atualização              
         
-    def keys(self):
-        return self.df.columns
+    def rowKeys(self):
+        return self.df.iloc[0].tolist()
+
+    def colKeys(self):
+        return self.df.columns.tolist()
     
     def get_variable(self, id_variable: str, column: str) -> str:
         # Identifica o operador bitwise e separa as variáveis
@@ -68,7 +71,7 @@ class Storage(QObject):
         else:
             new_row = pd.DataFrame({'NAME': [id_variable], column: [value]})
             self.df = pd.concat([self.df, new_row], ignore_index=True)
-        self.save_data()    
+        self.saveAllData()    
         
 
 # Exemplo de uso

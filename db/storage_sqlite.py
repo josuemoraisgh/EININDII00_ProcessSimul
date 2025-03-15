@@ -11,9 +11,6 @@ class Storage(QObject):
         super().__init__()
         self.db_name = db_name
         self.table_name = table_name
-        self._create_table()
-
-    def _create_table(self):
         conn = sqlite3.connect(self.db_name)
         cursor = conn.cursor()
         cursor.execute(f"""
@@ -24,24 +21,29 @@ class Storage(QObject):
                 TIT100 TEXT
             )
         """)
+        self.df = pd.read_sql_query(f"SELECT * FROM {self.table_name}", conn)
         conn.commit()
         conn.close()
 
     def get_dataframe(self):
-        conn = sqlite3.connect(self.db_name)
-        df = pd.read_sql_query(f"SELECT * FROM {self.table_name}", conn)
-        conn.close()
-        return df
+        return self.df
 
-    def save_data(self, df):
+    def saveAllData(self):
         conn = sqlite3.connect(self.db_name)
-        df.to_sql(self.table_name, conn, if_exists='replace', index=False)
+        self.df.to_sql(self.table_name, conn, if_exists='replace', index=False)
         conn.commit()
         conn.close()
         self.data_updated.emit()  # Emite sinal após salvar
     
-    def keys(self):
-        return self.get_dataframe().columns
+    def rowKeys(self):
+        return self.df.iloc[0].tolist()
+
+    def colKeys(self):
+        return self.df.columns.tolist()
+        # conn = sqlite3.connect(self.db_name)
+        # df = pd.read_sql_query(f"PRAGMA table_info({self.table_name})", conn) 
+        # conn.close()
+        # return df["name"].tolist()
     
     def get_variable(self, id_variable: str, column: str) -> str:
         conn = sqlite3.connect(self.db_name)
@@ -80,7 +82,6 @@ class Storage(QObject):
             cursor.execute(f"UPDATE {self.table_name} SET {column} = ? WHERE NAME = ?", (value, id_variable))
         else:
             cursor.execute(f"INSERT INTO {self.table_name} (NAME, {column}) VALUES (?, ?)", (id_variable, value))
-        
         conn.commit()
         conn.close()
         self.data_updated.emit()  # Emite sinal após alteração

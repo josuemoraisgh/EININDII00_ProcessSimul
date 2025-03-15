@@ -3,7 +3,7 @@ import control as ctrl
 from react.repeatFunction import RepeatFunction 
 from react.reactiveVariable import ReactiveVariable 
 
-class simul_tf:
+class SimulTf:
     def __init__(self, numerator, denominator, stepTime, outputReactiveVariable: ReactiveVariable):
         """
         numerator: lista de coeficientes do numerador.
