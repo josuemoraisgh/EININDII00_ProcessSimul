@@ -152,8 +152,8 @@
        <widget class="QWidget" name="widgetLI100" native="true">
         <property name="geometry">
          <rect>
-          <x>400</x>
-          <y>20</y>
+          <x>500</x>
+          <y>10</y>
           <width>111</width>
           <height>71</height>
          </rect>
@@ -223,7 +223,7 @@
           <string>%</string>
          </property>
         </widget>
-        <widget class="QLCDNumber" name="lcdPVLIC100">
+        <widget class="QLCDNumber" name="lcdLI100">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -249,8 +249,8 @@
        <widget class="QWidget" name="widgetPI100" native="true">
         <property name="geometry">
          <rect>
-          <x>10</x>
-          <y>90</y>
+          <x>0</x>
+          <y>10</y>
           <width>121</width>
           <height>71</height>
          </rect>
@@ -315,7 +315,7 @@
           <set>Qt::AlignmentFlag::AlignBottom|Qt::AlignmentFlag::AlignHCenter</set>
          </property>
         </widget>
-        <widget class="QLCDNumber" name="lcdPVPIC100">
+        <widget class="QLCDNumber" name="lcdPI100">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -354,14 +354,14 @@
        <widget class="QWidget" name="widgetFI100A" native="true">
         <property name="geometry">
          <rect>
-          <x>130</x>
-          <y>420</y>
+          <x>0</x>
+          <y>170</y>
           <width>141</width>
-          <height>71</height>
+          <height>60</height>
          </rect>
         </property>
         <property name="toolTip">
-         <string>Medidor da Vazão de Vapor</string>
+         <string>Indicador da Vazão de Água</string>
         </property>
         <property name="accessibleDescription">
          <string/>
@@ -383,7 +383,7 @@
          <property name="geometry">
           <rect>
            <x>30</x>
-           <y>10</y>
+           <y>2</y>
            <width>48</width>
            <height>22</height>
           </rect>
@@ -406,11 +406,11 @@
           <set>Qt::AlignmentFlag::AlignBottom|Qt::AlignmentFlag::AlignHCenter</set>
          </property>
         </widget>
-        <widget class="QLCDNumber" name="lcdPVFV101">
+        <widget class="QLCDNumber" name="lcdFI100A">
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>32</y>
+           <y>25</y>
            <width>81</width>
            <height>31</height>
           </rect>
@@ -432,7 +432,7 @@
          <property name="geometry">
           <rect>
            <x>95</x>
-           <y>40</y>
+           <y>33</y>
            <width>41</width>
            <height>16</height>
           </rect>
@@ -445,8 +445,8 @@
        <widget class="QWidget" name="widgetTI100" native="true">
         <property name="geometry">
          <rect>
-          <x>10</x>
-          <y>250</y>
+          <x>0</x>
+          <y>90</y>
           <width>121</width>
           <height>71</height>
          </rect>
@@ -503,7 +503,7 @@
           <set>Qt::AlignmentFlag::AlignBottom|Qt::AlignmentFlag::AlignHCenter</set>
          </property>
         </widget>
-        <widget class="QLCDNumber" name="lcdPVTIC100">
+        <widget class="QLCDNumber" name="lcdTIC100">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -539,108 +539,11 @@
          </property>
         </widget>
        </widget>
-       <widget class="QWidget" name="widgetCtrlFV100B" native="true">
+       <widget class="QWidget" name="widgetFI100V" native="true">
         <property name="geometry">
          <rect>
-          <x>10</x>
-          <y>330</y>
-          <width>111</width>
-          <height>71</height>
-         </rect>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>111</width>
-          <height>71</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>Valvula da Vazão de Vapor</string>
-        </property>
-        <property name="accessibleDescription">
-         <string/>
-        </property>
-        <property name="autoFillBackground">
-         <bool>false</bool>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">#widgetCtrlFV100B{
-    background-color: #c0c0c0; /* Uma cor de fundo neutra */
-    border-width: 2px;
-    border-style: solid;
-    border-color: #ffffff #888888 #888888 #ffffff; /* Bordas: cima, direita, baixo, esquerda */
-    border-radius: 4px; /* Bordas arredondadas (opcional) */
-    padding: 4px; /* Espaçamento interno (opcional) */
-}</string>
-        </property>
-        <widget class="QLabel" name="label_12">
-         <property name="geometry">
-          <rect>
-           <x>17</x>
-           <y>10</y>
-           <width>71</width>
-           <height>22</height>
-          </rect>
-         </property>
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="font">
-          <font>
-           <pointsize>12</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>FV100B</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignmentFlag::AlignBottom|Qt::AlignmentFlag::AlignHCenter</set>
-         </property>
-        </widget>
-        <widget class="QLCDNumber" name="lcdPVFV100B">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>32</y>
-           <width>81</width>
-           <height>31</height>
-          </rect>
-         </property>
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="smallDecimalPoint">
-          <bool>true</bool>
-         </property>
-         <property name="digitCount">
-          <number>6</number>
-         </property>
-        </widget>
-        <widget class="QLabel" name="label_23">
-         <property name="geometry">
-          <rect>
-           <x>95</x>
-           <y>40</y>
-           <width>21</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>%</string>
-         </property>
-        </widget>
-       </widget>
-       <widget class="QWidget" name="widgetFI100B" native="true">
-        <property name="geometry">
-         <rect>
-          <x>164</x>
-          <y>20</y>
+          <x>140</x>
+          <y>10</y>
           <width>198</width>
           <height>219</height>
          </rect>
@@ -649,6 +552,57 @@
          <string>Seletor de demanda de Vapor</string>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <widget class="QWidget" name="widgetFI100V_2" native="true">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>31</width>
+             <height>201</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Seletor de demanda de Vapor</string>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">#widgetFI100V_2 {
+    background-color: #c0c0c0; /* Uma cor de fundo neutra */
+    border-width: 2px;
+    border-style: solid;
+    border-color: #ffffff #888888 #888888 #ffffff; /* Bordas: cima, direita, baixo, esquerda */
+    border-radius: 4px; /* Bordas arredondadas (opcional) */
+    padding: 4px; /* Espaçamento interno (opcional) */
+}</string>
+           </property>
+           <widget class="QSlider" name="verticalSliderFI100V">
+            <property name="geometry">
+             <rect>
+              <x>6</x>
+              <y>14</y>
+              <width>20</width>
+              <height>181</height>
+             </rect>
+            </property>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string>Seletor de demanda de Vapor</string>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Orientation::Vertical</enum>
+            </property>
+           </widget>
+          </widget>
+         </item>
          <item>
           <layout class="QVBoxLayout" name="verticalLayout_2">
            <item>
@@ -665,7 +619,7 @@
             </spacer>
            </item>
            <item>
-            <widget class="QWidget" name="widgetFI100B_1" native="true">
+            <widget class="QWidget" name="widgetFI100V_1" native="true">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                <horstretch>0</horstretch>
@@ -688,7 +642,7 @@
               <bool>false</bool>
              </property>
              <property name="styleSheet">
-              <string notr="true">#widgetFI100B_1 {
+              <string notr="true">#widgetFI100V_1 {
     background-color: #c0c0c0; /* Uma cor de fundo neutra */
     border-width: 2px;
     border-style: solid;
@@ -718,13 +672,13 @@
                </font>
               </property>
               <property name="text">
-               <string>FI100B</string>
+               <string>FI100V</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignmentFlag::AlignBottom|Qt::AlignmentFlag::AlignHCenter</set>
               </property>
              </widget>
-             <widget class="QLCDNumber" name="lcdPVFI100A">
+             <widget class="QLCDNumber" name="lcdFI100V">
               <property name="geometry">
                <rect>
                 <x>10</x>
@@ -776,73 +730,25 @@
            </item>
           </layout>
          </item>
-         <item>
-          <widget class="QWidget" name="widgetFI100A_1" native="true">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>31</width>
-             <height>201</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string>Seletor de demanda de Vapor</string>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">#widgetFI100A_1 {
-    background-color: #c0c0c0; /* Uma cor de fundo neutra */
-    border-width: 2px;
-    border-style: solid;
-    border-color: #ffffff #888888 #888888 #ffffff; /* Bordas: cima, direita, baixo, esquerda */
-    border-radius: 4px; /* Bordas arredondadas (opcional) */
-    padding: 4px; /* Espaçamento interno (opcional) */
-}</string>
-           </property>
-           <widget class="QSlider" name="verticalSliderFV100A">
-            <property name="geometry">
-             <rect>
-              <x>6</x>
-              <y>14</y>
-              <width>20</width>
-              <height>181</height>
-             </rect>
-            </property>
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="toolTip">
-             <string>Seletor de demanda de Vapor</string>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Orientation::Vertical</enum>
-            </property>
-           </widget>
-          </widget>
-         </item>
         </layout>
        </widget>
-       <widget class="QWidget" name="widgetVI100" native="true">
+       <widget class="QWidget" name="widgetFV100A" native="true">
         <property name="geometry">
          <rect>
-          <x>390</x>
-          <y>240</y>
+          <x>340</x>
+          <y>10</y>
           <width>168</width>
           <height>219</height>
          </rect>
         </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <property name="toolTip">
+         <string>Posicionador da Válvula de Vazão de Água</string>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_4">
          <item>
-          <layout class="QVBoxLayout" name="verticalLayout_5">
+          <layout class="QVBoxLayout" name="verticalLayout_6">
            <item>
-            <spacer name="verticalSpacer_3">
+            <spacer name="verticalSpacer_5">
              <property name="orientation">
               <enum>Qt::Orientation::Vertical</enum>
              </property>
@@ -855,15 +761,18 @@
             </spacer>
            </item>
            <item>
-            <widget class="QWidget" name="widgetCtrlVI100" native="true">
+            <widget class="QWidget" name="widgetCtrlFV100A" native="true">
              <property name="minimumSize">
               <size>
                <width>111</width>
                <height>71</height>
               </size>
              </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
+             </property>
              <property name="toolTip">
-              <string>Velocidade da Esteira de Bagaço</string>
+              <string>Posicionador da Válvula de Vazão de Água</string>
              </property>
              <property name="accessibleDescription">
               <string/>
@@ -872,7 +781,7 @@
               <bool>false</bool>
              </property>
              <property name="styleSheet">
-              <string notr="true">#widgetCtrlVI100{
+              <string notr="true">#widgetCtrlFV100A{
     background-color: #c0c0c0; /* Uma cor de fundo neutra */
     border-width: 2px;
     border-style: solid;
@@ -881,12 +790,12 @@
     padding: 4px; /* Espaçamento interno (opcional) */
 }</string>
              </property>
-             <widget class="QLabel" name="label_30">
+             <widget class="QLabel" name="label_12">
               <property name="geometry">
                <rect>
-                <x>30</x>
-                <y>10</y>
-                <width>48</width>
+                <x>19</x>
+                <y>7</y>
+                <width>71</width>
                 <height>22</height>
                </rect>
               </property>
@@ -902,13 +811,13 @@
                </font>
               </property>
               <property name="text">
-               <string>VI100</string>
+               <string>FV100A</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignmentFlag::AlignBottom|Qt::AlignmentFlag::AlignHCenter</set>
               </property>
              </widget>
-             <widget class="QLCDNumber" name="lcdPVTIC100_3">
+             <widget class="QLCDNumber" name="lcdPVFV100A">
               <property name="geometry">
                <rect>
                 <x>10</x>
@@ -930,7 +839,188 @@
                <number>6</number>
               </property>
              </widget>
-             <widget class="QLabel" name="label_31">
+             <widget class="QLabel" name="label_23">
+              <property name="geometry">
+               <rect>
+                <x>95</x>
+                <y>40</y>
+                <width>21</width>
+                <height>16</height>
+               </rect>
+              </property>
+              <property name="text">
+               <string>%</string>
+              </property>
+             </widget>
+            </widget>
+           </item>
+           <item>
+            <spacer name="verticalSpacer_6">
+             <property name="orientation">
+              <enum>Qt::Orientation::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="QWidget" name="widgetSliderFV100A" native="true">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>31</width>
+             <height>201</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Posicionador da Válvula de Vazão de Água</string>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">#widgetSliderFV100A {
+    background-color: #c0c0c0; /* Uma cor de fundo neutra */
+    border-width: 2px;
+    border-style: solid;
+    border-color: #ffffff #888888 #888888 #ffffff; /* Bordas: cima, direita, baixo, esquerda */
+    border-radius: 4px; /* Bordas arredondadas (opcional) */
+    padding: 4px; /* Espaçamento interno (opcional) */
+}</string>
+           </property>
+           <widget class="QSlider" name="verticalSliderFV100A_1">
+            <property name="geometry">
+             <rect>
+              <x>6</x>
+              <y>11</y>
+              <width>20</width>
+              <height>181</height>
+             </rect>
+            </property>
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Posicionador da Válvula de Vazão de Água&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Orientation::Vertical</enum>
+            </property>
+           </widget>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="widgetVI100AR" native="true">
+        <property name="geometry">
+         <rect>
+          <x>390</x>
+          <y>230</y>
+          <width>223</width>
+          <height>128</height>
+         </rect>
+        </property>
+        <property name="toolTip">
+         <string>Velocidade do Ventilador de AR</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_7">
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_5">
+           <item>
+            <spacer name="horizontalSpacer">
+             <property name="orientation">
+              <enum>Qt::Orientation::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QWidget" name="widgetCtrlVI100AR" native="true">
+             <property name="minimumSize">
+              <size>
+               <width>111</width>
+               <height>71</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string/>
+             </property>
+             <property name="accessibleDescription">
+              <string/>
+             </property>
+             <property name="autoFillBackground">
+              <bool>false</bool>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">#widgetCtrlVI100AR {
+    background-color: #c0c0c0; /* Uma cor de fundo neutra */
+    border-width: 2px;
+    border-style: solid;
+    border-color: #ffffff #888888 #888888 #ffffff; /* Bordas: cima, direita, baixo, esquerda */
+    border-radius: 4px; /* Bordas arredondadas (opcional) */
+    padding: 4px; /* Espaçamento interno (opcional) */
+}</string>
+             </property>
+             <widget class="QLabel" name="label_32">
+              <property name="geometry">
+               <rect>
+                <x>17</x>
+                <y>10</y>
+                <width>71</width>
+                <height>22</height>
+               </rect>
+              </property>
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="font">
+               <font>
+                <pointsize>12</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>VI100AR</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignmentFlag::AlignBottom|Qt::AlignmentFlag::AlignHCenter</set>
+              </property>
+             </widget>
+             <widget class="QLCDNumber" name="lcdVI100AR">
+              <property name="geometry">
+               <rect>
+                <x>10</x>
+                <y>32</y>
+                <width>81</width>
+                <height>31</height>
+               </rect>
+              </property>
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="smallDecimalPoint">
+               <bool>true</bool>
+              </property>
+              <property name="digitCount">
+               <number>6</number>
+              </property>
+             </widget>
+             <widget class="QLabel" name="label_33">
               <property name="geometry">
                <rect>
                 <x>96</x>
@@ -946,14 +1036,14 @@
             </widget>
            </item>
            <item>
-            <spacer name="verticalSpacer_4">
+            <spacer name="horizontalSpacer_6">
              <property name="orientation">
-              <enum>Qt::Orientation::Vertical</enum>
+              <enum>Qt::Orientation::Horizontal</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
-               <width>20</width>
-               <height>40</height>
+               <width>40</width>
+               <height>20</height>
               </size>
              </property>
             </spacer>
@@ -961,7 +1051,7 @@
           </layout>
          </item>
          <item>
-          <widget class="QWidget" name="widgetSliderVI100" native="true">
+          <widget class="QWidget" name="widgetSliderVI100AR" native="true">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
              <horstretch>0</horstretch>
@@ -970,15 +1060,15 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>31</width>
-             <height>201</height>
+             <width>201</width>
+             <height>31</height>
             </size>
            </property>
            <property name="toolTip">
-            <string>Válvula da Vazão de Água</string>
+            <string/>
            </property>
            <property name="styleSheet">
-            <string notr="true">#widgetSliderVI100 {
+            <string notr="true">#widgetSliderVI100AR {
     background-color: #c0c0c0; /* Uma cor de fundo neutra */
     border-width: 2px;
     border-style: solid;
@@ -987,20 +1077,201 @@
     padding: 4px; /* Espaçamento interno (opcional) */
 }</string>
            </property>
-           <widget class="QSlider" name="verticalSliderFV100B">
+           <widget class="QSlider" name="verticalSliderVI100AR">
             <property name="geometry">
              <rect>
-              <x>6</x>
-              <y>11</y>
-              <width>20</width>
-              <height>181</height>
+              <x>4</x>
+              <y>7</y>
+              <width>201</width>
+              <height>20</height>
              </rect>
             </property>
             <property name="toolTip">
-             <string>Valvula da Vazão de Agua</string>
+             <string/>
             </property>
             <property name="orientation">
-             <enum>Qt::Orientation::Vertical</enum>
+             <enum>Qt::Orientation::Horizontal</enum>
+            </property>
+           </widget>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="widgetVI100CA" native="true">
+        <property name="geometry">
+         <rect>
+          <x>390</x>
+          <y>360</y>
+          <width>223</width>
+          <height>128</height>
+         </rect>
+        </property>
+        <property name="toolTip">
+         <string>Velocidade das Esteiras de Cavaco</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_8">
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_6">
+           <item>
+            <spacer name="horizontalSpacer_7">
+             <property name="orientation">
+              <enum>Qt::Orientation::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QWidget" name="widgetCtrlVI100CA" native="true">
+             <property name="minimumSize">
+              <size>
+               <width>111</width>
+               <height>71</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string/>
+             </property>
+             <property name="accessibleDescription">
+              <string/>
+             </property>
+             <property name="autoFillBackground">
+              <bool>false</bool>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">#widgetCtrlVI100CA{
+    background-color: #c0c0c0; /* Uma cor de fundo neutra */
+    border-width: 2px;
+    border-style: solid;
+    border-color: #ffffff #888888 #888888 #ffffff; /* Bordas: cima, direita, baixo, esquerda */
+    border-radius: 4px; /* Bordas arredondadas (opcional) */
+    padding: 4px; /* Espaçamento interno (opcional) */
+}</string>
+             </property>
+             <widget class="QLabel" name="label_34">
+              <property name="geometry">
+               <rect>
+                <x>17</x>
+                <y>10</y>
+                <width>71</width>
+                <height>22</height>
+               </rect>
+              </property>
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="font">
+               <font>
+                <pointsize>12</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>VI100CA</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignmentFlag::AlignBottom|Qt::AlignmentFlag::AlignHCenter</set>
+              </property>
+             </widget>
+             <widget class="QLCDNumber" name="lcdVI100CA">
+              <property name="geometry">
+               <rect>
+                <x>10</x>
+                <y>32</y>
+                <width>81</width>
+                <height>31</height>
+               </rect>
+              </property>
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="smallDecimalPoint">
+               <bool>true</bool>
+              </property>
+              <property name="digitCount">
+               <number>6</number>
+              </property>
+             </widget>
+             <widget class="QLabel" name="label_35">
+              <property name="geometry">
+               <rect>
+                <x>96</x>
+                <y>40</y>
+                <width>16</width>
+                <height>16</height>
+               </rect>
+              </property>
+              <property name="text">
+               <string>%</string>
+              </property>
+             </widget>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_8">
+             <property name="orientation">
+              <enum>Qt::Orientation::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="QWidget" name="widgetSliderVI100CA" native="true">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>201</width>
+             <height>31</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string/>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">#widgetSliderVI100CA {
+    background-color: #c0c0c0; /* Uma cor de fundo neutra */
+    border-width: 2px;
+    border-style: solid;
+    border-color: #ffffff #888888 #888888 #ffffff; /* Bordas: cima, direita, baixo, esquerda */
+    border-radius: 4px; /* Bordas arredondadas (opcional) */
+    padding: 4px; /* Espaçamento interno (opcional) */
+}</string>
+           </property>
+           <widget class="QSlider" name="verticalSliderVI100CA">
+            <property name="geometry">
+             <rect>
+              <x>4</x>
+              <y>7</y>
+              <width>201</width>
+              <height>20</height>
+             </rect>
+            </property>
+            <property name="toolTip">
+             <string/>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Orientation::Horizontal</enum>
             </property>
            </widget>
           </widget>
