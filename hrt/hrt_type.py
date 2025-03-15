@@ -76,7 +76,7 @@ def _hrt_type_hex2_date(valor: str) -> date:
     aux = [int(p, 16) for p in parts]
     if len(aux) < 3:
         raise ValueError("Formato do HEX para data incorreto")
-    return f"{aux[0]}-{aux[1]}-{1900+aux[2]}"
+    return f"{aux[0]:02}/{aux[1]:02}/{1900+aux[2]:04}"
 
 def _hrt_type_hex2_time(valor: str) -> datetime:
     partes = split_by_length(valor, 2)
@@ -167,12 +167,10 @@ def _hrt_type_pascii2_hex(valor: str, byte_size: int) -> str:
     return hex_str.zfill(2*byte_size)
 
 def _hrt_type_date2_hex(valor: str, byte_size: int) -> str:
-    parts = valor.replace("-", "")
-    parts = split_by_length(parts, 2)
-    aux = [int(p) for p in parts]
+    aux = valor.split("/")
     if len(aux) < 3:
         raise ValueError("Formato de DATE para hex incorreto")
-    return f"{aux[0]:02X}{aux[1]:02X}{aux[2] - 1900:02X}".zfill(2*byte_size)
+    return f"{int(aux[0]):02X}{int(aux[1]):02X}{(int(aux[2]) - 1900):02X}".zfill(2*byte_size)
 
 def _hrt_type_time2_hex(valor: datetime, byte_size: int) -> str:
     total_ms = valor.hour * 3600000 + valor.minute * 60000 + valor.second * 1000 + int(valor.microsecond / 1000)
