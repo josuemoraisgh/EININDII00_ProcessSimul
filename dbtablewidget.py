@@ -20,18 +20,14 @@ class DBTableWidget(QTableWidget):
         horizontalHeader_font = QFont("Arial", 12, QFont.Bold)  # Fonte maior e em negrito
         self.horizontalHeader().setFont(horizontalHeader_font)
         verticalHeader_font = QFont("Arial", 10, QFont.Bold)  # Fonte maior e em negrito
-        self.verticalHeader().setFont(verticalHeader_font)        
-        # Criar uma fonte com tamanho 14
-        # fonte = QFont("Arial", 14)
-        # # Aplicar a fonte na tabela inteira
-        # self.setFont(fonte)        
-        self.redraw()
+        self.verticalHeader().setFont(verticalHeader_font)              
+        self.redrawAll()
         
     def changeType(self, state:bool):
         self.state = not state
-        self.redraw()
+        self.redrawAll()
         
-    def redraw(self):   
+    def redrawAll(self):   
         self.df = self.hrt_data.get_dataframe()
         rows, cols = self.df.shape
         self.blockSignals(True)  # Bloqueia sinais para evitar loops infinitos
@@ -99,3 +95,25 @@ class DBTableWidget(QTableWidget):
         """Atualiza o Excel sempre que uma célula for editada na interface."""
         value = self.tableWidget.item(row, column).text()
         self.hrt_data.set_variable_with_pos(value, row, column, machineValue=(column <= 2) or self.state)
+        
+    def redraw(self):   
+        self.df = self.hrt_data.get_dataframe()
+        rows, cols = self.df.shape
+        self.blockSignals(True)  # Bloqueia sinais para evitar loops infinitos
+        for row in range(rows):               
+            for col in range(1, cols): 
+                machineValue = (col <= 2) or self.state
+                data = self.hrt_data.get_variable_with_pos(row, col, machineValue) 
+                cell_value = f"{data:.2f}" if not machineValue and isinstance(data, float) else str(data)
+                widget = self.cellWidget(row, col-1)
+                item = self.item(row, col-1)
+                if item:
+                    item.setText(cell_value)
+                if widget:
+                    if hasattr(widget, "setText"):
+                        widget.setText(cell_value)
+                    else:
+                        widget.setCurrentText(cell_value)
+                    
+        self.blockSignals(False)  # Libera sinais após a configuração da tabela
+        self.viewport().update()  # Atualiza a interface

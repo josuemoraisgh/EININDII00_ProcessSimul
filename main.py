@@ -37,7 +37,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.widgetLI100.move(parent_width * 0.58,parent_height * 0.02)
         self.widgetFI100V.move(parent_width * 0.02, parent_height * 0.02)
         self.widgetFI100A.move(parent_width * 0.48, parent_height * 0.58)
-        
         self.widgetFV100A.move(parent_width * 0.78, parent_height * 0.02)
         self.widgetVI100CA.move(parent_width * 0.28, parent_height * 0.68)
         self.widgetVI100AR.move(parent_width * 0.54, parent_height * 0.68)
