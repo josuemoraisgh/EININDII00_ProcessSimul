@@ -1,5 +1,5 @@
-# from db.storage_sqlite import Storage  # Assuming hrt_storage.py exists
-from db.storage_xlsx import Storage  # Assuming hrt_storage.py exists
+from db.storage_sqlite import Storage  # Assuming hrt_storage.py exists
+# from db.storage_xlsx import Storage  # Assuming hrt_storage.py exists
 from hrt.hrt_type import hrt_type_hex_to, hrt_type_hex_from  # Assuming hrt_type.py exists
 from hrt.old.hrt_settings import hrt_settings
 from asteval import Interpreter
@@ -8,8 +8,8 @@ from typing import Union
 import re
 class HrtData(Storage):
     def __init__(self):
-        # super().__init__('db/banco.db', 'hrt_tabela')  # 🔥 Chama o construtor da classe Pai quando sqlite
-        super().__init__('db/dados.xlsx')  # 🔥 Chama o construtor da classe Pai quando xlsx
+        super().__init__('db/banco.db', 'hrt_tabela')  # 🔥 Chama o construtor da classe Pai quando sqlite
+        # super().__init__('db/dados.xlsx')  # 🔥 Chama o construtor da classe Pai quando xlsx
         
     def keys(self):
         return super().keys()

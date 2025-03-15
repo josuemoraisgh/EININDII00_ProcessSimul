@@ -27,4 +27,4 @@ def excel_to_sqlite(excel_file, db_name, table_name):
     print(f"Dados salvos na tabela '{table_name}' do banco '{db_name}'.")
 
 # Exemplo de uso
-excel_to_sqlite('dados.xlsx', 'banco.db', 'hrt_tabela')
+excel_to_sqlite('db/dados.xlsx', 'db/banco.db', 'hrt_tabela')
