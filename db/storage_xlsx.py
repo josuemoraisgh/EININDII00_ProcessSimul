@@ -12,7 +12,7 @@ class Storage(QObject):
         try:
             #self.df = pd.read_excel(self.caminho_excel, skiprows=2) # , usecols=lambda x: x not in ['A']
             #self.df = self.df.iloc[:, 1:]
-            self.df = pd.read_excel(self.caminho_excel)
+            self.df = pd.read_excel(self.caminho_excel, index_col=0)
         except FileNotFoundError:
             # Se o arquivo não existir, cria uma tabela vazia
             self.df = pd.DataFrame(columns=["NAME", "BYTE_SIZE", "TYPE", "TIT100"])

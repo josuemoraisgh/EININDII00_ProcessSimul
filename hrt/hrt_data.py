@@ -6,6 +6,7 @@ from asteval import Interpreter
 from react.reactiveVariable import ReactiveVariable 
 from ctrl.simul_tf import SimulTf
 from typing import Union
+import numpy as np
 import pandas as pd
 import re
 class HrtData(Storage):
@@ -13,12 +14,18 @@ class HrtData(Storage):
         super().__init__('db/banco.db', 'hrt_tabela')  # 🔥 Chama o construtor da classe Pai quando sqlite
         # super().__init__('db/dados.xlsx')  # 🔥 Chama o construtor da classe Pai quando xlsx
         self.reactiveResultTf = pd.DataFrame(columns=self.colKeys())
-        # Retorna todos os índices que atendem à condição
-        mask = self.df["TYPE"].str.startswith("$")
-        row = self.df[mask].index.tolist()              
-        for col in range(len(self.df.columns)-3): 
-            self.reactiveResultTf[row] = ReactiveVariable("0")
-        
+        # Criando a máscara de forma mais eficiente sem applymap()
+        mask = np.char.startswith(self.df.values.astype(str), "$")
+        # Obtendo os índices das células que satisfazem a condição
+        rows, cols = np.where(mask)
+        # Mapeando para os nomes reais de linhas e colunas
+        row_names = self.df.index[rows].tolist()
+        col_names = self.df.columns[cols].tolist()
+
+        for row in row_names: 
+            for col in col_names: 
+                self.reactiveResultTf.loc[row,col] = self.df.loc[row,col]
+               
         
     def get_variable_with_pos(self, row: int, col: int, machineValue: bool = True):
         """Atualiza o DataFrame quando a célula for alterada."""
