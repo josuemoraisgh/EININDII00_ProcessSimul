@@ -13,28 +13,28 @@ class HrtData(Storage):
     def __init__(self):
         super().__init__('db/banco.db', 'hrt_tabela')  # 🔥 Chama o construtor da classe Pai quando sqlite
         # super().__init__('db/dados.xlsx')  # 🔥 Chama o construtor da classe Pai quando xlsx
-        self.reactiveResultTf = pd.DataFrame(columns=self.colKeys())
-        # Criando a máscara de forma mais eficiente sem applymap()
-        mask = np.char.startswith(self.df.values.astype(str), "$")
-        # Obtendo os índices das células que satisfazem a condição
-        rows, cols = np.where(mask)
-        # Mapeando para os nomes reais de linhas e colunas
-        row_names = self.df.index[rows].tolist()
-        col_names = self.df.columns[cols].tolist()
+        # self.reactiveResultTf = pd.DataFrame(columns=self.colKeys())
+        # # Criando a máscara de forma mais eficiente sem applymap()
+        # mask = np.char.startswith(self.df.values.astype(str), "$")
+        # # Obtendo os índices das células que satisfazem a condição
+        # rows, cols = np.where(mask)
+        # # Mapeando para os nomes reais de linhas e colunas
+        # row_names = self.df.index[rows].tolist()
+        # col_names = self.df.columns[cols].tolist()
 
-        for row in row_names: 
-            for col in col_names: 
-                self.reactiveResultTf.loc[row,col] = self.df.loc[row,col]
+        # for row in row_names: 
+        #     for col in col_names: 
+        #         self.reactiveResultTf.loc[row,col] = self.df.loc[row,col]
                
+    def getDataModel(self, rowName: str, colName: str):
+        value = super().get_variable(rowName,colName)
+        if value.startswith('@'):
+            return "Func"
+        elif value.startswith('$'):
+            return "tFunc"
+        else:
+            return "Value"
         
-    def get_variable_with_pos(self, row: int, col: int, machineValue: bool = True):
-        """Atualiza o DataFrame quando a célula for alterada."""
-        return self.get_variable(self.get_dataframe().iloc[row, 0], self.colKeys()[col], machineValue)
-   
-    def set_variable_with_pos(self, value, row: int, col: int, machineValue: bool = True):
-        """Atualiza o DataFrame quando a célula for alterada."""
-        return self.set_variable(value, self.get_dataframe().iloc[row, 0], self.colKeys()[col], machineValue)
-
     def get_variable(self, id_variable: str, instrument: str, machineValue: bool = True):
         if id_variable == instrument or instrument == 'NAME':
             return id_variable
@@ -80,7 +80,6 @@ class HrtData(Storage):
                 return 0.0
             else:
                 return "0.0"
-
 
 # Exemplo de uso
 if __name__ == '__main__':

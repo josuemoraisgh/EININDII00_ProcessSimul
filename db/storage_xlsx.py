@@ -10,12 +10,10 @@ class Storage(QObject):
         super().__init__()  # 🔥 Inicializa QObject explicitamente        
         self.caminho_excel = caminho_excel
         try:
-            #self.df = pd.read_excel(self.caminho_excel, skiprows=2) # , usecols=lambda x: x not in ['A']
-            #self.df = self.df.iloc[:, 1:]
-            self.df = pd.read_excel(self.caminho_excel, index_col=0)
+            self.df = pd.read_excel(self.caminho_excel, index_col='NAME')
         except FileNotFoundError:
             # Se o arquivo não existir, cria uma tabela vazia
-            self.df = pd.DataFrame(columns=["NAME", "BYTE_SIZE", "TYPE", "TIT100"])
+            self.df = pd.DataFrame(columns=["BYTE_SIZE", "TYPE", "TIT100"])
             self.saveAllData()
     
     def get_dataframe(self):
@@ -23,11 +21,11 @@ class Storage(QObject):
     
     def saveAllData(self):
         """Escreve os dados de volta ao arquivo Excel."""
-        self.df.to_excel(self.caminho_excel, index=False)
+        self.df.to_excel(self.caminho_excel, index=True)
         self.data_updated.emit()  # Emite o sinal de atualização              
         
     def rowKeys(self):
-        return self.df.iloc[0].tolist()
+        return self.df.index.tolist()
 
     def colKeys(self):
         return self.df.columns.tolist()
@@ -45,12 +43,14 @@ class Storage(QObject):
             operation = None
 
         # Função para obter o valor de uma variável
-        def get_value(var: str) -> str:
-            row = self.df.loc[self.df['NAME'] == var]
-            if not row.empty and column in row.columns:
-                return row.iloc[0][column]
+        def get_value(var: str, column: str) -> str:
+            # Buscar a linha onde o índice é igual a 'var'
+            row = self.df.loc[var]
+            # Verificar se a linha contém a coluna e retornar o valor
+            if column in row.index:  # Verifica se a coluna existe na linha
+                return row[column]
             return None
-
+        
         # Obtém os valores das variáveis
         values = [get_value(var) for var in variables]
 
@@ -66,19 +66,21 @@ class Storage(QObject):
             return str(values[0])
         
     def set_variable(self, id_variable: str, column: str, value: str):
-        if id_variable in self.df['NAME'].values:
-            self.df.loc[self.df['NAME'] == id_variable, column] = value
+        # Verificar se o id_variable já está no índice (NAME)
+        if id_variable in self.df.index:
+            # Atualizar o valor na coluna específica para o índice (NAME)
+            self.df.loc[id_variable, column] = value
         else:
-            new_row = pd.DataFrame({'NAME': [id_variable], column: [value]})
-            self.df = pd.concat([self.df, new_row], ignore_index=True)
-        self.saveAllData()    
-        
+            # Adicionar uma nova linha, configurando o índice (NAME) corretamente
+            new_row = pd.DataFrame({column: [value]}, index=[id_variable])
+            self.df = pd.concat([self.df, new_row])
+        self.saveAllData()
 
+        
 # Exemplo de uso
 if __name__ == '__main__':
     storage = Storage('dados.xlsx')
     storage.data_updated.connect(lambda: print("Dados foram atualizados!"))
-    
     storage.set_variable('PROCESS_VARIABLE', 'TIT100', '42480000')
     valor = storage.get_variable('PROCESS_VARIABLE', 'TIT100')
     print(f"Valor obtido para 'PROCESS_VARIABLE' em TIT100: {valor}")
