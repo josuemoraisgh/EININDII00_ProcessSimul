@@ -40,14 +40,14 @@ class HrtData(Storage):
             return id_variable
         else: 
             value = super().get_variable(id_variable, instrument)
-            type = super().get_variable(id_variable, "TYPE")
+            dataModel = self.getDataModel(id_variable, instrument)
             if not instrument in ["NAME", "TYPE", "BYTE_SIZE"]:
-                if str(type).startswith('@'):
+                if dataModel == "Func":
                     return self._evaluate_expression(value, id_variable, instrument, machineValue)
-                elif str(type).startswith('$'):   
+                elif dataModel == "tFunc":  
                     return self._evaluate_expression(value, id_variable, instrument, machineValue)
                 elif not machineValue:
-                    return hrt_type_hex_to(super().get_variable(id_variable, instrument), type)
+                    return hrt_type_hex_to(super().get_variable(id_variable, instrument), super().get_variable(id_variable, "TYPE"))
             return value
 
     def set_variable(self, value, id_variable: str, instrument: str, machineValue:bool = True):
@@ -61,7 +61,7 @@ class HrtData(Storage):
     
     def _evaluate_expression(self, func: str, id_variable: str, instrument: str, machineValue: bool = True) -> Union[float, str]:
         evaluator = Interpreter()
-        # expr_str = func[1:]  # Remove o caractere '@' inicial
+        func = func[1:]  # Remove o caractere '@' inicial
         tokens = re.findall(r'[A-Za-z_]\w*', func)
         for token in tokens:
             # Fazer no futuro: Checar se todas as variaves são do mesmo tipo ?

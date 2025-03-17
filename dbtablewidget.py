@@ -35,8 +35,10 @@ class DBTableWidget(QTableWidget):
                 machineValue = (colName in ["BYTE_SIZE","TYPE"]) or self.state
                 data = self.hrt_data.get_variable(rowName, colName, machineValue) 
                 cell_value = f"{data:.2f}" if not machineValue and isinstance(data, float) else str(data)
-                widget = self.cellWidget(rowName, colName)
-                item = self.item(rowName, colName)
+                rowID = self.df.index.get_loc(rowName)
+                colID = self.df.columns.get_loc(colName)
+                widget = self.cellWidget(rowID, colID)
+                item = self.item(rowID, colID)
                 if item:
                     item.setText(cell_value)
                 if widget:
@@ -108,7 +110,7 @@ class DBTableWidget(QTableWidget):
         value = widget.currentText()
         self.hrt_data.set_variable(value, row, col, machineValue)
 
-    # def on_cell_changed(self, row, column, machineValue):
+    # def on_cell_changed(self, rowName, colName):
     #     """Atualiza o Excel sempre que uma célula for editada na interface."""
-    #     value = self.tableWidget.item(row, column).text()
-    #     self.hrt_data.set_variable_with_pos(value, row, column, machineValue=(column <= 2) or self.state)
+    #     value = self.tableWidget.item(self.df.index.get_loc(rowName),self.df.columns.get_loc(colName)).text()
+    #     self.hrt_data.set_variable(value, rowName, colName, machineValue = (colName in ["BYTE_SIZE","TYPE"]) or self.state)
