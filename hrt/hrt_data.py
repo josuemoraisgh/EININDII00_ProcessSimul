@@ -21,7 +21,7 @@ class HrtData(Storage):
         row_names = self.df.index[rows].tolist()
         col_names = self.df.columns[cols].tolist()
         # Inicializando o dicionario com os resultados das tf
-        self.reactiveResultTf = {(row, col): 0 for row in row_names for col in col_names}
+        self.tf_dict = {(row, col): 0 for row in row_names for col in col_names}
     
     def getModel(self, value: str) -> str:   
         if value.startswith('@'):
@@ -49,9 +49,9 @@ class HrtData(Storage):
                     return self._evaluate_expression(value, id_variable, instrument, machineValue)
                 elif dataModel == "tFunc": 
                     if not machineValue:
-                        return hrt_type_hex_to(self.reactiveResultTf.loc[id_variable, instrument], super().get_variable(id_variable, "TYPE"))
+                        return hrt_type_hex_to(self.tf_dict[id_variable, instrument], super().get_variable(id_variable, "TYPE"))
                     else:
-                        return self.reactiveResultTf.loc[id_variable, instrument]
+                        return self.tf_dict[id_variable, instrument]
                 elif not machineValue:
                     return hrt_type_hex_to(super().get_variable(id_variable, instrument), super().get_variable(id_variable, "TYPE"))
             return value
@@ -62,9 +62,9 @@ class HrtData(Storage):
         else:
             modelAntes = self.getDataModel(id_variable, instrument).find("tFunc") != -1 # Se antes era tf
             modelAgora = self.getModel(value).find("tFunc") != -1 # Se agora é tf
-            if not modelAntes and modelAgora: self.reactiveResultTf[id_variable, instrument]=0
-            if modelAntes and not modelAgora: self.reactiveResultTf.pop((id_variable, instrument), None)
-            if machineValue:
+            if not modelAntes and modelAgora: self.tf_dict[id_variable, instrument] = 0
+            if modelAntes and not modelAgora: self.tf_dict.pop((id_variable, instrument), None)
+            if machineValue or self.getDataModel(id_variable, instrument).find("Func") != -1:
                 return super().set_variable(id_variable, instrument, str(value))
             else:
                 return super().set_variable(id_variable, instrument, hrt_type_hex_from(value, super().get_variable(id_variable, "TYPE"), int(super().get_variable(id_variable, "BYTE_SIZE"))))

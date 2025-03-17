@@ -1,42 +1,53 @@
-import numpy as np
+from react.repeatFunction import RepeatFunction
+from hrt.hrt_data import HrtData
 import control as ctrl
-from react.repeatFunction import RepeatFunction 
-from react.reactiveVariable import ReactiveVariable 
-
+import numpy as np
+import ast  # Para converter strings de listas em listas reais
 class SimulTf:
-    def __init__(self, numerator, denominator, stepTime, outputReactiveVariable: ReactiveVariable):
+    def __init__(self, hrt_data: HrtData, stepTime):
         """
-        numerator: lista de coeficientes do numerador.
-        denominator: lista de coeficientes do denominador.
-        stepTime: tempo do passo de integração em segundos.
-        plant_output_callback: função callback com a assinatura callback(output, state)
+        tf_dict: dicionário onde:
+            - chave: nome da função de transferência (str).
+            - valor: string no formato "num, den, input", onde:
+                * num e den são listas representadas como strings.
+                * input é um número como string.
+        stepTime: tempo de integração em segundos.
         """
-        self.numerator = numerator
-        self.denominator = denominator
-        self.stepTime = stepTime  # em milisegundos
-        self.outputReactiveVariable = outputReactiveVariable
-        self.input_value = 0.0
+        self.hrt_data = hrt_data
+        self.tf_dict = self.hrt_data
+        self.stepTime = stepTime  # em segundos
 
-        # Converte a função de transferência contínua para espaço de estado
-        sys_tf = ctrl.TransferFunction(numerator, denominator)
-        sys_ss = ctrl.tf2ss(sys_tf)
-        sysd = ctrl.c2d(sys_ss, stepTime, method='tustin')
-        self.A = np.array(sysd.A)
-        self.B = np.array(sysd.B)
-        self.C = np.array(sysd.C)
-        self.D = np.array(sysd.D)
+        self.systems = {}  # Armazena os sistemas no espaço de estado
+        self.states = {}   # Armazena os estados de cada sistema
+        self.inputs = {}   # Armazena os inputs de cada sistema
 
-        self.state = np.zeros((self.A.shape[0], 1))
+        # Converte todas as funções de transferência do dicionário
+        for key, value in tf_dict.items():
+            num_str, den_str, input_str = map(str.strip, value.split(","))  # Divide e remove espaços
+            num = ast.literal_eval(num_str)  # Converte string de lista para lista real
+            den = ast.literal_eval(den_str)
+            input_value = float(input_str)  # Converte para número real
+            
+            sys_tf = ctrl.TransferFunction(num, den)
+            sys_ss = ctrl.tf2ss(sys_tf)
+            sysd = ctrl.c2d(sys_ss, stepTime, method='tustin')
 
-        # Usando RepeatedFunction para rodar em outra thread
+            self.systems[key] = {
+                "A": np.array(sysd.A),
+                "B": np.array(sysd.B),
+                "C": np.array(sysd.C),
+                "D": np.array(sysd.D)
+            }
+            self.states[key] = np.zeros((sysd.A.shape[0], 1))  # Estado inicial zerado
+            self.inputs[key] = input_value
+
+        # Inicializa a função repetida para rodar a simulação de forma contínua
         self._repeated_function = RepeatFunction(self._simulation_step, stepTime)
 
-    def changeData(self, numerator, denominator, stepTime):
+    def changeData(self, tf_dict, stepTime):
+        """Atualiza os sistemas com novos parâmetros."""
         self.stop()
-        self.numerator = numerator
-        self.denominator = denominator
-        self.stepTime = stepTime  # em milisegundos
-        self._repeated_function.changeInterval(stepTime)
+        self.__init__(tf_dict, stepTime)
 
     def start(self):
         """Inicia a execução da simulação."""
@@ -47,19 +58,28 @@ class SimulTf:
         self._repeated_function.stop()
 
     def close(self):
-        """Finaliza a execução e zera o estado."""
-        self.state = np.zeros((self.A.shape[0], 1))
+        """Finaliza a execução e reseta os estados."""
+        for key in self.states:
+            self.states[key] = np.zeros_like(self.states[key])
         self.stop()
 
-    def set_input_value(self, input_value):
-        """Define o valor da entrada de controle."""
-        self.input_value = input_value
+    def set_input_values(self, input_dict):
+        """Define os valores de entrada de controle. input_dict deve ter o formato {'tf_name': valor}."""
+        for key, value in input_dict.items():
+            if key in self.inputs:
+                self.inputs[key] = float(value)
 
     def _simulation_step(self):
-        """Calcula o próximo passo da simulação e envia os dados para a thread principal."""
-        # Calcula o próximo estado: x[k+1] = A * x[k] + B * u[k]
-        next_state = self.A.dot(self.state) + self.B * self.input_value
-        # Calcula a saída: y[k] = C * x[k+1] + D * u[k]
-        output = self.C.dot(next_state) + self.D * self.input_value
-        self.state = next_state
-        self.outputReactiveVariable.set(float(output))
+        """Calcula o próximo passo para todas as funções de transferência."""
+        outputs = {}
+
+        for key, system in self.systems.items():
+            # Calcula o próximo estado: x[k+1] = A * x[k] + B * u[k]
+            next_state = system["A"].dot(self.states[key]) + system["B"] * self.inputs[key]
+            # Calcula a saída: y[k] = C * x[k+1] + D * u[k]
+            output = system["C"].dot(next_state) + system["D"] * self.inputs[key]
+            self.states[key] = next_state
+            outputs[key] = float(output)  # Armazena a saída da função de transferência
+
+        # Atualiza as variáveis de saída (reaja conforme necessário)
+        self.outputReactiveVariable.set(outputs)

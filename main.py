@@ -2,6 +2,7 @@ from PySide6.QtWidgets import QApplication, QMainWindow, QWidget
 from PySide6.QtCore import Signal
 from uis.ui_main import Ui_MainWindow  # Interface do Qt Designer
 from hrt.hrt_data import HrtData
+from ctrl.simul_tf import SimulTf
 import sys
 import os
 
@@ -12,8 +13,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         super().__init__()
         self.resize(800, 500)  # Defina o tamanho desejado
         self.setupUi(self)  # Configura a interface do Qt Designer  
-        # self.radioButtonHex.clicked["bool"].connect(self.oldDBTableWidget.changeType)      
+        # self.radioButtonHex.clicked["bool"].connect(self.oldDBTableWidget.changeType) 
         self.oldDBTableWidget.setBaseData(hrt_data)
+        self.simulTf = SimulTf(hrt_data, 0.01)   
         image_path = os.path.abspath("img/caldeira.jpg")
         self.oldCtrlGLWidget.setBackgroundImage(image_path)
         self.centralizar_janela()
