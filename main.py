@@ -50,7 +50,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    hrt_data = HrtData()
-    window = MainWindow(hrt_data)
+    window = MainWindow(HrtData())
     window.show()
     sys.exit(app.exec())

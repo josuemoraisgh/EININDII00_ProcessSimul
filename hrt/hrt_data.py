@@ -3,8 +3,6 @@ from db.storage_sqlite import Storage  # Assuming hrt_storage.py exists
 from hrt.hrt_type import hrt_type_hex_to, hrt_type_hex_from  # Assuming hrt_type.py exists
 from hrt.old.hrt_settings import hrt_settings
 from asteval import Interpreter
-from react.reactiveVariable import ReactiveVariable 
-from ctrl.simul_tf import SimulTf
 from typing import Union
 import numpy as np
 import pandas as pd
@@ -32,8 +30,7 @@ class HrtData(Storage):
             return "Value"
                
     def getDataModel(self, rowName: str, colName: str) -> str:
-        value = super().get_variable(rowName,colName)
-        return self.getModel(self, value)
+        return self.getModel(self, super().get_variable(rowName,colName))
     
     def getShape(self):
         return self.df.shape

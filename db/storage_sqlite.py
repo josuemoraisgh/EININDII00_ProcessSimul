@@ -22,7 +22,6 @@ class Storage(QObject):
     
     def rowKeys(self):
         return self.df.index
-        # return self.df.iloc[0].tolist()
 
     def colKeys(self):
         return self.df.columns

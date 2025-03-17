@@ -14,7 +14,7 @@ class SimulTf:
         stepTime: tempo de integração em segundos.
         """
         self.hrt_data = hrt_data
-        self.tf_dict = self.hrt_data
+        self.tf_dict = self.hrt_data.tf_dict
         self.stepTime = stepTime  # em segundos
 
         self.systems = {}  # Armazena os sistemas no espaço de estado
@@ -22,7 +22,7 @@ class SimulTf:
         self.inputs = {}   # Armazena os inputs de cada sistema
 
         # Converte todas as funções de transferência do dicionário
-        for key, value in tf_dict.items():
+        for key, value in self.tf_dict.items():
             num_str, den_str, input_str = map(str.strip, value.split(","))  # Divide e remove espaços
             num = ast.literal_eval(num_str)  # Converte string de lista para lista real
             den = ast.literal_eval(den_str)
