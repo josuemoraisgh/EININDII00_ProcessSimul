@@ -12,14 +12,14 @@ class HrtData(Storage):
         super().__init__('db/banco.db', 'hrt_tabela')  # 🔥 Chama o construtor da classe Pai quando sqlite
         # super().__init__('db/dados.xlsx')  # 🔥 Chama o construtor da classe Pai quando xlsx
         # Criando a máscara
-        mask = np.char.startswith(self.df.values.astype(str), "$")
+        mask = np.char.startswith(self.df.values.astype(str), "@")
         # Obtendo os índices das células que satisfazem a condição
         rows, cols = np.where(mask)
         # Mapeando para os nomes reais de linhas e colunas
-        row_names = self.df.index[rows].tolist()
-        col_names = self.df.columns[cols].tolist()
+        self.rowTfNames = self.df.index[rows].tolist()
+        self.colTfNames = self.df.columns[cols].tolist()
         # Inicializando o dicionario com os resultados das tf
-        self.tf_dict = {(row, col): 0 for row in row_names for col in col_names}
+        self.tf_dict = {(row, col): 0 for row in self.rowTfNames for col in self.colTfNames}
     
     def getModel(self, value: str) -> str:   
         if value.startswith('@'):
@@ -30,7 +30,8 @@ class HrtData(Storage):
             return "Value"
                
     def getDataModel(self, rowName: str, colName: str) -> str:
-        return self.getModel(self, super().get_variable(rowName,colName))
+        value = super().get_variable(rowName,colName)
+        return self.getModel(value)
     
     def getShape(self):
         return self.df.shape
