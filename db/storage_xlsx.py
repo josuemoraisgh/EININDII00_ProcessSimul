@@ -15,20 +15,17 @@ class Storage(QObject):
             # Se o arquivo não existir, cria uma tabela vazia
             self.df = pd.DataFrame(columns=["BYTE_SIZE", "TYPE", "TIT100"])
             self.saveAllData()
-    
-    def get_dataframe(self):
-        return self.df
-    
+        
     def saveAllData(self):
         """Escreve os dados de volta ao arquivo Excel."""
         self.df.to_excel(self.caminho_excel, index=True)
         self.data_updated.emit()  # Emite o sinal de atualização              
         
     def rowKeys(self):
-        return self.df.index.tolist()
+        return self.df.index
 
     def colKeys(self):
-        return self.df.columns.tolist()
+        return self.df.columns
     
     def get_variable(self, id_variable: str, column: str) -> str:
         # Identifica o operador bitwise e separa as variáveis

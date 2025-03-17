@@ -27,15 +27,14 @@ class DBTableWidget(QTableWidget):
         self.redrawAll()
         
     def redraw(self):   
-        self.df = self.hrt_data.get_dataframe()
         self.blockSignals(True)  # Bloqueia sinais para evitar loops infinitos
-        for rowName in self.df.index:               
-            for colName in self.df.columns: 
+        for rowName in self.hrt_data.rowKeys():               
+            for colName in self.hrt_data.colKeys(): 
                 machineValue = (colName in ["BYTE_SIZE","TYPE"]) or self.state
                 data = self.hrt_data.get_variable(rowName, colName, machineValue) 
                 cell_value = f"{data:.2f}" if not machineValue and isinstance(data, float) else str(data)
-                rowID = self.df.index.get_loc(rowName)
-                colID = self.df.columns.get_loc(colName)
+                rowID = self.hrt_data.rowKeys().get_loc(rowName)
+                colID = self.hrt_data.colKeys().get_loc(colName)
                 widget = self.cellWidget(rowID, colID)
                 item = self.item(rowID, colID)
                 if item:
@@ -50,24 +49,25 @@ class DBTableWidget(QTableWidget):
         self.viewport().update()  # Atualiza a interface
         
     def redrawAll(self):   
-        self.df = self.hrt_data.get_dataframe()
-        rows, cols = self.df.shape
+        rows, cols = self.hrt_data.getShape()
+        rowKeys = self.hrt_data.rowKeys()
+        colKeys = self.hrt_data.colKeys()
         self.blockSignals(True)  # Bloqueia sinais para evitar loops infinitos
         self.setRowCount(rows)
         self.setColumnCount(cols)
-        self.setHorizontalHeaderLabels(self.df.columns)
-        self.setVerticalHeaderLabels(self.df.index)        
+        self.setHorizontalHeaderLabels(colKeys)
+        self.setVerticalHeaderLabels(rowKeys)        
         # Ajuste automático das colunas ao conteúdo
       
-        for rowName in self.df.index: 
-            for colName in self.df.columns: 
+        for rowName in rowKeys: 
+            for colName in colKeys: 
                 machineValue = (colName in ["BYTE_SIZE","TYPE"]) or self.state
                 data = self.hrt_data.get_variable(rowName, colName, machineValue) 
                 cell_value = f"{data:.2f}" if not machineValue and isinstance(data, float) else str(data)
-                typeValue = self.df.loc[rowName,'TYPE']
+                typeValue = self.hrt_data.get_variable(rowName,'TYPE')
                 dataModel = self.hrt_data.getDataModel(rowName,colName)
-                rowID = self.df.index.get_loc(rowName)
-                colID = self.df.columns.get_loc(colName)
+                rowID = rowKeys.get_loc(rowName)
+                colID = colKeys.get_loc(colName)
                 
                 if (self.state or (colName in ["BYTE_SIZE","TYPE"]) or any(typeValue.find(x)!=-1 for x in ["PACKED", "UNSIGNED", "FLOAT", "INTEGER", "DATE", "TIME"])) and not (dataModel in ["Func", "tFunc"]):
                     widget = QLineEdit()

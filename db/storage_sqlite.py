@@ -15,20 +15,17 @@ class Storage(QObject):
             # Ler os dados da tabela para um DataFrame, usando a coluna 'NAME' como índice
             self.df = pd.read_sql_query(f"SELECT * FROM {table_name}", conn, index_col='NAME')
 
-    def get_dataframe(self):
-        return self.df
-
     def saveAllData(self):
         with sqlite3.connect(self.db_name) as conn:
             self.df.to_sql(self.table_name, conn, if_exists='replace', index=True)
         self.data_updated.emit()  # Emite sinal após salvar
     
     def rowKeys(self):
-        return self.df.index.tolist()
+        return self.df.index
         # return self.df.iloc[0].tolist()
 
     def colKeys(self):
-        return self.df.columns.tolist()
+        return self.df.columns
     
     def get_variable(self, id_variable: str, column: str) -> str:
         with sqlite3.connect(self.db_name) as conn:
