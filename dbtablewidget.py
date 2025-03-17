@@ -15,7 +15,6 @@ class DBTableWidget(QTableWidget):
     def setBaseData(self, hrt_data: HrtData):
         self.hrt_data = hrt_data
         self.hrt_data.data_updated.connect(self.redraw)  # Conecta sinal de atualização
-        # self.cellChanged.connect(self.on_cell_changed)  # Detecta edições na tabela  
         
         horizontalHeader_font = QFont("Arial", 12, QFont.Bold)  # Fonte maior e em negrito
         self.horizontalHeader().setFont(horizontalHeader_font)
@@ -109,8 +108,3 @@ class DBTableWidget(QTableWidget):
         """Atualiza os dados ao mudar um QComboBox."""
         value = widget.currentText()
         self.hrt_data.set_variable(value, row, col, machineValue)
-
-    # def on_cell_changed(self, rowName, colName):
-    #     """Atualiza o Excel sempre que uma célula for editada na interface."""
-    #     value = self.tableWidget.item(self.df.index.get_loc(rowName),self.df.columns.get_loc(colName)).text()
-    #     self.hrt_data.set_variable(value, rowName, colName, machineValue = (colName in ["BYTE_SIZE","TYPE"]) or self.state)
