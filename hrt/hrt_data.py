@@ -13,18 +13,15 @@ class HrtData(Storage):
     def __init__(self):
         super().__init__('db/banco.db', 'hrt_tabela')  # 🔥 Chama o construtor da classe Pai quando sqlite
         # super().__init__('db/dados.xlsx')  # 🔥 Chama o construtor da classe Pai quando xlsx
-        self.reactiveResultTf = pd.DataFrame(columns=self.colKeys())
-        # Criando a máscara de forma mais eficiente
+        # Criando a máscara
         mask = np.char.startswith(self.df.values.astype(str), "$")
         # Obtendo os índices das células que satisfazem a condição
         rows, cols = np.where(mask)
         # Mapeando para os nomes reais de linhas e colunas
         row_names = self.df.index[rows].tolist()
         col_names = self.df.columns[cols].tolist()
-
-        for row in row_names: 
-            for col in col_names: 
-                self.reactiveResultTf.loc[row,col] = 0.0
+        # Inicializando o dicionario com os resultados das tf
+        self.reactiveResultTf = {(row, col): 0 for row in row_names for col in col_names}
                
     def getDataModel(self, rowName: str, colName: str):
         value = super().get_variable(rowName,colName)
