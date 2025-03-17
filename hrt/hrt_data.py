@@ -22,15 +22,18 @@ class HrtData(Storage):
         col_names = self.df.columns[cols].tolist()
         # Inicializando o dicionario com os resultados das tf
         self.reactiveResultTf = {(row, col): 0 for row in row_names for col in col_names}
-               
-    def getDataModel(self, rowName: str, colName: str):
-        value = super().get_variable(rowName,colName)
+    
+    def getModel(self, value: str) -> str:   
         if value.startswith('@'):
             return "Func"
         elif value.startswith('$'):
             return "tFunc"
         else:
             return "Value"
+               
+    def getDataModel(self, rowName: str, colName: str) -> str:
+        value = super().get_variable(rowName,colName)
+        return self.getModel(self, value)
     
     def getShape(self):
         return self.df.shape
@@ -57,6 +60,10 @@ class HrtData(Storage):
         if id_variable == instrument or instrument == 'NAME':
             self.df.loc[id_variable,0] = value
         else:
+            modelAntes = self.getDataModel(id_variable, instrument).find("tFunc") != -1 # Se antes era tf
+            modelAgora = self.getModel(value).find("tFunc") != -1 # Se agora é tf
+            if not modelAntes and modelAgora: self.reactiveResultTf[id_variable, instrument]=0
+            if modelAntes and not modelAgora: self.reactiveResultTf.pop((id_variable, instrument), None)
             if machineValue:
                 return super().set_variable(id_variable, instrument, str(value))
             else:
