@@ -34,6 +34,8 @@ class DBTableWidget(QTableWidget):
         item = self.itemAt(position)
         if item:  # Verifica se há um item na posição
             menu = QMenu(self)
+            row = self.row(item)  # Obtém a linha do item
+            col = self.column(item)  # Obtém a coluna do item
             # Adiciona uma opção para abrir o QDialog
             action_Value = menu.addAction("Value")
             action_Func = menu.addAction("Func")
@@ -44,10 +46,19 @@ class DBTableWidget(QTableWidget):
             # Carregar o QDialog do arquivo .ui
             if action == action_Value: 
                 dialog_ui = Ui_Dialog_Value()  # Cria a instância do QDialog
+                dialog_ui.lineEdit.setText(self.hrt_data.get_variable(row,col,self.state))
+                dialog_ui.buttonBox.accepted.connect(lambda: self.hrt_data.set_variable(dialog_ui.lineEdit.text(),row,col,self.state))
             elif action == action_Func: 
                 dialog_ui = Ui_Dialog_Func()
+                dialog_ui.lineEdit.setText(self.hrt_data.getStrData[row,col][1:])
+                dialog_ui.buttonBox.accepted.connect(lambda: self.hrt_data.setStrData(f'@{dialog_ui.lineEdit.text()}',row,col))
             elif action == action_tFunc: 
                 dialog_ui = Ui_Dialog_Tfunc()
+                num_str, den_str, input_str = map(str.strip, self.hrt_data.getStrData[row,col].split(","))
+                dialog_ui.lineEditNum.setText(num_str[1:-1])
+                dialog_ui.lineEditDen.setText(den_str[1:-1])
+                dialog_ui.lineEditInput.setText(input_str)
+                dialog_ui.buttonBox.accepted.connect(lambda: self.hrt_data.setStrData(f'$[{dialog_ui.lineEditNum.text()}],[{dialog_ui.lineEditDen.text()}],{dialog_ui.lineEditInput.text()}',row,col))
             dialog_ui.setupUi(dialog)  # Configura a interface do QDialogpath = '../uis/dialog_value.ui'            dialog.setModal(True)  # Torna o dialog modal (bloqueia interação com outras janelas)
             # Definir o texto no QDialog (como exemplo, passando o valor do item clicado)
             # Exibe o QDialog

@@ -30,28 +30,28 @@ class HrtData(Storage):
             return "Value"
                
     def getDataModel(self, rowName: str, colName: str) -> str:
-        value = super().get_variable(rowName,colName)
+        value = super().getStrData(rowName,colName)
         return self.getModel(value)
     
     def getShape(self):
         return self.df.shape
-        
+       
     def get_variable(self, id_variable: str, instrument: str, machineValue: bool = True):
         if id_variable == instrument or instrument == 'NAME':
             return id_variable
         else: 
-            value = super().get_variable(id_variable, instrument)
+            value = super().getStrData(id_variable, instrument)
             dataModel = self.getDataModel(id_variable, instrument)
             if not instrument in ["NAME", "TYPE", "BYTE_SIZE"]:
                 if dataModel == "Func":
                     return self._evaluate_expression(value, id_variable, instrument, machineValue)
                 elif dataModel == "tFunc": 
                     if not machineValue:
-                        return hrt_type_hex_to(self.tf_dict[id_variable, instrument], super().get_variable(id_variable, "TYPE"))
+                        return hrt_type_hex_to(self.tf_dict[id_variable, instrument], super().getStrData(id_variable, "TYPE"))
                     else:
                         return self.tf_dict[id_variable, instrument]
                 elif not machineValue:
-                    return hrt_type_hex_to(super().get_variable(id_variable, instrument), super().get_variable(id_variable, "TYPE"))
+                    return hrt_type_hex_to(super().getStrData(id_variable, instrument), super().getStrData(id_variable, "TYPE"))
             return value
 
     def set_variable(self, value, id_variable: str, instrument: str, machineValue:bool = True):
@@ -63,9 +63,9 @@ class HrtData(Storage):
             if not modelAntes and modelAgora: self.tf_dict[id_variable, instrument] = 0
             if modelAntes and not modelAgora: self.tf_dict.pop((id_variable, instrument), None)
             if machineValue or self.getDataModel(id_variable, instrument).find("Func") != -1:
-                return super().set_variable(id_variable, instrument, str(value))
+                return super().setStrData(id_variable, instrument, str(value))
             else:
-                return super().set_variable(id_variable, instrument, hrt_type_hex_from(value, super().get_variable(id_variable, "TYPE"), int(super().get_variable(id_variable, "BYTE_SIZE"))))
+                return super().setStrData(id_variable, instrument, hrt_type_hex_from(value, super().getStrData(id_variable, "TYPE"), int(super().getStrData(id_variable, "BYTE_SIZE"))))
     
     def _evaluate_expression(self, func: str, id_variable: str, instrument: str, machineValue: bool = True) -> Union[float, str]:
         evaluator = Interpreter()
@@ -81,7 +81,7 @@ class HrtData(Storage):
             if not machineValue:
                 return result
             else:
-                return hrt_type_hex_from(result, super().get_variable(id_variable, "TYPE"), int(super().get_variable(id_variable, "BYTE_SIZE")))
+                return hrt_type_hex_from(result, super().getStrData(id_variable, "TYPE"), int(super().getStrData(id_variable, "BYTE_SIZE")))
         except Exception as e:
             print("Erro ao avaliar expressão:", e)
             if not machineValue:

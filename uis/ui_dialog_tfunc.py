@@ -34,10 +34,10 @@ class Ui_Dialog_Tfunc(object):
 
         self.horizontalLayout.addWidget(self.label)
 
-        self.lineEdit = QLineEdit(Dialog_Tfunc)
-        self.lineEdit.setObjectName(u"lineEdit")
+        self.lineEditNum = QLineEdit(Dialog_Tfunc)
+        self.lineEditNum.setObjectName(u"lineEditNum")
 
-        self.horizontalLayout.addWidget(self.lineEdit)
+        self.horizontalLayout.addWidget(self.lineEditNum)
 
 
         self.verticalLayout.addLayout(self.horizontalLayout)
@@ -49,10 +49,10 @@ class Ui_Dialog_Tfunc(object):
 
         self.horizontalLayout_2.addWidget(self.label_2)
 
-        self.lineEdit_2 = QLineEdit(Dialog_Tfunc)
-        self.lineEdit_2.setObjectName(u"lineEdit_2")
+        self.lineEditDen = QLineEdit(Dialog_Tfunc)
+        self.lineEditDen.setObjectName(u"lineEditDen")
 
-        self.horizontalLayout_2.addWidget(self.lineEdit_2)
+        self.horizontalLayout_2.addWidget(self.lineEditDen)
 
 
         self.verticalLayout.addLayout(self.horizontalLayout_2)
@@ -64,10 +64,10 @@ class Ui_Dialog_Tfunc(object):
 
         self.horizontalLayout_3.addWidget(self.label_3)
 
-        self.lineEdit_3 = QLineEdit(Dialog_Tfunc)
-        self.lineEdit_3.setObjectName(u"lineEdit_3")
+        self.lineEditInput = QLineEdit(Dialog_Tfunc)
+        self.lineEditInput.setObjectName(u"lineEditInput")
 
-        self.horizontalLayout_3.addWidget(self.lineEdit_3)
+        self.horizontalLayout_3.addWidget(self.lineEditInput)
 
 
         self.verticalLayout.addLayout(self.horizontalLayout_3)

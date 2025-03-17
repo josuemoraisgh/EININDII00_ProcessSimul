@@ -22,7 +22,7 @@ class SimulTf:
 
         # Converte todas as funções de transferência do dicionário
         for rowTfName, colTfName in zip(self.hrt_data.rowTfNames, self.hrt_data.colTfNames):
-            num_str, den_str, input_str = map(str.strip, self.hrt_data.df[rowTfName,colTfName].split(","))  # Divide e remove espaços
+            num_str, den_str, input_str = map(str.strip, self.hrt_data.getStrData[rowTfName,colTfName].split(","))  # Divide e remove espaços
             num = ast.literal_eval(num_str)  # Converte string de lista para lista real
             den = ast.literal_eval(den_str)
             input_value = self.hrt_data.get_variable(input_str,colTfName,False)  # Converte para número real

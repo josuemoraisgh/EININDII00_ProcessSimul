@@ -27,7 +27,7 @@ class Storage(QObject):
     def colKeys(self):
         return self.df.columns
     
-    def get_variable(self, id_variable: str, column: str) -> str:
+    def getStrData(self, id_variable: str, column: str) -> str:
         # Identifica o operador bitwise e separa as variáveis
         if '|' in id_variable:
             variables = id_variable.split(' | ')
@@ -62,7 +62,7 @@ class Storage(QObject):
         else:
             return str(values[0])
         
-    def set_variable(self, id_variable: str, column: str, value: str):
+    def setStrData(self, id_variable: str, column: str, value: str):
         # Verificar se o id_variable já está no índice (NAME)
         if id_variable in self.df.index:
             # Atualizar o valor na coluna específica para o índice (NAME)

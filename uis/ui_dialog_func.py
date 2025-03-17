@@ -34,10 +34,10 @@ class Ui_Dialog_Func(object):
 
         self.horizontalLayout.addWidget(self.label)
 
-        self.lineEditFunc = QLineEdit(Dialog_Func)
-        self.lineEditFunc.setObjectName(u"lineEditFunc")
+        self.lineEdit = QLineEdit(Dialog_Func)
+        self.lineEdit.setObjectName(u"lineEdit")
 
-        self.horizontalLayout.addWidget(self.lineEditFunc)
+        self.horizontalLayout.addWidget(self.lineEdit)
 
 
         self.verticalLayout.addLayout(self.horizontalLayout)

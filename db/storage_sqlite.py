@@ -26,7 +26,7 @@ class Storage(QObject):
     def colKeys(self):
         return self.df.columns
     
-    def get_variable(self, id_variable: str, column: str) -> str:
+    def getStrData(self, id_variable: str, column: str) -> str:
         with sqlite3.connect(self.db_name) as conn:
             cursor = conn.cursor()
             if '|' in id_variable:
@@ -49,7 +49,7 @@ class Storage(QObject):
             return str(reduce(operation, map(int, values)))
         return str(values[0])
 
-    def set_variable(self, id_variable: str, column: str, value: str):
+    def setStrData(self, id_variable: str, column: str, value: str):
         try:
             # Conectar ao banco de dados SQLite
             with sqlite3.connect(self.db_name) as conn:
