@@ -19,9 +19,6 @@ class DBTableWidget(QTableWidget):
     def setBaseData(self, hrt_data: HrtData):
         self.hrt_data = hrt_data
         self.hrt_data.data_updated.connect(self.redraw)  # Conecta sinal de atualização
-        # Configurar o menu de contexto
-        self.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.customContextMenuRequested.connect(self.show_context_menu)
         
         horizontalHeader_font = QFont("Arial", 12, QFont.Bold)  # Fonte maior e em negrito
         self.horizontalHeader().setFont(horizontalHeader_font)
@@ -29,39 +26,41 @@ class DBTableWidget(QTableWidget):
         self.verticalHeader().setFont(verticalHeader_font)              
         self.redrawAll()
 
-    def show_context_menu(self, position: QPoint):
+    def show_custom_context_menu(self, line_edit, event, rowName, colName):
         """Mostra o menu de contexto quando o botão direito é pressionado"""
-        item = self.itemAt(position)
-        if item:  # Verifica se há um item na posição
+        if isinstance(line_edit, QLineEdit):
             menu = QMenu(self)
-            row = self.row(item)  # Obtém a linha do item
-            col = self.column(item)  # Obtém a coluna do item
-            # Adiciona uma opção para abrir o QDialog
             action_Value = menu.addAction("Value")
             action_Func = menu.addAction("Func")
             action_tFunc = menu.addAction("tf")
-            # Exibe o menu
-            action = menu.exec(self.viewport().mapToGlobal(position))
+            menu.addSeparator()
+            standard_menu = line_edit.createStandardContextMenu()
+            # Adiciona as ações padrão ao menu
+            for action in standard_menu.actions():
+                menu.addAction(action) 
+            action = menu.exec(line_edit.mapToGlobal(event))
             dialog = QDialog(self)
             # Carregar o QDialog do arquivo .ui
             if action == action_Value: 
                 dialog_ui = Ui_Dialog_Value()  # Cria a instância do QDialog
-                dialog_ui.lineEdit.setText(self.hrt_data.get_variable(row,col,self.state))
-                dialog_ui.buttonBox.accepted.connect(lambda: self.hrt_data.set_variable(dialog_ui.lineEdit.text(),row,col,self.state))
+                dialog_ui.setupUi(dialog)  # Configura a interface do QDialog
+                dialog_ui.lineEdit.setText(str(self.hrt_data.get_variable(rowName,colName,self.state)))
+                dialog_ui.buttonBox.accepted.connect(lambda: self.hrt_data.set_variable(dialog_ui.lineEdit.text(),rowName,colName,self.state))
             elif action == action_Func: 
                 dialog_ui = Ui_Dialog_Func()
-                dialog_ui.lineEdit.setText(self.hrt_data.getStrData[row,col][1:])
-                dialog_ui.buttonBox.accepted.connect(lambda: self.hrt_data.setStrData(f'@{dialog_ui.lineEdit.text()}',row,col))
+                dialog_ui.setupUi(dialog)  # Configura a interface do QDialog
+                dialog_ui.lineEdit.setText(self.hrt_data.getStrData[rowName,colName][1:])
+                dialog_ui.buttonBox.accepted.connect(lambda: self.hrt_data.setStrData(f'@{dialog_ui.lineEdit.text()}',rowName,colName))
             elif action == action_tFunc: 
                 dialog_ui = Ui_Dialog_Tfunc()
-                num_str, den_str, input_str = map(str.strip, self.hrt_data.getStrData[row,col].split(","))
+                dialog_ui.setupUi(dialog)  # Configura a interface do QDialog
+                num_str, den_str, input_str = map(str.strip, self.hrt_data.getStrData[rowName,colName].split(","))
                 dialog_ui.lineEditNum.setText(num_str[1:-1])
                 dialog_ui.lineEditDen.setText(den_str[1:-1])
                 dialog_ui.lineEditInput.setText(input_str)
-                dialog_ui.buttonBox.accepted.connect(lambda: self.hrt_data.setStrData(f'$[{dialog_ui.lineEditNum.text()}],[{dialog_ui.lineEditDen.text()}],{dialog_ui.lineEditInput.text()}',row,col))
-            dialog_ui.setupUi(dialog)  # Configura a interface do QDialogpath = '../uis/dialog_value.ui'            dialog.setModal(True)  # Torna o dialog modal (bloqueia interação com outras janelas)
-            # Definir o texto no QDialog (como exemplo, passando o valor do item clicado)
-            # Exibe o QDialog
+                dialog_ui.buttonBox.accepted.connect(lambda: self.hrt_data.setStrData(f'$[{dialog_ui.lineEditNum.text()}],[{dialog_ui.lineEditDen.text()}],{dialog_ui.lineEditInput.text()}',rowName,colName))
+                # Definir o texto no QDialog (como exemplo, passando o valor do item clicado)
+                # Exibe o QDialog
             dialog.exec()
             
     def changeType(self, state:bool):
@@ -110,32 +109,31 @@ class DBTableWidget(QTableWidget):
                 dataModel = self.hrt_data.getDataModel(rowName,colName)
                 rowID = rowKeys.get_loc(rowName)
                 colID = colKeys.get_loc(colName)
-                
-                if (self.state or (colName in ["BYTE_SIZE","TYPE"]) or any(typeValue.find(x)!=-1 for x in ["PACKED", "UNSIGNED", "FLOAT", "INTEGER", "DATE", "TIME"])) and not (dataModel in ["Func", "tFunc"]):
-                    widget = QLineEdit()
-                    widget.setStyleSheet("QLineEdit { background-color: white; }")
-                    widget.setText(cell_value)
-                    widget.editingFinished.connect(partial(self.on_edit_finished, widget, rowName, colName, machineValue))
-                    self.setCellWidget(rowID, colID, widget)
 
-                elif any(typeValue.find(x)!=-1 for x in ["ENUM", "BIT_ENUM"]) and not (dataModel in ["Func", "tFunc"]):
-                    widget = QComboBox()
+                if  any(typeValue.find(x)!=-1 for x in ["ENUM", "BIT_ENUM"]) and not (dataModel in ["Func", "tFunc"]) and not(colName in ["BYTE_SIZE","TYPE"]):
+                    comboBox = QComboBox()
                     if typeValue.find("BIT_") == -1:
                         dados = list(hrt_enum[int(typeValue[4:])].values())
                     else:
                         dados = list(hrt_bitEnum[int(typeValue[8:])].values())
-                    widget.addItems(dados)
-                    widget.setCurrentText(cell_value)
-                    widget.currentIndexChanged.connect(partial(self.on_combo_changed, widget, rowName, colName, machineValue))
-                    self.setCellWidget(rowID, colID, widget)
+                    comboBox.addItems(dados)
+                    comboBox.setCurrentText(cell_value)
+                    comboBox.currentIndexChanged.connect(partial(self.on_combo_changed, comboBox, rowName, colName, machineValue))
+                    self.setCellWidget(rowID, colID, comboBox)
                 
                 else:
-                    widget = QTableWidgetItem()
-                    widget.setFlags(widget.flags() & ~Qt.ItemFlag.ItemIsEditable)  # Não editável
-                    widget.setBackground(QColor("#D3D3D3"))  # Define fundo cinza claro
-                    widget.setText(cell_value)
-                    self.setItem(rowID, colID, widget)
-                    
+                    lineEdit = QLineEdit()
+                    if(self.state or (colName in ["BYTE_SIZE","TYPE"]) or any(typeValue.find(x)!=-1 for x in ["PACKED", "UNSIGNED", "FLOAT", "INTEGER", "DATE", "TIME"])) and not (dataModel in ["Func", "tFunc"]):
+                        lineEdit.setStyleSheet("#QLineEdit{background-color: white;}")
+                        lineEdit.editingFinished.connect(partial(self.on_edit_finished, lineEdit, rowName, colName, machineValue))
+                    else:
+                        lineEdit.setReadOnly(True)
+                        lineEdit.setStyleSheet("background-color: #D3D3D3;")
+                    lineEdit.setContextMenuPolicy(Qt.CustomContextMenu)
+                    lineEdit.customContextMenuRequested.connect(lambda event: self.show_custom_context_menu(lineEdit, event, rowName, colName))
+                    lineEdit.setText(cell_value)
+                    self.setCellWidget(rowID, colID, lineEdit)
+                                      
                 self.setColumnWidth(colID, 150)
 
         self.blockSignals(False)  # Libera sinais após a configuração da tabela
@@ -146,7 +144,7 @@ class DBTableWidget(QTableWidget):
         value = widget.text()
         self.hrt_data.set_variable(value, row, col, machineValue)
 
-    def on_combo_changed(self, widget, row, col, machineValue, _):
+    def on_combo_changed(self, widget: QComboBox, row: str, col: str, machineValue, _):
         """Atualiza os dados ao mudar um QComboBox."""
         value = widget.currentText()
         self.hrt_data.set_variable(value, row, col, machineValue)
