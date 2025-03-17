@@ -24,7 +24,7 @@ class HrtData(Storage):
 
         for row in row_names: 
             for col in col_names: 
-                self.reactiveResultTf.loc[row,col] = self.df.loc[row,col]
+                self.reactiveResultTf.loc[row,col] = 0.0
                
     def getDataModel(self, rowName: str, colName: str):
         value = super().get_variable(rowName,colName)
@@ -47,8 +47,11 @@ class HrtData(Storage):
             if not instrument in ["NAME", "TYPE", "BYTE_SIZE"]:
                 if dataModel == "Func":
                     return self._evaluate_expression(value, id_variable, instrument, machineValue)
-                elif dataModel == "tFunc":  
-                    return self._evaluate_expression(value, id_variable, instrument, machineValue)
+                elif dataModel == "tFunc": 
+                    if not machineValue:
+                        return hrt_type_hex_to(self.reactiveResultTf.loc[id_variable, instrument], super().get_variable(id_variable, "TYPE"))
+                    else:
+                        return self.reactiveResultTf.loc[id_variable, instrument]
                 elif not machineValue:
                     return hrt_type_hex_to(super().get_variable(id_variable, instrument), super().get_variable(id_variable, "TYPE"))
             return value
