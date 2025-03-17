@@ -1,6 +1,10 @@
-from PySide6.QtWidgets import QTableWidget, QLineEdit, QComboBox, QTableWidgetItem
+from PySide6.QtWidgets import QTableWidget, QLineEdit, QComboBox, QTableWidgetItem, QMenu, QDialog
 from PySide6.QtGui import QColor, QFont
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QPoint
+from uis.ui_dialog_value import Ui_Dialog_Value
+from uis.ui_dialog_func import Ui_Dialog_Func 
+from uis.ui_dialog_tfunc import Ui_Dialog_Tfunc 
+from PySide6 import QtUiTools
 from functools import partial
 from hrt.hrt_data import HrtData
 from hrt.hrt_enum import hrt_enum
@@ -15,13 +19,40 @@ class DBTableWidget(QTableWidget):
     def setBaseData(self, hrt_data: HrtData):
         self.hrt_data = hrt_data
         self.hrt_data.data_updated.connect(self.redraw)  # Conecta sinal de atualização
+        # Configurar o menu de contexto
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.show_context_menu)
         
         horizontalHeader_font = QFont("Arial", 12, QFont.Bold)  # Fonte maior e em negrito
         self.horizontalHeader().setFont(horizontalHeader_font)
         verticalHeader_font = QFont("Arial", 10, QFont.Bold)  # Fonte maior e em negrito
         self.verticalHeader().setFont(verticalHeader_font)              
         self.redrawAll()
-        
+
+    def show_context_menu(self, position: QPoint):
+        """Mostra o menu de contexto quando o botão direito é pressionado"""
+        item = self.itemAt(position)
+        if item:  # Verifica se há um item na posição
+            menu = QMenu(self)
+            # Adiciona uma opção para abrir o QDialog
+            action_Value = menu.addAction("Value")
+            action_Func = menu.addAction("Func")
+            action_tFunc = menu.addAction("tf")
+            # Exibe o menu
+            action = menu.exec(self.viewport().mapToGlobal(position))
+            dialog = QDialog(self)
+            # Carregar o QDialog do arquivo .ui
+            if action == action_Value: 
+                dialog_ui = Ui_Dialog_Value()  # Cria a instância do QDialog
+            elif action == action_Func: 
+                dialog_ui = Ui_Dialog_Func()
+            elif action == action_tFunc: 
+                dialog_ui = Ui_Dialog_Tfunc()
+            dialog_ui.setupUi(dialog)  # Configura a interface do QDialogpath = '../uis/dialog_value.ui'            dialog.setModal(True)  # Torna o dialog modal (bloqueia interação com outras janelas)
+            # Definir o texto no QDialog (como exemplo, passando o valor do item clicado)
+            # Exibe o QDialog
+            dialog.exec()
+            
     def changeType(self, state:bool):
         self.state = not state
         self.redrawAll()
