@@ -15,7 +15,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setupUi(self)  # Configura a interface do Qt Designer  
         # self.radioButtonHex.clicked["bool"].connect(self.oldDBTableWidget.changeType) 
         self.oldDBTableWidget.setBaseData(hrt_data)
-        self.simulTf = SimulTf(hrt_data, 0.01)   
+        self.simulTf = SimulTf(hrt_data, 100)   
         image_path = os.path.abspath("img/caldeira.jpg")
         self.oldCtrlGLWidget.setBackgroundImage(image_path)
         self.centralizar_janela()

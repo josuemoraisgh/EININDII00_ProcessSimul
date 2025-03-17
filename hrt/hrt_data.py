@@ -12,7 +12,7 @@ class HrtData(Storage):
         super().__init__('db/banco.db', 'hrt_tabela')  # 🔥 Chama o construtor da classe Pai quando sqlite
         # super().__init__('db/dados.xlsx')  # 🔥 Chama o construtor da classe Pai quando xlsx
         # Criando a máscara
-        mask = np.char.startswith(self.df.values.astype(str), "@")
+        mask = np.char.startswith(self.df.values.astype(str), "$")
         # Obtendo os índices das células que satisfazem a condição
         rows, cols = np.where(mask)
         # Mapeando para os nomes reais de linhas e colunas
