@@ -30,42 +30,54 @@ class DBTableWidget(QTableWidget):
         """Mostra o menu de contexto quando o botão direito é pressionado"""
         if isinstance(line_edit, QLineEdit):
             menu = QMenu(self)
-            action_Value = menu.addAction(QAction(qta.icon("mdi.numeric"), "Value", self))
-            action_Func = menu.addAction(QAction(qta.icon("mdi.alarm-panel"), "Func", self))
-            action_tFunc = menu.addAction(QAction(qta.icon("mdi.math-integral"), "Tfunc", self))
+            
+            action_Value = QAction(qta.icon("mdi.numeric"), "Value", self)
+            def actionValueSlot():
+                dialog = QDialog(self)
+                dialog_ui = Ui_Dialog_Value()  # Cria a instância do QDialog
+                dialog_ui.setupUi(dialog)  # Configura a interface do QDialog
+                dialog_ui.lineEdit.setText(str(self.hrt_data.get_variable(rowName,colName,self.state)))
+                dialog_ui.buttonBox.accepted.connect(lambda: self.hrt_data.set_variable(dialog_ui.lineEdit.text(),rowName,colName,self.state))
+                dialog.exec()
+            action_Value.triggered.connect(actionValueSlot)
+            menu.addAction(action_Value)
+            
+            action_Func = QAction(qta.icon("mdi.alarm-panel"), "Func", self)
+            def actionFuncSlot():
+                dialog = QDialog(self)
+                dialog_ui = Ui_Dialog_Func()
+                dialog_ui.setupUi(dialog)  # Configura a interface do QDialog
+                dialog_ui.lineEdit.setText(self.hrt_data.getStrData(rowName,colName)[1:])
+                dialog_ui.buttonBox.accepted.connect(lambda: self.hrt_data.setStrData(f'@{dialog_ui.lineEdit.text()}',rowName,colName))
+                dialog.exec()
+            action_Func.triggered.connect(actionFuncSlot)
+            menu.addAction(action_Func)
+            
+            action_Tfunc = QAction(qta.icon("mdi.math-integral"), "Tfunc", self)
+            def actionTfuncSlot():
+                dialog = QDialog(self)
+                dialog_ui = Ui_Dialog_Tfunc()
+                dialog_ui.setupUi(dialog)  # Configura a interface do QDialog
+                try:
+                    num_str, den_str, input_str = map(str.strip, self.hrt_data.getStrData(rowName,colName).split(","))
+                    dialog_ui.lineEditNum.setText(num_str[1:-1])
+                    dialog_ui.lineEditDen.setText(den_str[1:-1])
+                    dialog_ui.lineEditInput.setText(input_str)
+                except Exception as e:
+                    dialog_ui.lineEditNum.setText("")
+                    dialog_ui.lineEditDen.setText("")
+                    dialog_ui.lineEditInput.setText("")
+                dialog_ui.buttonBox.accepted.connect(lambda: self.hrt_data.setStrData(f'$[{dialog_ui.lineEditNum.text()}],[{dialog_ui.lineEditDen.text()}],{dialog_ui.lineEditInput.text()}',rowName,colName))
+                dialog.exec()
+            action_Tfunc.triggered.connect(actionTfuncSlot)
+            menu.addAction(action_Tfunc)
+
             menu.addSeparator()
             standard_menu = line_edit.createStandardContextMenu()
             # Adiciona as ações padrão ao menu
             for action in standard_menu.actions():
                 menu.addAction(action) 
-            action = menu.exec(line_edit.mapToGlobal(event))  # Correção aqui
-            if action:
-                dialog = QDialog(self)
-                # Carregar o QDialog do arquivo .ui
-                if action == action_Value: 
-                    dialog_ui = Ui_Dialog_Value()  # Cria a instância do QDialog
-                    dialog_ui.setupUi(dialog)  # Configura a interface do QDialog
-                    dialog_ui.lineEdit.setText(str(self.hrt_data.get_variable(rowName,colName,self.state)))
-                    dialog_ui.buttonBox.accepted.connect(lambda: self.hrt_data.set_variable(dialog_ui.lineEdit.text(),rowName,colName,self.state))
-                elif action == action_Func: 
-                    dialog_ui = Ui_Dialog_Func()
-                    dialog_ui.setupUi(dialog)  # Configura a interface do QDialog
-                    dialog_ui.lineEdit.setText(self.hrt_data.getStrData(rowName,colName)[1:])
-                    dialog_ui.buttonBox.accepted.connect(lambda: self.hrt_data.setStrData(f'@{dialog_ui.lineEdit.text()}',rowName,colName))
-                elif action == action_tFunc: 
-                    dialog_ui = Ui_Dialog_Tfunc()
-                    dialog_ui.setupUi(dialog)  # Configura a interface do QDialog
-                    try:
-                        num_str, den_str, input_str = map(str.strip, self.hrt_data.getStrData(rowName,colName).split(","))
-                        dialog_ui.lineEditNum.setText(num_str[1:-1])
-                        dialog_ui.lineEditDen.setText(den_str[1:-1])
-                        dialog_ui.lineEditInput.setText(input_str)
-                    except Exception as e:
-                        dialog_ui.lineEditNum.setText("")
-                        dialog_ui.lineEditDen.setText("")
-                        dialog_ui.lineEditInput.setText("")
-                    dialog_ui.buttonBox.accepted.connect(lambda: self.hrt_data.setStrData(f'$[{dialog_ui.lineEditNum.text()}],[{dialog_ui.lineEditDen.text()}],{dialog_ui.lineEditInput.text()}',rowName,colName))
-                dialog.exec()
+            menu.exec(line_edit.mapToGlobal(event))  # Correção aqui
             
     def changeType(self, state:bool):
         self.state = not state
