@@ -108,22 +108,25 @@ hrt_banco: Dict[str, Tuple[Union[int, float], str, str]] = {
     'sensor_range': (1, 'ENUM00', '00'),
 }
 
-# Colunas adicionais
-extra_columns = ['LI100', 'FI100V', 'FI100A', 'FV100A', 'PI100', 'TI100']
 
-# Converter o dicionário em DataFrame com colunas repetidas
-rows = []
-for key, val in hrt_banco.items():
-    row = [key, val[0], val[1]] + [val[2]] * len(extra_columns)
-    rows.append(row)
+# Exemplo de uso
+if __name__ == '__main__':
+    # Colunas adicionais
+    extra_columns = ['LI100', 'FI100V', 'FI100A', 'FV100A', 'PI100', 'TI100']
 
-columns = ['NAME', 'BYTE_SIZE', 'TYPE'] + extra_columns
+    # Converter o dicionário em DataFrame com colunas repetidas
+    rows = []
+    for key, val in hrt_banco.items():
+        row = [key, val[0], val[1]] + [val[2]] * len(extra_columns)
+        rows.append(row)
 
-df = pd.DataFrame(rows, columns=columns)
+    columns = ['NAME', 'BYTE_SIZE', 'TYPE'] + extra_columns
 
-# Conectar (ou criar) o banco SQLite
-with sqlite3.connect('db/banco.db') as conn:
-    # Salvar o DataFrame em SQLite (replace substitui se a tabela já existir)
-    df.to_sql('hrt_tabela', conn, if_exists='replace', index=False)
+    df = pd.DataFrame(rows, columns=columns)
 
-print('Dados salvos com sucesso na tabela hrt_settings.')
+    # Conectar (ou criar) o banco SQLite
+    with sqlite3.connect('db/banco.db') as conn:
+        # Salvar o DataFrame em SQLite (replace substitui se a tabela já existir)
+        df.to_sql('hrt_tabela', conn, if_exists='replace', index=False)
+
+    print('Dados salvos com sucesso na tabela hrt_settings.')

@@ -38,6 +38,7 @@ class DBTableWidget(QTableWidget):
                 dialog_ui.setupUi(dialog)  # Configura a interface do QDialog
                 dialog_ui.lineEdit.setText(str(self.hrt_data.get_variable(rowName,colName,self.state)))
                 dialog_ui.buttonBox.accepted.connect(lambda: self.hrt_data.set_variable(dialog_ui.lineEdit.text(),rowName,colName,self.state))
+                dialog_ui.buttonBox.accepted.connect(self.redrawAll)
                 dialog.exec()
             action_Value.triggered.connect(actionValueSlot)
             menu.addAction(action_Value)
@@ -49,6 +50,7 @@ class DBTableWidget(QTableWidget):
                 dialog_ui.setupUi(dialog)  # Configura a interface do QDialog
                 dialog_ui.lineEdit.setText(self.hrt_data.getStrData(rowName,colName)[1:])
                 dialog_ui.buttonBox.accepted.connect(lambda: self.hrt_data.setStrData(rowName,colName,f'@{dialog_ui.lineEdit.text()}'))
+                dialog_ui.buttonBox.accepted.connect(self.redrawAll)                
                 dialog.exec()
             action_Func.triggered.connect(actionFuncSlot)
             menu.addAction(action_Func)
@@ -72,6 +74,7 @@ class DBTableWidget(QTableWidget):
                                              colName,
                                              f'$[{dialog_ui.lineEditNum.text()}],[{dialog_ui.lineEditDen.text()}],{dialog_ui.lineEditInput.text()}')
                     )
+                dialog_ui.buttonBox.accepted.connect(self.redrawAll)                
                 dialog.exec()
             action_Tfunc.triggered.connect(actionTfuncSlot)
             menu.addAction(action_Tfunc)
