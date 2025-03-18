@@ -15,7 +15,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setupUi(self)  # Configura a interface do Qt Designer  
         # self.radioButtonHex.clicked["bool"].connect(self.oldDBTableWidget.changeType) 
         self.oldDBTableWidget.setBaseData(hrt_data)
-        self.simulTf = SimulTf(hrt_data, 100)   
+        self.simulTf = SimulTf(hrt_data, 100)
+        self.pushButtonStart.clicked.connect(self.simulTf.start)
+        self.pushButtonStart.clicked.connect(self.simulTf.stop)
+        self.pushButtonReset.clicked.connect(self.simulTf.reset)
         image_path = os.path.abspath("img/caldeira.jpg")
         self.oldCtrlGLWidget.setBackgroundImage(image_path)
         self.centralizar_janela()
@@ -44,6 +47,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.widgetVI100AR.move(parent_width * 0.54, parent_height * 0.68)
         self.widgetPI100.move(parent_width * 0.30, parent_height * 0.25)
         self.widgetTI100.move(parent_width * 0.35, parent_height * 0.40)
+        self.groupBoxSimul.move(parent_width * 0.87, parent_height * 0.76)        
         # self.resizeEventSignal.emit(event)
         super().resizeEvent(event)
 

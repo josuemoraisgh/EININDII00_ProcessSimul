@@ -15,10 +15,10 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QButtonGroup, QHBoxLayout, QLCDNumber,
-    QLabel, QMainWindow, QRadioButton, QSizePolicy,
-    QSlider, QSpacerItem, QStatusBar, QTabWidget,
-    QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QApplication, QButtonGroup, QGroupBox, QHBoxLayout,
+    QLCDNumber, QLabel, QMainWindow, QPushButton,
+    QRadioButton, QSizePolicy, QSlider, QSpacerItem,
+    QStatusBar, QTabWidget, QVBoxLayout, QWidget)
 
 from ctrlglwidget import CtrlGLWidget
 from dbtablewidget import DBTableWidget
@@ -27,7 +27,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(643, 600)
+        MainWindow.resize(1001, 600)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.verticalLayout = QVBoxLayout(self.centralwidget)
@@ -541,6 +541,52 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_8.addWidget(self.widgetSliderVI100CA)
 
+        self.groupBoxSimul = QGroupBox(self.oldCtrlGLWidget)
+        self.groupBoxSimul.setObjectName(u"groupBoxSimul")
+        self.groupBoxSimul.setGeometry(QRect(810, 380, 161, 151))
+        self.verticalLayout_5 = QVBoxLayout(self.groupBoxSimul)
+        self.verticalLayout_5.setObjectName(u"verticalLayout_5")
+        self.pushButtonStart = QPushButton(self.groupBoxSimul)
+        self.buttonGroup_2 = QButtonGroup(MainWindow)
+        self.buttonGroup_2.setObjectName(u"buttonGroup_2")
+        self.buttonGroup_2.addButton(self.pushButtonStart)
+        self.pushButtonStart.setObjectName(u"pushButtonStart")
+        self.pushButtonStart.setStyleSheet(u"#pushButtonStart {\n"
+"    background-color: none;  /* Cor padr\u00e3o quando solto */\n"
+"}\n"
+"\n"
+"#pushButtonStart:checked {\n"
+"    background-color: green;  /* Verde quando pressionado */\n"
+"}")
+        self.pushButtonStart.setCheckable(True)
+
+        self.verticalLayout_5.addWidget(self.pushButtonStart)
+
+        self.pushButtonStop = QPushButton(self.groupBoxSimul)
+        self.buttonGroup_2.addButton(self.pushButtonStop)
+        self.pushButtonStop.setObjectName(u"pushButtonStop")
+        self.pushButtonStop.setStyleSheet(u"#pushButtonStop {\n"
+"    background-color: none;  /* Cor padr\u00e3o (normal) do sistema quando solto */\n"
+"}\n"
+"\n"
+"#pushButtonStop:checked {\n"
+"    background-color: red;  /* Verde quando pressionado */\n"
+"}")
+        self.pushButtonStop.setCheckable(True)
+        self.pushButtonStop.setChecked(True)
+
+        self.verticalLayout_5.addWidget(self.pushButtonStop)
+
+        self.pushButtonReset = QPushButton(self.groupBoxSimul)
+        self.pushButtonReset.setObjectName(u"pushButtonReset")
+        self.pushButtonReset.setStyleSheet(u"#pushButtonReset{\n"
+"    background-color: yellow;  /* Cor padr\u00e3o quando solto */\n"
+"}\n"
+"")
+        self.pushButtonReset.setCheckable(False)
+
+        self.verticalLayout_5.addWidget(self.pushButtonReset)
+
         self.tabWidget.addTab(self.oldCtrlGLWidget, "")
 
         self.verticalLayout.addWidget(self.tabWidget)
@@ -668,6 +714,10 @@ class Ui_MainWindow(object):
 #if QT_CONFIG(tooltip)
         self.verticalSliderVI100CA.setToolTip("")
 #endif // QT_CONFIG(tooltip)
+        self.groupBoxSimul.setTitle(QCoreApplication.translate("MainWindow", u"Simula\u00e7\u00e3o", None))
+        self.pushButtonStart.setText(QCoreApplication.translate("MainWindow", u"Start", None))
+        self.pushButtonStop.setText(QCoreApplication.translate("MainWindow", u"Stop", None))
+        self.pushButtonReset.setText(QCoreApplication.translate("MainWindow", u"reset", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.oldCtrlGLWidget), QCoreApplication.translate("MainWindow", u"Process", None))
     # retranslateUi
 

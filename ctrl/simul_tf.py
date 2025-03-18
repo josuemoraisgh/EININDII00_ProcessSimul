@@ -56,11 +56,11 @@ class SimulTf:
         """Para a execução da simulação."""
         self._repeated_function.stop()
 
-    def close(self):
+    def reset(self):
         """Finaliza a execução e reseta os estados."""
+        self.stop()        
         for key in self.states:
             self.states[key] = np.zeros_like(self.states[key])
-        self.stop()
 
     def changeInputValues(self, rowTfName, colTfName, input_str):
         """Define os valores de entrada de controle. input_dict deve ter o formato {'tf_name': valor}."""
