@@ -3,6 +3,8 @@ import sqlite3
 from functools import reduce
 import operator
 from PySide6.QtCore import Signal, QObject
+from hrt.hrt_banco import hrt_banco
+import os
 
 class Storage(QObject):
     data_updated = Signal()  # Sinal emitido ao atualizar dados
@@ -11,9 +13,34 @@ class Storage(QObject):
         super().__init__()
         self.db_name = db_name
         self.table_name = table_name
-        with sqlite3.connect(self.db_name) as conn:
-            # Ler os dados da tabela para um DataFrame, usando a coluna 'NAME' como índice
-            self.df = pd.read_sql_query(f"SELECT * FROM {table_name}", conn, index_col='NAME')
+        # Verificar se o banco existe
+        if os.path.exists(self.db_name):
+            with sqlite3.connect(self.db_name) as conn:
+                cursor = conn.cursor()
+                # Verificar se a tabela existe (aspas corrigidas)
+                cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{self.table_name}';")
+                if cursor.fetchone():
+                    # Ler os dados da tabela para um DataFrame, usando a coluna 'NAME' como índice
+                    self.df = pd.read_sql_query(f"SELECT * FROM {self.table_name}", conn, index_col='NAME')
+                else:
+                    self.creatBanco()
+                    print(f'Tabela {self.table_name} não encontrada. Operação alternativa realizada.')                    
+        else:           
+            self.creatBanco()
+            print('Banco de dados não encontrado. Operação alternativa realizada.')             
+    
+    def creatBanco(self):
+        # Colunas adicionais
+        extra_columns = ['LI100', 'FI100V', 'FI100A', 'FV100A', 'PI100', 'TI100']
+        # Converter o dicionário em DataFrame com colunas repetidas
+        rows = []
+        for key, val in hrt_banco.items():
+            row = [key, val[0], val[1]] + [val[2]] * len(extra_columns)
+            rows.append(row)
+        columns = ['NAME', 'BYTE_SIZE', 'TYPE'] + extra_columns
+        self.df = pd.DataFrame(rows, columns=columns)
+        self.saveAllData()
+        print('Dados salvos com sucesso na tabela hrt_settings.')   
 
     def saveAllData(self):
         with sqlite3.connect(self.db_name) as conn:
