@@ -21,7 +21,7 @@
        <bool>true</bool>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tableWidget">
        <attribute name="title">
@@ -47,6 +47,9 @@
            <widget class="QRadioButton" name="radioButtonHrt">
             <property name="text">
              <string>Human Value</string>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
             </property>
             <attribute name="buttonGroup">
              <string notr="true">buttonGroup</string>

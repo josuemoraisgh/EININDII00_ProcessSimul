@@ -53,6 +53,7 @@ class Ui_MainWindow(object):
         self.radioButtonHrt = QRadioButton(self.tableWidget)
         self.buttonGroup.addButton(self.radioButtonHrt)
         self.radioButtonHrt.setObjectName(u"radioButtonHrt")
+        self.radioButtonHrt.setChecked(False)
 
         self.horizontalLayout_9.addWidget(self.radioButtonHrt)
 
@@ -546,7 +547,7 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
         self.radioButtonHrt.toggled.connect(self.oldDBTableWidget.changeType)
 
-        self.tabWidget.setCurrentIndex(1)
+        self.tabWidget.setCurrentIndex(0)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
