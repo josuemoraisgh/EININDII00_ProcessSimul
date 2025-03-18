@@ -25,7 +25,7 @@ class SimulTf:
             num_str, den_str, input_str = self.hrt_data.getStrData(rowTfName,colTfName).split(",")  # Divide
             num = ast.literal_eval(num_str[1:].replace(" ",","))  # Converte string de lista para lista real
             den = ast.literal_eval(den_str.replace(" ",","))
-            input_value = self.hrt_data.get_variable(input_str,colTfName,False)  # Converte para número real
+            input_value = float(input_str) # self.hrt_data.get_variable(input_str,colTfName,False)  # Converte para número real
             
             sys_tf = ctrl.TransferFunction(num, den)
             sys_ss = ctrl.tf2ss(sys_tf)
