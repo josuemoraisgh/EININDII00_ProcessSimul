@@ -1,10 +1,10 @@
-from PySide6.QtWidgets import QTableWidget, QLineEdit, QComboBox, QTableWidgetItem, QMenu, QDialog
-from PySide6.QtGui import QColor, QFont
-from PySide6.QtCore import Qt, QPoint
+from PySide6.QtWidgets import QTableWidget, QLineEdit, QComboBox, QMenu, QDialog
+from PySide6.QtGui import QAction, QFont
+import qtawesome as qta
+from PySide6.QtCore import Qt
 from uis.ui_dialog_value import Ui_Dialog_Value
 from uis.ui_dialog_func import Ui_Dialog_Func 
 from uis.ui_dialog_tfunc import Ui_Dialog_Tfunc 
-from PySide6 import QtUiTools
 from functools import partial
 from hrt.hrt_data import HrtData
 from hrt.hrt_enum import hrt_enum
@@ -30,9 +30,9 @@ class DBTableWidget(QTableWidget):
         """Mostra o menu de contexto quando o botão direito é pressionado"""
         if isinstance(line_edit, QLineEdit):
             menu = QMenu(self)
-            action_Value = menu.addAction("Value")
-            action_Func = menu.addAction("Func")
-            action_tFunc = menu.addAction("Tfunc")
+            action_Value = menu.addAction(QAction(qta.icon("mdi.numeric"), "Value", self))
+            action_Func = menu.addAction(QAction(qta.icon("mdi.alarm-panel"), "Func", self))
+            action_tFunc = menu.addAction(QAction(qta.icon("mdi.math-integral"), "Tfunc", self))
             menu.addSeparator()
             standard_menu = line_edit.createStandardContextMenu()
             # Adiciona as ações padrão ao menu
@@ -114,7 +114,7 @@ class DBTableWidget(QTableWidget):
                 rowID = rowKeys.get_loc(rowName)
                 colID = colKeys.get_loc(colName)
 
-                if  any(typeValue.find(x)!=-1 for x in ["ENUM", "BIT_ENUM"]) and not (dataModel in ["Func", "tFunc"]) and not(colName in ["BYTE_SIZE","TYPE"]):
+                if  not self.state and any(typeValue.find(x)!=-1 for x in ["ENUM", "BIT_ENUM"]) and not (dataModel in ["Func", "tFunc"]) and not(colName in ["BYTE_SIZE","TYPE"]):
                     comboBox = QComboBox()
                     if typeValue.find("BIT_") == -1:
                         dados = list(hrt_enum[int(typeValue[4:])].values())
