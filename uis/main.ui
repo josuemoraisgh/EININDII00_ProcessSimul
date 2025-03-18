@@ -21,11 +21,16 @@
        <bool>true</bool>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>3</number>
       </property>
+      <widget class="QWidget" name="tab_2">
+       <attribute name="title">
+        <string>ModBus</string>
+       </attribute>
+      </widget>
       <widget class="QWidget" name="tableWidget">
        <attribute name="title">
-        <string>DBase</string>
+        <string>Hart</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_4">
         <item>
@@ -148,9 +153,14 @@
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="tab">
+       <attribute name="title">
+        <string>Config</string>
+       </attribute>
+      </widget>
       <widget class="CtrlGLWidget" name="oldCtrlGLWidget">
        <attribute name="title">
-        <string>CtrlNível</string>
+        <string>Process</string>
        </attribute>
        <widget class="QWidget" name="widgetLI100" native="true">
         <property name="geometry">

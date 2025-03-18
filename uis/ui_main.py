@@ -35,6 +35,9 @@ class Ui_MainWindow(object):
         self.tabWidget = QTabWidget(self.centralwidget)
         self.tabWidget.setObjectName(u"tabWidget")
         self.tabWidget.setAutoFillBackground(True)
+        self.tab_2 = QWidget()
+        self.tab_2.setObjectName(u"tab_2")
+        self.tabWidget.addTab(self.tab_2, "")
         self.tableWidget = QWidget()
         self.tableWidget.setObjectName(u"tableWidget")
         self.verticalLayout_4 = QVBoxLayout(self.tableWidget)
@@ -112,6 +115,9 @@ class Ui_MainWindow(object):
         self.verticalLayout_4.addWidget(self.oldDBTableWidget)
 
         self.tabWidget.addTab(self.tableWidget, "")
+        self.tab = QWidget()
+        self.tab.setObjectName(u"tab")
+        self.tabWidget.addTab(self.tab, "")
         self.oldCtrlGLWidget = CtrlGLWidget()
         self.oldCtrlGLWidget.setObjectName(u"oldCtrlGLWidget")
         self.widgetLI100 = QWidget(self.oldCtrlGLWidget)
@@ -547,7 +553,7 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
         self.radioButtonHrt.toggled.connect(self.oldDBTableWidget.changeType)
 
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(3)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -555,11 +561,13 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), QCoreApplication.translate("MainWindow", u"ModBus", None))
         self.radioButtonHex.setText(QCoreApplication.translate("MainWindow", u"Machine Value", None))
         self.radioButtonHrt.setText(QCoreApplication.translate("MainWindow", u"Human Value", None))
         self.label_4.setText(QCoreApplication.translate("MainWindow", u"Para equa\u00e7\u00f5es inicie o campo 'TYPE' com '@'.", None))
         self.label_5.setText(QCoreApplication.translate("MainWindow", u"Para fun\u00e7\u00f5es de transfer\u00eancia em 'S' inicie o campo 'TYPE' com '$'.", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tableWidget), QCoreApplication.translate("MainWindow", u"DBase", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tableWidget), QCoreApplication.translate("MainWindow", u"Hart", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), QCoreApplication.translate("MainWindow", u"Config", None))
 #if QT_CONFIG(tooltip)
         self.widgetLI100.setToolTip(QCoreApplication.translate("MainWindow", u"N\u00edvel do Tubul\u00e3o Superior", None))
 #endif // QT_CONFIG(tooltip)
@@ -660,6 +668,6 @@ class Ui_MainWindow(object):
 #if QT_CONFIG(tooltip)
         self.verticalSliderVI100CA.setToolTip("")
 #endif // QT_CONFIG(tooltip)
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.oldCtrlGLWidget), QCoreApplication.translate("MainWindow", u"CtrlN\u00edvel", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.oldCtrlGLWidget), QCoreApplication.translate("MainWindow", u"Process", None))
     # retranslateUi
 
