@@ -46,14 +46,14 @@ class Ui_MainWindow(object):
         self.buttonGroup.setObjectName(u"buttonGroup")
         self.buttonGroup.addButton(self.radioButtonHex)
         self.radioButtonHex.setObjectName(u"radioButtonHex")
-        self.radioButtonHex.setChecked(True)
+        self.radioButtonHex.setChecked(False)
 
         self.horizontalLayout_9.addWidget(self.radioButtonHex)
 
         self.radioButtonHrt = QRadioButton(self.tableWidget)
         self.buttonGroup.addButton(self.radioButtonHrt)
         self.radioButtonHrt.setObjectName(u"radioButtonHrt")
-        self.radioButtonHrt.setChecked(False)
+        self.radioButtonHrt.setChecked(True)
 
         self.horizontalLayout_9.addWidget(self.radioButtonHrt)
 

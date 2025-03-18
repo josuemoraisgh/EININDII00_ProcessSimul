@@ -1,7 +1,6 @@
 from db.storage_sqlite import Storage  # Assuming hrt_storage.py exists
 # from db.storage_xlsx import Storage  # Assuming hrt_storage.py exists
 from hrt.hrt_type import hrt_type_hex_to, hrt_type_hex_from  # Assuming hrt_type.py exists
-from hrt.old.hrt_settings import hrt_settings
 from asteval import Interpreter
 from typing import Union
 import numpy as np
@@ -19,7 +18,7 @@ class HrtData(Storage):
         self.rowTfNames = self.df.index[rows].tolist()
         self.colTfNames = self.df.columns[cols].tolist()
         # Inicializando o dicionario com os resultados das tf
-        self.tf_dict = {(row, col): 0 for row in self.rowTfNames for col in self.colTfNames}
+        self.tf_dict = {(row, col): 0.0 for row in self.rowTfNames for col in self.colTfNames}
     
     def getModel(self, value: str) -> str:   
         if value.startswith('@'):
@@ -47,9 +46,9 @@ class HrtData(Storage):
                     return self._evaluate_expression(value, id_variable, instrument, machineValue)
                 elif dataModel == "tFunc": 
                     if not machineValue:
-                        return hrt_type_hex_to(self.tf_dict[id_variable, instrument], super().getStrData(id_variable, "TYPE"))
-                    else:
                         return self.tf_dict[id_variable, instrument]
+                    else:
+                        return hrt_type_hex_from(self.tf_dict[id_variable, instrument], super().getStrData(id_variable, "TYPE"), super().getStrData(id_variable, "BYTE_SIZE"))
                 elif not machineValue:
                     return hrt_type_hex_to(super().getStrData(id_variable, instrument), super().getStrData(id_variable, "TYPE"))
             return value

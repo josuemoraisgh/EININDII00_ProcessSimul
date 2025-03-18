@@ -1,11 +1,8 @@
-from typing import List, Dict, Tuple, Union
+import sqlite3
+import pandas as pd
+from typing import Dict, Tuple, Union
 
-instrument_type: List[str] = ['TT301', 'LD301', 'FY301', 'DT301']
-
-hrt_settings: Dict[str, Tuple[Union[int, float], str, Union[str, Dict[str, str]]]] = {
-    'input_value': (4, 'FLOAT', '@input_value'),
-    'ramp_value': (4, 'FLOAT', '@ramp_value'),
-    'ramdom_value': (4, 'FLOAT', '@ramdom_value'),
+hrt_settings: Dict[str, Tuple[Union[int, float], str, str]] = {
     'frame_type': (1, 'UNSIGNED', '06'),
     'address_type': (1, 'UNSIGNED', '00'),
     'error_code': (2, 'ENUM00', '0000'),
@@ -45,7 +42,7 @@ hrt_settings: Dict[str, Tuple[Union[int, float], str, Union[str, Dict[str, str]]
         'FLOAT',
         '@(percent_of_range / 100) * (upper_range_value - lower_range_value) + lower_range_value'
     ),  # 50
-    'percent_of_range': (4, 'FLOAT', '@input_value'),
+    'percent_of_range': (4, 'FLOAT', '00000000'),
     'loop_current_mode': (1, 'ENUM00', '00'),
     'loop_current': (4, 'FLOAT', '@(percent_of_range * 0.16) + 4'),
     'write_protect': (1, 'ENUM00', '00'),
@@ -110,3 +107,23 @@ hrt_settings: Dict[str, Tuple[Union[int, float], str, Union[str, Dict[str, str]]
     'fail_safe_mode': (1, 'ENUM00', '00'),
     'sensor_range': (1, 'ENUM00', '00'),
 }
+
+# Colunas adicionais
+extra_columns = ['LI100', 'FI100V', 'FI100A', 'FV100A', 'PI100', 'TI100']
+
+# Converter o dicionário em DataFrame com colunas repetidas
+rows = []
+for key, val in hrt_settings.items():
+    row = [key, val[0], val[1]] + [val[2]] * len(extra_columns)
+    rows.append(row)
+
+columns = ['NAME', 'BYTE_SIZE', 'TYPE'] + extra_columns
+
+df = pd.DataFrame(rows, columns=columns)
+
+# Conectar (ou criar) o banco SQLite
+with sqlite3.connect('db/banco.db') as conn:
+    # Salvar o DataFrame em SQLite (replace substitui se a tabela já existir)
+    df.to_sql('hrt_tabela', conn, if_exists='replace', index=False)
+
+print('Dados salvos com sucesso na tabela hrt_settings.')

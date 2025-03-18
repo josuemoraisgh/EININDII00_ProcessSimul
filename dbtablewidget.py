@@ -19,7 +19,7 @@ class DBTableWidget(QTableWidget):
     def setBaseData(self, hrt_data: HrtData):
         self.hrt_data = hrt_data
         self.hrt_data.data_updated.connect(self.redraw)  # Conecta sinal de atualização
-        
+        self.state = False
         horizontalHeader_font = QFont("Arial", 12, QFont.Bold)  # Fonte maior e em negrito
         self.horizontalHeader().setFont(horizontalHeader_font)
         verticalHeader_font = QFont("Arial", 10, QFont.Bold)  # Fonte maior e em negrito
@@ -48,7 +48,7 @@ class DBTableWidget(QTableWidget):
                 dialog_ui = Ui_Dialog_Func()
                 dialog_ui.setupUi(dialog)  # Configura a interface do QDialog
                 dialog_ui.lineEdit.setText(self.hrt_data.getStrData(rowName,colName)[1:])
-                dialog_ui.buttonBox.accepted.connect(lambda: self.hrt_data.setStrData(f'@{dialog_ui.lineEdit.text()}',rowName,colName))
+                dialog_ui.buttonBox.accepted.connect(lambda: self.hrt_data.setStrData(rowName,colName,f'@{dialog_ui.lineEdit.text()}'))
                 dialog.exec()
             action_Func.triggered.connect(actionFuncSlot)
             menu.addAction(action_Func)
@@ -60,14 +60,18 @@ class DBTableWidget(QTableWidget):
                 dialog_ui.setupUi(dialog)  # Configura a interface do QDialog
                 try:
                     num_str, den_str, input_str = map(str.strip, self.hrt_data.getStrData(rowName,colName).split(","))
-                    dialog_ui.lineEditNum.setText(num_str[1:-1])
+                    dialog_ui.lineEditNum.setText(num_str[2:-1])
                     dialog_ui.lineEditDen.setText(den_str[1:-1])
                     dialog_ui.lineEditInput.setText(input_str)
                 except Exception as e:
                     dialog_ui.lineEditNum.setText("")
                     dialog_ui.lineEditDen.setText("")
                     dialog_ui.lineEditInput.setText("")
-                dialog_ui.buttonBox.accepted.connect(lambda: self.hrt_data.setStrData(f'$[{dialog_ui.lineEditNum.text()}],[{dialog_ui.lineEditDen.text()}],{dialog_ui.lineEditInput.text()}',rowName,colName))
+                dialog_ui.buttonBox.accepted.connect(lambda: 
+                    self.hrt_data.setStrData(rowName,
+                                             colName,
+                                             f'$[{dialog_ui.lineEditNum.text()}],[{dialog_ui.lineEditDen.text()}],{dialog_ui.lineEditInput.text()}')
+                    )
                 dialog.exec()
             action_Tfunc.triggered.connect(actionTfuncSlot)
             menu.addAction(action_Tfunc)
