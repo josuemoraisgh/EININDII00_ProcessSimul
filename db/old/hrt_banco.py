@@ -2,7 +2,7 @@ import sqlite3
 import pandas as pd
 from typing import Dict, Tuple, Union
 
-hrt_settings: Dict[str, Tuple[Union[int, float], str, str]] = {
+hrt_banco: Dict[str, Tuple[Union[int, float], str, str]] = {
     'frame_type': (1, 'UNSIGNED', '06'),
     'address_type': (1, 'UNSIGNED', '00'),
     'error_code': (2, 'ENUM00', '0000'),
@@ -113,7 +113,7 @@ extra_columns = ['LI100', 'FI100V', 'FI100A', 'FV100A', 'PI100', 'TI100']
 
 # Converter o dicionário em DataFrame com colunas repetidas
 rows = []
-for key, val in hrt_settings.items():
+for key, val in hrt_banco.items():
     row = [key, val[0], val[1]] + [val[2]] * len(extra_columns)
     rows.append(row)
 
