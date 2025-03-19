@@ -8,7 +8,7 @@ import pandas as pd
 import re
 class HrtData(Storage):
     def __init__(self):
-        super().__init__('db/banco.db', 'hrt_tabela')  # 🔥 Chama o construtor da classe Pai quando sqlite
+        super().__init__('banco.db', 'hrt_tabela')  # 🔥 Chama o construtor da classe Pai quando sqlite
         # super().__init__('db/dados.xlsx')  # 🔥 Chama o construtor da classe Pai quando xlsx
         # Criando a máscara
         mask = np.char.startswith(self.df.values.astype(str), "$")

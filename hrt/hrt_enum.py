@@ -1,3 +1,10 @@
+from enum import Enum
+
+class HrtState(Enum):
+    originValue = 0
+    machineValue = 1
+    humanValue = 2
+
 hrt_enum = {
     # Command-Specific Response Codes
     0: {

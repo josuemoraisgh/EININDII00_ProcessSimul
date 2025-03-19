@@ -1,39 +1,44 @@
+import base64
 from PySide6.QtOpenGLWidgets import QOpenGLWidget
 from PySide6.QtGui import QImage
 from OpenGL.GL import *
 
 class CtrlGLWidget(QOpenGLWidget):
-    def __init__(self):
-    # def __init__(self, parent: None):
-        super().__init__() 
-        # super().__init__(parent=parent)
+    def __init__(self, parent=None):
+        super().__init__(parent)
         self.texture_id = None
-        
-    def setBackgroundImage(self, image_path: str):
-        """Define a imagem de fundo e agenda a atualização"""
-        self.image_path = image_path
-        self.update()  # Força a renderização chamando `paintGL()`
+        self.image_base64 = None
+
+    def setBackgroundImageFromBase64(self, image_base64: str):
+        """Define a imagem de fundo a partir de Base64 e agenda atualização."""
+        self.image_base64 = image_base64
+        self.update()
 
     def initializeGL(self):
-        """Configurações iniciais do OpenGL"""
+        """Configurações iniciais do OpenGL."""
         glEnable(GL_TEXTURE_2D)
-        glClearColor(1, 1, 1, 1)  # Fundo branco
+        glClearColor(1, 1, 1, 1)
 
-        if self.image_path:  # Só carrega se a imagem já tiver sido definida
-            self.load_texture()
-
-    def load_texture(self):
-        """Carrega a imagem e a converte em textura OpenGL"""
-        image = QImage(self.image_path)
-        if image.isNull():
-            print("❌ Erro ao carregar a imagem!")
+    def load_texture_from_base64(self):
+        """Carrega a imagem Base64 e a converte em textura OpenGL."""
+        if not self.image_base64:
+            print("❌ Nenhuma imagem Base64 definida!")
             return
-        
+
+        image_data = base64.b64decode(self.image_base64)
+        image = QImage.fromData(image_data)
+
+        if image.isNull():
+            print("❌ Erro ao carregar a imagem a partir do Base64!")
+            return
+
         image = image.convertToFormat(QImage.Format_RGBA8888)
         width, height = image.width(), image.height()
-        data = image.bits().tobytes()  # ✅ Correção aqui!
+        data = image.bits().tobytes()
 
-        # Criar textura OpenGL
+        if self.texture_id:
+            glDeleteTextures([self.texture_id])
+
         self.texture_id = glGenTextures(1)
         glBindTexture(GL_TEXTURE_2D, self.texture_id)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
@@ -42,7 +47,7 @@ class CtrlGLWidget(QOpenGLWidget):
         glBindTexture(GL_TEXTURE_2D, 0)
 
     def resizeGL(self, w, h):
-        """Ajusta a viewport ao redimensionar"""
+        """Ajusta a viewport ao redimensionar."""
         glViewport(0, 0, w, h)
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
@@ -50,8 +55,11 @@ class CtrlGLWidget(QOpenGLWidget):
         glMatrixMode(GL_MODELVIEW)
 
     def paintGL(self):
-        """Renderiza a textura"""
+        """Renderiza a textura."""
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+        if self.image_base64 and not self.texture_id:
+            self.load_texture_from_base64()
+
         if self.texture_id:
             glBindTexture(GL_TEXTURE_2D, self.texture_id)
 
@@ -61,4 +69,5 @@ class CtrlGLWidget(QOpenGLWidget):
             glTexCoord2f(1, 0); glVertex2f(1, 1)
             glTexCoord2f(0, 0); glVertex2f(0, 1)
             glEnd()
+
             glBindTexture(GL_TEXTURE_2D, 0)
