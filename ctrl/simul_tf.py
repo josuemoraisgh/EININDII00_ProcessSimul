@@ -48,19 +48,19 @@ class SimulTf:
         self.stop()
         self.__init__(self.hrt_data, self.stepTime)
 
-    def start(self):
+    def start(self, state:bool):
         """Inicia a execução da simulação."""
-        self._repeated_function.start()
-
-    def stop(self):
-        """Para a execução da simulação."""
-        self._repeated_function.stop()
-
-    def reset(self):
+        if state:
+            self._repeated_function.start()
+        else:
+            self._repeated_function.stop()
+   
+    def reset(self, state:bool):
         """Finaliza a execução e reseta os estados."""
-        self.stop()        
-        for key in self.states:
-            self.states[key] = np.zeros_like(self.states[key])
+        if state:        
+            self.stop()        
+            for key in self.states:
+                self.states[key] = np.zeros_like(self.states[key])
 
     def changeInputValues(self, rowTfName, colTfName, input_str):
         """Define os valores de entrada de controle. input_dict deve ter o formato {'tf_name': valor}."""
@@ -77,4 +77,4 @@ class SimulTf:
             self.states[key] = next_state
             outputs[key] = float(output)  # Armazena a saída da função de transferência
         # Atualiza as variáveis de saída (reaja conforme necessário)
-        self.hrt_data.tf_dict[key] = outputs
+        self.hrt_data.tf_dict[key] = outputs         
