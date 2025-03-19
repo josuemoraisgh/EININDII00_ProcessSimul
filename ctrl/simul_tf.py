@@ -1,10 +1,11 @@
 from react.repeatFunction import RepeatFunction
-from hrt.hrt_data import HrtData
+from hrt.hrt_reactdata import HrtReactDataFrame
+from db.storage_sqlite import HrtState
 import control as ctrl
 import numpy as np
 import ast  # Para converter strings de listas em listas reais
 class SimulTf:
-    def __init__(self, hrt_data: HrtData, stepTime):
+    def __init__(self, hrtReactDataFrame: HrtReactDataFrame, stepTime):
         """
         tf_dict: dicionário onde:
             - chave: nome da função de transferência (str).
@@ -13,7 +14,7 @@ class SimulTf:
                 * input é um número como string.
         stepTime: tempo de integração em segundos.
         """
-        self.hrt_data = hrt_data
+        self.hrtReactDataFrame = hrtReactDataFrame
         self.stepTime = stepTime  # em segundos
 
         self.systems = {}  # Armazena os sistemas no espaço de estado
@@ -21,8 +22,8 @@ class SimulTf:
         self.inputs = {}   # Armazena os inputs de cada sistema
 
         # Converte todas as funções de transferência do dicionário
-        for rowTfName, colTfName in zip(self.hrt_data.rowTfNames, self.hrt_data.colTfNames):
-            num_str, den_str, input_str = self.hrt_data.getStrData(rowTfName,colTfName).split(",")  # Divide
+        for rowTfName, colTfName in zip(self.hrtReactDataFrame._hrt_storage.rowTfNames, self.hrtReactDataFrame._hrt_storage.colTfNames):
+            num_str, den_str, input_str = self.hrtReactDataFrame._hrt_storage.getStrData(rowTfName,colTfName).split(",")  # Divide
             num = ast.literal_eval(num_str[1:].replace(" ",","))  # Converte string de lista para lista real
             den = ast.literal_eval(den_str.replace(" ",","))
             input_value = float(input_str) # self.hrt_data.get_variable(input_str,colTfName,False)  # Converte para número real
@@ -43,11 +44,6 @@ class SimulTf:
         # Inicializa a função repetida para rodar a simulação de forma contínua
         self._repeated_function = RepeatFunction(self._simulation_step, stepTime)
 
-    def changeData(self):
-        """Atualiza os sistemas com novos parâmetros."""
-        self.stop()
-        self.__init__(self.hrt_data, self.stepTime)
-
     def start(self, state:bool):
         """Inicia a execução da simulação."""
         if state:
@@ -64,7 +60,7 @@ class SimulTf:
 
     def changeInputValues(self, rowTfName, colTfName, input_str):
         """Define os valores de entrada de controle. input_dict deve ter o formato {'tf_name': valor}."""
-        self.inputs[rowTfName, colTfName] = self.hrt_data.get_variable(input_str,colTfName,False)  # Converte para número real
+        self.inputs[rowTfName, colTfName] = self.hrtReactDataFrame.df.loc(input_str,colTfName,HrtState.humanValue)  # Converte para número real
             
     def _simulation_step(self):
         """Calcula o próximo passo para todas as funções de transferência."""
@@ -77,4 +73,4 @@ class SimulTf:
             self.states[key] = next_state
             outputs[key] = float(output)  # Armazena a saída da função de transferência
         # Atualiza as variáveis de saída (reaja conforme necessário)
-        self.hrt_data.tf_dict[key] = outputs         
+        self.hrtReactDataFrame._hrt_storage.tf_dict[key] = outputs         

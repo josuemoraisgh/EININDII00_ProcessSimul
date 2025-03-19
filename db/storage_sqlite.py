@@ -7,15 +7,16 @@ import sqlite3
 import operator
 from enum import Enum
 class HrtState(Enum):
-    originValue = 0
-    machineValue = 1
-    humanValue = 2
+    none = 0
+    originValue = 1
+    machineValue = 2
+    humanValue = 3
 class Storage(QObject):
     data_updated = Signal()  # Sinal emitido ao atualizar dados
 
     def __init__(self, db_name: str, table_name: str):
         super().__init__()
-        self.state = HrtState.humanValue
+        self._state = HrtState.humanValue
         self.db_name = db_name
         self.table_name = table_name
         # Verificar se o banco existe
@@ -35,7 +36,7 @@ class Storage(QObject):
             self.df = pd.DataFrame(rows, columns=columns)
             self.saveAllData()
             print(f'Banco de dados não encontrado. Erro: {e}') 
-        self._createTfDict(self)          
+        self._createTfDict()          
     
     def _createTfDict(self):
         mask = np.char.startswith(self.df.values.astype(str), "$")
@@ -45,7 +46,7 @@ class Storage(QObject):
         self.rowTfNames = self.df.index[rows].tolist()
         self.colTfNames = self.df.columns[cols].tolist()
         # Inicializando o dicionario com os resultados das tf
-        self.tf_dict = {(row, col): 0.0 for row in self.rowTfNames for col in self.colTfNames}
+        self.tf_dict = {(row, col): 0.01 for row in self.rowTfNames for col in self.colTfNames}
     
     def saveAllData(self):
         with sqlite3.connect(self.db_name) as conn:
