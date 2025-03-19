@@ -1,6 +1,5 @@
 from PySide6.QtCore import QObject, Signal
-from hrt.hrt_enum import HrtState 
-from db.storage_sqlite import Storage  # Assuming hrt_storage.py exists
+from db.storage_sqlite import Storage, HrtState  # Assuming hrt_storage.py exists
 # from db.storage_xlsx import Storage  # Assuming hrt_storage.py exists
 from hrt.hrt_type import hrt_type_hex_to, hrt_type_hex_from  # Assuming hrt_type.py exists
 from asteval import Interpreter
@@ -9,16 +8,14 @@ import numpy as np
 import pandas as pd
 import re
 
-class HrtReactiveVariable(QObject, Storage):
+class HrtReactiveVariable(QObject):
     valueChanged = Signal(object)  # Sinal emitido quando o valor muda
 
-    def __init__(self, rowName, colName, state: HrtState, tf_dict: dict):
-        super().__init__()
+    def __init__(self, rowName, colName, hrt_storage: Storage):
         self._rowName = rowName
         self._colName = colName
         # state = 0 -> MachineValue, state = 1 -> HumanValue, state = 2 -> OriginValue
-        self._state = state 
-        self.tf_dict = tf_dict
+        self._hrt_storage = hrt_storage 
 
     @property # metodo getter 
     def rowName(self):
@@ -27,24 +24,32 @@ class HrtReactiveVariable(QObject, Storage):
     @property # metodo getter 
     def colName(self):
         return self._colName
+    
+    @property # metodo getter 
+    def sharedState(self):
+        return self._hrt_storage.state
+    
+    @sharedState.setter # metodo setter 
+    def sharedState(self, state: HrtState):
+        self._hrt_storage.state = state 
 
     @property # metodo getter 
     def value(self):
-        self._getVariable(self._rowName, self._colName, self._state)
+        self._getVariable(self._rowName, self._colName, self._sharedState.value)
 
     @value.setter # metodo setter 
     def value(self, value):
         if self._rowName == self._colName or self._colName == 'NAME':
-            self.df.loc[self._rowName,0] = value
+            self._hrt_storage.df.loc[self._rowName,0] = value
         else:
             modelAntes = self._getDataModel(self._rowName, self._colName).find("tFunc") != -1 # Se antes era tf
             modelAgora = self._getModel(value).find("tFunc") != -1 # Se agora é tf
-            if not modelAntes and modelAgora: self.tf_dict[self._rowName, self._colName] = 0
-            if modelAntes and not modelAgora: self.tf_dict.pop((self._rowName, self._colName), None)
-            if self._state.value or self._getDataModel(self._rowName, self._colName).find("Func") != -1:
-                return super().setStrData(self._rowName, self._colName, str(value))
+            if not modelAntes and modelAgora: self._hrt_storage.tf_dict[self._rowName, self._colName] = 0
+            if modelAntes and not modelAgora: self._hrt_storage.tf_dict.pop((self._rowName, self._colName), None)
+            if self._hrt_storage.state == HrtState.humanValue and self._getDataModel(self._rowName, self._colName).find("Func") == -1:
+                return self._hrt_storage.setStrData(self._rowName, self._colName, hrt_type_hex_from(value, self._hrt_storage.getStrData(self._rowName, "TYPE"), int(self._hrt_storage.getStrData(self._rowName, "BYTE_SIZE"))))
             else:
-                return super().setStrData(self._rowName, self._colName, hrt_type_hex_from(value, super().getStrData(self._rowName, "TYPE"), int(super().getStrData(self._rowName, "BYTE_SIZE"))))
+                return self._hrt_storage.setStrData(self._rowName, self._colName, str(value))    
         self.valueChanged.emit(value)
     
     def connect(self, update_function):
@@ -65,14 +70,14 @@ class HrtReactiveVariable(QObject, Storage):
             return "Value"
                
     def _getDataModel(self, rowName: str, colName: str) -> str:
-        value = super().getStrData(rowName,colName)
-        return self.getModel(value)
+        value = self._hrt_storage.getStrData(rowName,colName)
+        return self._getModel(value)
     
     def _getVariable(self, rowName: str, colName: str, state: HrtState):
         if rowName == colName or colName == 'NAME':
             return rowName
         else: 
-            value = super().getStrData(rowName, colName)
+            value = self._hrt_storage.getStrData(rowName, colName)
             dataModel = self._getDataModel(rowName, colName)
             if not colName in ["NAME", "TYPE", "BYTE_SIZE"]:
                 if dataModel == "Func":
