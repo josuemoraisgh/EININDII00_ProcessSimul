@@ -8,7 +8,7 @@ import re
 
 class HrtReactiveVariable(QObject):
     valueChanged = Signal()  # Sinal emitido quando o valor muda
-    expressionToken = Signal(list)
+    expressionToken = Signal(list,bool)
 
     def __init__(self, rowName, colName, hrt_storage: Storage):
         super().__init__()
@@ -36,10 +36,16 @@ class HrtReactiveVariable(QObject):
         if self._rowName == self._colName or self._colName == 'NAME':
             self._hrt_storage.df.loc[self._rowName,0] = value
         else:
-            modelAntes = self.getDataModel(self._rowName, self._colName).find("tFunc") != -1 # Se antes era tf
-            modelAgora = self.model(value).find("tFunc") != -1 # Se agora é tf
-            if not modelAntes and modelAgora: self._hrt_storage.tf_dict[self._rowName, self._colName] = 0
-            if modelAntes and not modelAgora: self._hrt_storage.tf_dict.pop((self._rowName, self._colName), None)
+            modelAntes = self.getDataModel(self._rowName, self._colName) == "Func" # Se antes era Func
+            modelAgora = self.model(value) == "Func" != -1 # Se agora é Func
+            if modelAntes and not modelAgora: # Se antes era Func e agora não é mais 
+                self.expressionToken.emit(self.tokens, False)
+            modelAntes = self.getDataModel(self._rowName, self._colName) == "tFunc" # Se antes era tf
+            modelAgora = self.model(value) == "tFunc" # Se agora é tf
+            if not modelAntes and modelAgora: # Se antes não era tF e agora é
+                self._hrt_storage.tf_dict[self._rowName, self._colName] = 0
+            if modelAntes and not modelAgora: # Se antes era tF e agora não é 
+                self._hrt_storage.tf_dict.pop((self._rowName, self._colName), None)
             if state == HrtState.humanValue and self.getDataModel(self._rowName, self._colName).find("Func") == -1:
                 value = hrt_type_hex_from(value, self._hrt_storage.getStrData(self._rowName, "TYPE"), int(self._hrt_storage.getStrData(self._rowName, "BYTE_SIZE")))
                 self._hrt_storage.setStrData(self._rowName, self._colName, value)
@@ -47,9 +53,12 @@ class HrtReactiveVariable(QObject):
                 self._hrt_storage.setStrData(self._rowName, self._colName, str(value))
         self.valueChanged.emit()
         
-    def bind_to(self, signalOtherVar: Signal):        
-        signalOtherVar.connect(self._update_from_other)
-    
+    def bind_to(self, signalOtherVar: Signal, isConnect: bool):  
+        if isConnect == True:      
+            signalOtherVar.connect(self._update_from_other)
+        else:
+            signalOtherVar.disconnect(self._update_from_other)
+        
     @Slot()
     def _update_from_other(self):
         self.valueChanged.emit()
@@ -93,7 +102,7 @@ class HrtReactiveVariable(QObject):
         tokens: list = re.findall(r'[A-Za-z_0-9]\w+\.[A-Za-z_0-9]\w+', func)
         if self._tokens != tokens:
             self._tokens = tokens
-            self.expressionToken.emit(tokens) # self.bind_to(self.df.loc(token, colName))        
+            self.expressionToken.emit(tokens, True) # self.bind_to(self.df.loc(token, colName))        
         for token in tokens:
             # Fazer no futuro: Checar se todas as variaves são do mesmo tipo ?
             col, row = token.split(".")

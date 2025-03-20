@@ -26,11 +26,11 @@ class HrtReactDataFrame():
                 data.expressionToken.connect(partial(self._trataTokens,data))
                 self.df.loc[row, col] = data
     
-    def _trataTokens(self, data: HrtReactiveVariable, tokens: list[str]):
+    def _trataTokens(self, data: HrtReactiveVariable, tokens: list[str], isConnect: bool):
         for token in tokens:
             col, row = token.split(".")
             otherData: HrtReactiveVariable = self.df.loc[row, col]
-            data.bind_to(otherData.valueChanged) 
+            data.bind_to(otherData.valueChanged,isConnect)
         
 
        
