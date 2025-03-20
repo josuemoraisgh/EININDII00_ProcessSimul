@@ -80,14 +80,14 @@ class DBTableWidget(QTableWidget):
                         def setDataBaseLineEdit(data: HrtReactiveVariable, widget:QLineEdit, state: HrtState):
                             data.setValue(widget.text(),state)
                         lineEdit.editingFinished.connect(partial(setDataBaseLineEdit,data,lineEdit,self.state))
-                        def setTextLineEdit(data: HrtReactiveVariable, widget:QLineEdit, state: HrtState):
-                            value = data.value(state)
-                            cellValue = f"{value:.2f}" if state == HrtState.humanValue and isinstance(value, float) else str(value)
-                            widget.setText(cellValue)
-                        data.valueChanged.connect(partial(setTextLineEdit,data,lineEdit,self.state))
                     else:
                         lineEdit.setReadOnly(True)
                         lineEdit.setStyleSheet("background-color: #D3D3D3;")
+                    def setTextLineEdit(data: HrtReactiveVariable, widget:QLineEdit, state: HrtState):
+                        value = data.value(state)
+                        cellValue = f"{value:.2f}" if state == HrtState.humanValue and isinstance(value, float) else str(value)
+                        widget.setText(cellValue)
+                    data.valueChanged.connect(partial(setTextLineEdit,data,lineEdit,self.state))
                     lineEdit.setContextMenuPolicy(Qt.CustomContextMenu)
                     lineEdit.customContextMenuRequested.connect(partial(self.show_custom_context_menu, lineEdit, rowName, colName))
                     lineEdit.setText(cellValue)

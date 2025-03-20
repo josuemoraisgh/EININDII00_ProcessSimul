@@ -41,9 +41,10 @@ class HrtReactiveVariable(QObject):
             if not modelAntes and modelAgora: self._hrt_storage.tf_dict[self._rowName, self._colName] = 0
             if modelAntes and not modelAgora: self._hrt_storage.tf_dict.pop((self._rowName, self._colName), None)
             if state == HrtState.humanValue and self.getDataModel(self._rowName, self._colName).find("Func") == -1:
-                return self._hrt_storage.setStrData(self._rowName, self._colName, hrt_type_hex_from(value, self._hrt_storage.getStrData(self._rowName, "TYPE"), int(self._hrt_storage.getStrData(self._rowName, "BYTE_SIZE"))))
+                value = hrt_type_hex_from(value, self._hrt_storage.getStrData(self._rowName, "TYPE"), int(self._hrt_storage.getStrData(self._rowName, "BYTE_SIZE")))
+                self._hrt_storage.setStrData(self._rowName, self._colName, value)
             else:
-                return self._hrt_storage.setStrData(self._rowName, self._colName, str(value))    
+                self._hrt_storage.setStrData(self._rowName, self._colName, str(value))
         self.valueChanged.emit()
         
     def bind_to(self, signalOtherVar: Signal):        
@@ -98,17 +99,17 @@ class HrtReactiveVariable(QObject):
             col, row = token.split(".")
             var_val = self.getVariable(row, col, HrtState.humanValue)
             if var_val is not None:
-                evaluator.symtable[token] = var_val
-        try:
-            result = evaluator(func)
-            if state == HrtState.machineValue:
-                resp = hrt_type_hex_from(result, self._hrt_storage.getStrData(rowName, "TYPE"), int(self._hrt_storage.getStrData(rowName, "BYTE_SIZE")))
-                return resp
-            else:    
-                return result
-        except Exception as e:
-            print("Erro ao avaliar expressão:", e)
-            if state == HrtState.machineValue:
-                return "00".zfill(2*int(self._hrt_storage.getStrData(rowName, "BYTE_SIZE")))
-            else:
-                return 0.0
+                evaluator.symtable[token.replace(".","_")] = var_val
+        # try:
+        result = evaluator(re.sub(r'(\b[A-Za-z_]\w*)\.(\w+\b)', r'\1_\2', func))
+        if state == HrtState.machineValue:
+            resp = hrt_type_hex_from(result, self._hrt_storage.getStrData(rowName, "TYPE"), int(self._hrt_storage.getStrData(rowName, "BYTE_SIZE")))
+            return resp
+        else:    
+            return result
+        # except Exception as e:
+        #     print("Erro ao avaliar expressão:", e)
+        #     if state == HrtState.machineValue:
+        #         return "00".zfill(2*int(self._hrt_storage.getStrData(rowName, "BYTE_SIZE")))
+        #     else:
+        #         return 0.0
