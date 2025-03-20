@@ -8,12 +8,14 @@ import re
 
 class HrtReactiveVariable(QObject):
     valueChanged = Signal(object)  # Sinal emitido quando o valor muda
+    expressionToken = Signal(object)
 
     def __init__(self, rowName, colName, hrt_storage: Storage):
         self._rowName = rowName
         self._colName = colName
         # state = 0 -> MachineValue, state = 1 -> HumanValue, state = 2 -> OriginValue
-        self._hrt_storage = hrt_storage 
+        self._hrt_storage = hrt_storage
+        self._tokens = ""
 
     @property # metodo getter 
     def rowName(self):
@@ -53,7 +55,7 @@ class HrtReactiveVariable(QObject):
         other_variable.connect(self._update_from_other)
     
     def _update_from_other(self):
-        self.valueChanged.emit(self._value)
+        self.valueChanged.emit()
     
     def model(self, value: str = "") -> str:
         if value == "":
@@ -91,10 +93,14 @@ class HrtReactiveVariable(QObject):
     def _evaluate_expression(self, func: str, rowName: str, colName: str, state: HrtState):
         evaluator = Interpreter()
         func = func[1:]  # Remove o caractere '@' inicial
-        tokens = re.findall(r'[A-Za-z_]\w*', func)
+        tokens = re.findall(r'[A-Za-z_0-9]\w+\.[A-Za-z_0-9]\w+', func)
+        if self._tokens != tokens:
+            self._tokens = tokens
+            self.expressionToken.emit(tokens) # self.bind_to(self.df.loc(token, colName))        
         for token in tokens:
             # Fazer no futuro: Checar se todas as variaves são do mesmo tipo ?
-            var_val = self.getVariable(token, colName, HrtState.humanValue)
+            col, row = token.split(".")
+            var_val = self.getVariable(row, col, HrtState.humanValue)
             if var_val is not None:
                 evaluator.symtable[token] = var_val
         try:

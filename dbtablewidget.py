@@ -63,8 +63,8 @@ class DBTableWidget(QTableWidget):
                         dados = list(hrt_bitEnum[int(typeValue[8:])].values())
                     comboBox.addItems(dados)
                     comboBox.setCurrentText(cellValue)
-                    def setTextCombBox(func, currentText, state, _):
-                        func(currentText,state)
+                    def setTextCombBox(data: HrtReactiveVariable, widget:QComboBox, state: HrtState, _):
+                        data.setValue(widget.currentText,state)
                     comboBox.currentIndexChanged.connect(partial(setTextCombBox, data.setValue,comboBox.currentText(),self.state))
                     self.setCellWidget(rowID, colID, comboBox)
                 
@@ -72,9 +72,9 @@ class DBTableWidget(QTableWidget):
                     lineEdit = QLineEdit()
                     if(self.state or (colName in ["BYTE_SIZE","TYPE"]) or any(typeValue.find(x)!=-1 for x in ["PACKED", "UNSIGNED", "FLOAT", "INTEGER", "DATE", "TIME"])) and not (dataModel in ["Func", "tFunc"]):
                         lineEdit.setStyleSheet("#QLineEdit{background-color: white;}")
-                        def setTextLineEdit(func, currentText, state):
-                            func(currentText,state)
-                        lineEdit.editingFinished.connect(partial(setTextLineEdit,data.setValue,lineEdit.text(),self.state))
+                        def setTextLineEdit(data: HrtReactiveVariable, widget:QLineEdit, state: HrtState):
+                            data.setValue(widget.text(),state)
+                        lineEdit.editingFinished.connect(partial(setTextLineEdit,data,lineEdit,self.state))
                     else:
                         lineEdit.setReadOnly(True)
                         lineEdit.setStyleSheet("background-color: #D3D3D3;")

@@ -1,6 +1,7 @@
 from db.storage_sqlite import Storage  # Assuming hrt_storage.py exists
 # from db.storage_xlsx import Storage  # Assuming hrt_storage.py exists
 from hrt.hrt_reactvar import HrtReactiveVariable
+from functools import partial
 import pandas as pd
 class HrtReactDataFrame():
     def __init__(self):
@@ -20,7 +21,14 @@ class HrtReactDataFrame():
         self.df = pd.DataFrame(index=self._hrt_storage.df.index, columns=self._hrt_storage.df.columns, dtype=object) 
         for row in self.df.index.to_list():
             for col in self.df.columns.to_list():
-                self.df.loc[row, col] = HrtReactiveVariable(row, col, self._hrt_storage)
+                data = HrtReactiveVariable(row, col, self._hrt_storage)
+                data.expressionToken.connect(partial(self._trataTokens, data)) 
+                self.df.loc[row, col] = data
+    
+    def _trataTokens(self, data: HrtReactiveVariable, tokens: list[str]):
+        for token in tokens:
+            col, row = token.split(".")
+            data.bind_to(self.df.loc(row, col)) 
         
 
        

@@ -5,7 +5,6 @@ from hrt.hrt_reactdata import HrtReactDataFrame
 from ctrl.simul_tf import SimulTf
 from img.imgCaldeira import imagem_base64
 import sys
-import os
 
 class MainWindow(QMainWindow, Ui_MainWindow):
     # resizeEventSignal = Signal()  # 🔥 Declarando o sinal corretamente
