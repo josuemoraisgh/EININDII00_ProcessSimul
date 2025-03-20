@@ -1,16 +1,17 @@
-from PySide6.QtCore import QObject, Signal
+from PySide6.QtCore import QObject, Signal, Slot
 from db.storage_sqlite import Storage, HrtState  # Assuming hrt_storage.py exists
 # from db.storage_xlsx import Storage  # Assuming hrt_storage.py exists
 from hrt.hrt_type import hrt_type_hex_to, hrt_type_hex_from  # Assuming hrt_type.py exists
 from asteval import Interpreter
-from typing import Union
+from typing import Union, Callable
 import re
 
 class HrtReactiveVariable(QObject):
-    valueChanged = Signal(object)  # Sinal emitido quando o valor muda
-    expressionToken = Signal(object)
+    valueChanged = Signal()  # Sinal emitido quando o valor muda
+    expressionToken = Signal(list)
 
     def __init__(self, rowName, colName, hrt_storage: Storage):
+        super().__init__()
         self._rowName = rowName
         self._colName = colName
         # state = 0 -> MachineValue, state = 1 -> HumanValue, state = 2 -> OriginValue
@@ -43,17 +44,12 @@ class HrtReactiveVariable(QObject):
                 return self._hrt_storage.setStrData(self._rowName, self._colName, hrt_type_hex_from(value, self._hrt_storage.getStrData(self._rowName, "TYPE"), int(self._hrt_storage.getStrData(self._rowName, "BYTE_SIZE"))))
             else:
                 return self._hrt_storage.setStrData(self._rowName, self._colName, str(value))    
-        self.valueChanged.emit(value)
-    
-    def connect(self, update_function):
-        self.valueChanged.connect(update_function)
+        self.valueChanged.emit()
         
-    def disconnect(self, update_function):
-        self.valueChanged.disconnect(update_function)
-        
-    def bind_to(self, other_variable: "HrtReactiveVariable"):        
-        other_variable.connect(self._update_from_other)
+    def bind_to(self, signalOtherVar: Signal):        
+        signalOtherVar.connect(self._update_from_other)
     
+    @Slot()
     def _update_from_other(self):
         self.valueChanged.emit()
     
@@ -93,7 +89,7 @@ class HrtReactiveVariable(QObject):
     def _evaluate_expression(self, func: str, rowName: str, colName: str, state: HrtState):
         evaluator = Interpreter()
         func = func[1:]  # Remove o caractere '@' inicial
-        tokens = re.findall(r'[A-Za-z_0-9]\w+\.[A-Za-z_0-9]\w+', func)
+        tokens: list = re.findall(r'[A-Za-z_0-9]\w+\.[A-Za-z_0-9]\w+', func)
         if self._tokens != tokens:
             self._tokens = tokens
             self.expressionToken.emit(tokens) # self.bind_to(self.df.loc(token, colName))        
