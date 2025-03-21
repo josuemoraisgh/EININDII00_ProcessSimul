@@ -73,4 +73,5 @@ class SimulTf:
             self.states[key] = next_state
             outputs[key] = float(output)  # Armazena a saída da função de transferência
         # Atualiza as variáveis de saída (reaja conforme necessário)
-        self.hrtReactDataFrame._hrt_storage.tf_dict[key] = outputs         
+        self.hrtReactDataFrame._hrt_storage.tf_dict[key] = outputs     
+        self.hrtReactDataFrame.df.loc[key].valueChanged.emit() 
