@@ -13,4 +13,4 @@ CALL pip install pyinstaller
 CALL pip install PyOpenGL-accelerate
 
 @REM pyside6-uic main.ui -o ui_main.py
-@REM pyinstaller --onefile --windowed main.py
+@REM pyinstaller --onefile --windowed --name processSimul main.py

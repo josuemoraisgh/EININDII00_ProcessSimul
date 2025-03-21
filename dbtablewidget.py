@@ -49,7 +49,7 @@ class DBTableWidget(QTableWidget):
             for colName in colKeys: 
                 data: HrtReactiveVariable = self.hrtDataFrame.df.loc[rowName, colName]
                 value = data.value(self.state)
-                cellValue = f"{value:.2f}" if self.state == HrtState.humanValue and isinstance(value, float) else str(value)
+                cellValue = format(value, ".2e") if self.state == HrtState.humanValue and isinstance(value, float) else str(value)
                 typeValue = data.type()
                 dataModel = data.model()
                 rowID = rowKeys.get_loc(rowName)
@@ -65,10 +65,10 @@ class DBTableWidget(QTableWidget):
                     comboBox.setCurrentText(cellValue)
                     def setDataBaseCombBox(data: HrtReactiveVariable, widget:QComboBox, state: HrtState, _):
                         data.setValue(widget.currentText(),state)
-                    comboBox.currentIndexChanged.connect(partial(setDataBaseCombBox, data.setValue,comboBox.currentText(),self.state))
+                    comboBox.currentIndexChanged.connect(partial(setDataBaseCombBox, data,comboBox,self.state))
                     def setTextCombBox(data: HrtReactiveVariable, widget:QLineEdit, state: HrtState):
                         value = data.value(state)
-                        cellValue = f"{value:.2f}" if state == HrtState.humanValue and isinstance(value, float) else str(value)
+                        cellValue = format(value, ".2e") if state == HrtState.humanValue and isinstance(value, float) else str(value)
                         widget.setCurrentText(cellValue)
                     data.valueChanged.connect(partial(setTextCombBox,data,lineEdit,self.state))
                     self.setCellWidget(rowID, colID, comboBox)

@@ -3,7 +3,8 @@ from db.storage_sqlite import Storage, HrtState  # Assuming hrt_storage.py exist
 # from db.storage_xlsx import Storage  # Assuming hrt_storage.py exists
 from hrt.hrt_type import hrt_type_hex_to, hrt_type_hex_from  # Assuming hrt_type.py exists
 from asteval import Interpreter
-from typing import Union, Callable
+import math
+import random
 import re
 
 class HrtReactiveVariable(QObject):
@@ -85,7 +86,11 @@ class HrtReactiveVariable(QObject):
             dataModel = self.getDataModel(rowName, colName)
             if not colName in ["NAME", "TYPE", "BYTE_SIZE"]:
                 if dataModel == "Func":
-                    return self._evaluate_expression(value, rowName, colName, state)
+                    result = self.evaluate_expression(value)
+                    if state == HrtState.machineValue:
+                        return hrt_type_hex_from(result, self._hrt_storage.getStrData(rowName, "TYPE"), int(self._hrt_storage.getStrData(rowName, "BYTE_SIZE")))
+                    else:
+                        return result
                 elif dataModel == "tFunc": 
                     if state == HrtState.humanValue:
                         return self._hrt_storage.tf_dict[rowName, colName]
@@ -96,10 +101,10 @@ class HrtReactiveVariable(QObject):
                     return hrt_type_hex_to(self._hrt_storage.getStrData(rowName, colName), self._hrt_storage.getStrData(rowName, "TYPE"))
             return value
     
-    def _evaluate_expression(self, func: str, rowName: str, colName: str, state: HrtState):
+    def evaluate_expression(self, func: str):
         evaluator = Interpreter()
         func = func[1:]  # Remove o caractere '@' inicial
-        tokens: list = re.findall(r'[A-Za-z_0-9]\w+\.[A-Za-z_0-9]\w+', func)
+        tokens: list = re.findall(r'[A-Z0-9]\w+\.[A-Za-z_0-9]\w+', func)
         if self._tokens != tokens:
             self._tokens = tokens
             self.expressionToken.emit(tokens, True) # self.bind_to(self.df.loc(token, colName))        
@@ -109,16 +114,11 @@ class HrtReactiveVariable(QObject):
             var_val = self.getVariable(row, col, HrtState.humanValue)
             if var_val is not None:
                 evaluator.symtable[token.replace(".","_")] = var_val
-        # try:
-        result = evaluator(re.sub(r'(\b[A-Za-z_]\w*)\.(\w+\b)', r'\1_\2', func))
-        if state == HrtState.machineValue:
-            resp = hrt_type_hex_from(result, self._hrt_storage.getStrData(rowName, "TYPE"), int(self._hrt_storage.getStrData(rowName, "BYTE_SIZE")))
-            return resp
-        else:    
+            evaluator.symtable["math"] = math
+            evaluator.symtable["random"] = random
+        try:
+            result = evaluator(re.sub(r'([A-Z0-9]\w+)\.([A-Za-z_0-9]\w+)', r'\1_\2', func))   
             return result
-        # except Exception as e:
-        #     print("Erro ao avaliar expressão:", e)
-        #     if state == HrtState.machineValue:
-        #         return "00".zfill(2*int(self._hrt_storage.getStrData(rowName, "BYTE_SIZE")))
-        #     else:
-        #         return 0.0
+        except Exception as e:
+            print("Erro ao avaliar expressão:", e)
+            return 0.0
