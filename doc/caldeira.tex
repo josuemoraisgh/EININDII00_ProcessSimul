@@ -1,0 +1,238 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{graphicx}
+
+\title{Modelagem Matem\'atica de uma Caldeira a Vapor e Sistema de Esteira de Cavaco}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section{Introdu\c{c}\~ao}
+A modelagem de uma caldeira a vapor e do sistema de esteira de cavaco é essencial para a compreensão do comportamento dinâmico de sistemas térmicos e para o projeto de estratégias de controle eficientes. Este relatório apresenta um modelo matemático baseado em balanços de massa e energia para descrever a dinâmica da caldeira a vapor, incluindo a vazão de entrada de água, vazão de saída de vapor, nível de líquido, pressão interna da caldeira e a relação com a taxa de queima de combustível e a velocidade da esteira de cavaco.
+
+\section{Defini\c{c}\~ao das Vari\'aveis}
+O sistema pode ser descrito pelas seguintes variáveis principais:
+\begin{itemize}
+    \item $Q_{agua}$: Vaz\~ao de água de alimentação (kg/s)
+    \item $Q_{vapor}$: Vaz\~ao de vapor (kg/s)
+    \item $H$: Nível de líquido na caldeira (m)
+    \item $P_{vapor}$: Pressão do vapor na caldeira (Pa)
+    \item $q_{calor}$: Quantidade de calor fornecida (W)
+    \item $T$: Temperatura da água/vapor ($^{\circ}$C)
+    \item $m_f$: Taxa de queima de combustível (kg/s)
+    \item $V_{esteira}$: Velocidade da esteira de cavaco (m/s)
+    \item $LCV$: Poder calorífico inferior do combustível (MJ/kg)
+    \item $C$: Capacidade térmica do sistema (J/K)
+    \item $k$: Constante de proporcionalidade para a velocidade da esteira de cavaco
+    \item $h_v$: Entalpia do vapor (kJ/kg)
+    \item $A$: Área da seção transversal da caldeira (m²)
+\end{itemize}
+
+\section{Parâmetros Físicos da Caldeira}
+Para realizar a modelagem e simulação, utilizamos valores típicos de uma pequena caldeira:
+\begin{itemize}
+    \item Volume total da caldeira: 2 m³
+    \item Capacidade térmica da caldeira ($C_p$): 4.2 kJ/kgK
+    \item Pressão de operação: 10 bar
+    \item Temperatura do vapor: 180°C
+    \item Vazão de alimentação ($Q_{agua}$): 0.5 kg/s
+    \item Vazão de vapor ($Q_{vapor}$): 0.5 kg/s
+    \item Eficiência da caldeira ($\eta$): 85%
+    \item Poder calorífico inferior do combustível ($LCV$): 42 MJ/kg
+    \item Taxa de queima de combustível ($m_f$): 0.01 kg/s
+    \item Massa de ar na combustão ($m_{ar}$): 0.15 kg/s
+    \item Coeficiente de vazão do vapor ($K_v$): 0.1
+\end{itemize}
+
+\section{Valores Típicos para Simulação}
+
+\subsection{Parâmetros Físicos da Caldeira}
+\begin{itemize}
+    \item \textbf{Capacidade de Produção de Vapor}: 500 kg/h a 2000 kg/h
+    \item \textbf{Pressão de Operação}: 6 a 10 bar (~600 a 1000 kPa)
+    \item \textbf{Temperatura do Vapor Saturado}: ~165°C a 185°C
+    \item \textbf{Volume do Tanque da Caldeira}: 0.5 m³ a 2.0 m³
+    \item \textbf{Área da seção transversal (A)}: ~0.5 m² a 1.5 m²
+\end{itemize}
+
+\subsection{Vazões e Capacidade Térmica}
+\begin{itemize}
+    \item \textbf{Vazão de água de alimentação ($Q_{in}$)}: ~0.15 a 0.55 kg/s
+    \item \textbf{Vazão de vapor ($Q_{out}$)}: ~0.15 a 0.55 kg/s
+    \item \textbf{Capacidade térmica efetiva ($C_p$)}: ~1000 kJ/(kg·K)
+    \item \textbf{Entalpia do vapor ($h_v$)}: ~2700 kJ/kg
+\end{itemize}
+
+\subsection{Exemplo para Simulação}
+Para uma caldeira de **1000 kg/h (1 ton/h) operando a 8 bar**, pode-se utilizar:
+\begin{itemize}
+    \item \textbf{$Q_{in}$}: 0.28 kg/s
+    \item \textbf{$Q_{out}$}: 0.28 kg/s
+    \item \textbf{$P$}: 800 kPa
+    \item \textbf{$Q_{calor}$}: 810 kW
+    \item \textbf{$h_v$}: 2770 kJ/kg
+    \item \textbf{$C_p$}: 1000 kJ/(kg·K)
+    \item \textbf{$A$}: 1.0 m²
+\end{itemize}
+
+\section{Modelagem Matem\'atica}
+
+\subsection{Balan\c{c}o de Massa (Din\^amica do N\'ivel de L\'iquido)}
+A variação do nível de líquido na caldeira é determinada pela diferença entre a vazão de entrada e a vazão de saída:
+
+\begin{equation}
+    \frac{dH}{dt} = \frac{1}{A} (Q_{agua} - Q_{vapor})
+\end{equation}
+
+No domínio de Laplace, essa equação pode ser representada como:
+
+\begin{equation}
+    H(s) = \frac{1}{A s} (Q_{agua}(s) - Q_{vapor}(s))
+\end{equation}
+
+\subsection{Balan\c{c}o de Energia (Din\^amica da Press\~ao e Produ\c{c}\~ao de Vapor)}
+A pressão do vapor na caldeira depende da energia fornecida ao sistema:
+
+\begin{equation}
+    \frac{dP}{dt} = \frac{1}{C_p} (q_{calor} - Q_{vapor} \cdot h_v)
+\end{equation}
+
+No domínio de Laplace:
+
+\begin{equation}
+    P(s) = \frac{1}{C_p s} (q_{calor}(s) - h_v Q_{vapor}(s))
+\end{equation}
+
+\subsection{Rela\c{c}\~ao entre Calor e Temperatura da Fornalha}
+A relação entre a produção de calor e a temperatura da fornalha é dada por:
+
+\begin{equation}
+    q_{calor} = \eta \cdot m_f \cdot LCV
+\end{equation}
+
+A temperatura da fornalha é aproximada por:
+
+\begin{equation}
+    T_f = \frac{q_{calor}}{m_{ar} \cdot C_p}
+\end{equation}
+
+\subsection{Vaz\~ao de Sa\'ida em Fun\c{c}\~ao da Press\~ao}
+A relação entre a vazão de vapor e a pressão pode ser aproximada por:
+
+\begin{equation}
+    Q_{vapor}(s) = K_v P(s)
+\end{equation}
+
+Substituindo essa expressão na equação do nível:
+
+\begin{equation}
+    H(s) = \frac{1}{A s} \left( Q_{agua}(s) - K_v P(s) \right)
+\end{equation}
+
+\subsection{Modelo Combinado}
+A equação combinada para o nível da caldeira, considerando a dinâmica de pressão e calor fornecido, pode ser expressa como:
+
+\begin{equation}
+    H(s) = \frac{1}{A s} \left( Q_{agua}(s) - K_v \cdot \frac{1}{C_p s} (q_{calor}(s) - h_v Q_{vapor}(s)) \right)
+\end{equation}
+
+E a equação da pressão permanece:
+
+\begin{equation}
+    P(s) = \frac{1}{C_p s} (q_{calor}(s) - h_v Q_{vapor}(s))
+\end{equation}
+
+\subsection{Função de Transferência para a Esteira de Cavaco}
+A taxa de queima de combustível \( m_f \) pode influenciar a velocidade da esteira de cavaco \( V_{esteira} \) devido ao calor gerado. A função de transferência que relaciona \( m_f \) e \( V_{esteira} \) é dada por:
+
+\[
+G(s) = \frac{V_{esteira}(s)}{m_f(s)} = \frac{k \cdot \eta \cdot LCV}{C \cdot (s + \alpha)}
+\]
+
+Onde:
+\begin{itemize}
+    \item \( k \) é a constante de proporcionalidade para a velocidade da esteira,
+    \item \( \eta \) é a eficiência da caldeira,
+    \item \( LCV \) é o poder calorífico inferior do combustível,
+    \item \( C \) é a capacidade térmica do sistema,
+    \item \( \alpha \) é uma constante relacionada à dinâmica térmica do sistema.
+\end{itemize}
+
+\subsection{Valores Sugeridos para Simulação}
+Para simulação dessa função de transferência, os seguintes valores podem ser utilizados:
+\begin{itemize}
+    \item \( \eta = 0.85 \) (85\% de eficiência),
+    \item \( LCV = 42 \, \text{MJ/kg} \),
+    \item \( C = 1000 \, \text{kJ/K} \),
+    \item \( k = 0.5 \) (constante de proporcionalidade para a velocidade da esteira),
+    \item \( \alpha = 0.1 \).
+\end{itemize}
+
+Com esses valores, a função de transferência para a esteira de cavaco pode ser utilizada para simular a resposta do sistema em relação à variação na taxa de queima de combustível.
+
+\section{Introdu\c{c}\~ao}
+A modelagem de uma caldeira a vapor e do sistema de esteira de cavaco \'e essencial para a compreens\~ao do comportamento din\^amico de sistemas t\'ermicos e para o projeto de estrat\'egias de controle eficientes. Este relat\'orio apresenta um modelo matem\'atico baseado em balan\c{c}os de massa e energia para descrever a din\^amica da caldeira a vapor, incluindo a vaz\~ao de entrada de \'agua, vaz\~ao de sa\'ida de vapor, n\'ivel de l\'iquido, press\~ao interna da caldeira e a rela\c{c}\~ao com a taxa de queima de combust\'ivel, a velocidade da esteira de cavaco e a velocidade do ventilador de ar.
+
+\section{Defini\c{c}\~ao das Vari\'aveis}
+O sistema pode ser descrito pelas seguintes vari\'aveis principais:
+\begin{itemize}
+    \item $Q_{agua}$: Vaz\~ao de \'agua de alimenta\c{c}\~ao (kg/s)
+    \item $Q_{vapor}$: Vaz\~ao de vapor (kg/s)
+    \item $H$: N\'ivel de l\'iquido na caldeira (m)
+    \item $P$: Press\~ao do vapor na caldeira (Pa)
+    \item $q_{calor}$: Quantidade de calor fornecida (W)
+    \item $T$: Temperatura da \'agua/vapor ($^{\circ}$C)
+    \item $m_f$: Taxa de queima de combust\'ivel (kg/s)
+    \item $V_{esteira}$: Velocidade da esteira de cavaco (m/s)
+    \item $V_{vent}$: Velocidade do ventilador de ar (m/s)
+    \item $LCV$: Poder calor\'ifico inferior do combust\'ivel (MJ/kg)
+    \item $C$: Capacidade t\'ermica do sistema (J/K)
+    \item $k$: Constante de proporcionalidade para a velocidade da esteira de cavaco
+    \item $h_v$: Entalpia do vapor (kJ/kg)
+    \item $A$: \'Area da se\c{c}\~ao transversal da caldeira (m\textsuperscript{2})
+    \item $\lambda$: Rela\c{c}\~ao ar/combust\'ivel (kg ar / kg combust\'ivel)
+\end{itemize}
+
+\section{Fun\c{c}\~oes de Transfer\^encia}
+A taxa de queima de combust\'ivel ($m_f$) pode ser influenciada tanto pela velocidade da esteira de cavaco ($V_{esteira}$) quanto pela velocidade do ventilador de ar ($V_{vent}$), afetando a quantidade de calor gerada na combust\~ao.
+
+A rela\c{c}\~ao entre a velocidade da esteira e a taxa de queima \'e dada por:
+\begin{equation}
+    G_{esteira}(s) = \frac{m_f(s)}{V_{esteira}(s)} = \frac{k_1}{s + \alpha_1}
+\end{equation}
+
+A rela\c{c}\~ao entre a velocidade do ventilador e a combust\~ao \'e:
+\begin{equation}
+    G_{vent}(s) = \frac{\lambda(s)}{V_{vent}(s)} = \frac{k_2}{s + \alpha_2}
+\end{equation}
+
+A produ\c{c}\~ao de calor pode ser descrita como:
+\begin{equation}
+    q_{calor}(s) = \eta \cdot m_f(s) \cdot LCV
+\end{equation}
+
+Substituindo $m_f(s)$:
+\begin{equation}
+    q_{calor}(s) = \eta \cdot \frac{k_1}{s + \alpha_1} V_{esteira}(s) \cdot LCV
+\end{equation}
+
+E a rela\c{c}\~ao entre o ventilador e a combust\~ao pode ser usada para estimar a mistura ideal de ar/combust\'ivel.
+
+\section{Valores Sugeridos para Simula\c{c}\~ao}
+Para simula\c{c}\~ao dessas fun\c{c}\~oes de transfer\^encia, podem ser utilizados os seguintes valores:
+\begin{itemize}
+    \item $\eta = 0.85$ (85\% de efici\^encia)
+    \item $LCV = 42$ MJ/kg
+    \item $C = 1000$ kJ/K
+    \item $k_1 = 0.5$, $\alpha_1 = 0.1$
+    \item $k_2 = 0.3$, $\alpha_2 = 0.05$
+    \item Rela\c{c}\~ao ar/combust\'ivel $\lambda = 15$
+\end{itemize}
+
+\section{Conclus\~ao}
+A modelagem matemática de uma caldeira e do sistema de esteira de cavaco permite entender sua dinâmica e projetar sistemas de controle eficientes. Com os valores apresentados, é possível simular diferentes cenários e otimizar a operação, tanto para a caldeira quanto para o controle da velocidade da esteira de cavaco.
+
+\end{document}

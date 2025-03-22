@@ -7,7 +7,7 @@ from uis.ui_dialog_value import Ui_Dialog_Value
 from uis.ui_dialog_func import Ui_Dialog_Func 
 from uis.ui_dialog_tfunc import Ui_Dialog_Tfunc 
 from functools import partial
-from hrt.hrt_reactdata import HrtReactDataFrame
+from hrt.hrt_reactdf import HrtReactDataFrame
 from hrt.hrt_reactvar import HrtReactiveVariable
 from hrt.hrt_enum import hrt_enum
 from hrt.hrt_bitenum import hrt_bitEnum
@@ -111,7 +111,7 @@ class DBTableWidget(QTableWidget):
                 dialog_ui.setupUi(dialog)  # Configura a interface do QDialog
                 dialog_ui.lineEdit.setText(str(data.value(self.state)))
                 dialog_ui.buttonBox.accepted.connect(lambda: data.setValue(dialog_ui.lineEdit.text(),self.state))
-                dialog_ui.buttonBox.accepted.connect(self.redrawAll)
+                # dialog_ui.buttonBox.accepted.connect(self.redrawAll)
                 dialog.exec()
             action_Value.triggered.connect(actionValueSlot)
             menu.addAction(action_Value)
@@ -121,9 +121,9 @@ class DBTableWidget(QTableWidget):
                 dialog = QDialog(self)
                 dialog_ui = Ui_Dialog_Func()
                 dialog_ui.setupUi(dialog)  # Configura a interface do QDialog
-                dialog_ui.lineEdit.setText(data.value(self.state)[1:])
+                dialog_ui.lineEdit.setText(data.value(HrtState.originValue)[1:])
                 dialog_ui.buttonBox.accepted.connect(lambda: data.setValue(f'@{dialog_ui.lineEdit.text()}',self.state))
-                dialog_ui.buttonBox.accepted.connect(self.redrawAll)                
+                # dialog_ui.buttonBox.accepted.connect(self.redrawAll)                
                 dialog.exec()
             action_Func.triggered.connect(actionFuncSlot)
             menu.addAction(action_Func)
@@ -134,7 +134,7 @@ class DBTableWidget(QTableWidget):
                 dialog_ui = Ui_Dialog_Tfunc()
                 dialog_ui.setupUi(dialog)  # Configura a interface do QDialog
                 try:
-                    num_str, den_str, input_str = map(str.strip, data.value(self.state).split(","))
+                    num_str, den_str, input_str = map(str.strip, data.value(HrtState.originValue).split(","))
                     dialog_ui.lineEditNum.setText(num_str[2:-1])
                     dialog_ui.lineEditDen.setText(den_str[1:-1])
                     dialog_ui.lineEditInput.setText(input_str)

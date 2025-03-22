@@ -86,6 +86,8 @@ class HrtReactiveVariable(QObject):
             dataModel = self.getDataModel(rowName, colName)
             if not colName in ["NAME", "TYPE", "BYTE_SIZE"]:
                 if dataModel == "Func":
+                    if state == HrtState.originValue:
+                        return value
                     result = self.evaluate_expression(value)
                     if state == HrtState.machineValue:
                         return hrt_type_hex_from(result, self._hrt_storage.getStrData(rowName, "TYPE"), int(self._hrt_storage.getStrData(rowName, "BYTE_SIZE")))

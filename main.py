@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import QApplication, QMainWindow
 from PySide6.QtCore import Signal
 from uis.ui_main import Ui_MainWindow  # Interface do Qt Designer
-from hrt.hrt_reactdata import HrtReactDataFrame
+from hrt.hrt_reactdf import HrtReactDataFrame
 from ctrl.simul_tf import SimulTf
 from img.imgCaldeira import imagem_base64
 import sys

@@ -1,5 +1,5 @@
 from react.repeatFunction import RepeatFunction
-from hrt.hrt_reactdata import HrtReactDataFrame
+from hrt.hrt_reactdf import HrtReactDataFrame
 from db.storage_sqlite import HrtState
 import control as ctrl
 import numpy as np
