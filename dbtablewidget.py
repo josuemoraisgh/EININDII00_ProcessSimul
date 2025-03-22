@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QTableWidget, QLineEdit, QComboBox, QMenu, QDialog
+from PySide6.QtWidgets import QTableWidget, QLineEdit, QComboBox, QMenu, QDialog, QCompleter
 from PySide6.QtGui import QAction, QFont
 from db.storage_sqlite import HrtState
 import qtawesome as qta
@@ -116,6 +116,13 @@ class DBTableWidget(QTableWidget):
             action_Value.triggered.connect(actionValueSlot)
             menu.addAction(action_Value)
             
+                    # Lista de sugestões para o autocompletar
+        sugestoes = ["Python", "PySide6", "Qt", "QLineEdit", "QCompleter", "AutoComplete", "PyQt6"]
+
+        # Criando o QCompleter e associando à lista de sugestões
+        completer = QCompleter(sugestoes, self.line_edit)
+        completer.setCaseSensitivity(False)  # Ignorar maiúsculas e minúsculas
+
             action_Func = QAction(qta.icon("mdi.alarm-panel"), "Func", self)
             def actionFuncSlot():
                 dialog = QDialog(self)
