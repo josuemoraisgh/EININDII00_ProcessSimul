@@ -2,11 +2,22 @@ from hrt.hrt_reactvar import HrtReactiveVariable
 from hrt.hrt_storage import Storage
 from functools import partial
 import pandas as pd
+import os
+import sys
+
+def get_db_path():
+    if getattr(sys, 'frozen', False):  # Se for executável compilado com PyInstaller
+        base_path = sys._MEIPASS  # PyInstaller move arquivos para esta pasta temporária
+    else:
+        base_path = os.path.abspath(".")  # Caminho normal em execução direta
+
+    return os.path.join(base_path, "db", "banco.db")
+
 class HrtReactDataFrame():
     def __init__(self):
         # super().__init__('db/dados.xlsx')  # 🔥 Chama o construtor da classe Pai quando xlsx
         # Criando a máscara
-        self._hrt_storage = Storage('db/banco.db', 'hrt_tabela') # 🔥 Chama o construtor da classe Pai quando sqlite
+        self._hrt_storage = Storage(get_db_path(), 'hrt_tabela') # 🔥 Chama o construtor da classe Pai quando sqlite
         self._createDataFrame()
 
     def connectUpdateState(self, updateFunc):
