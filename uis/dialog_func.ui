@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>268</width>
+    <width>555</width>
     <height>82</height>
    </rect>
   </property>
@@ -27,7 +27,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="lineEdit"/>
+      <widget class="SmartTextEdit" name="lineEdit"/>
      </item>
     </layout>
    </item>
@@ -43,6 +43,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>SmartTextEdit</class>
+   <extends>QTextEdit</extends>
+   <header>comp.smarttextedit.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>

@@ -115,21 +115,16 @@ class DBTableWidget(QTableWidget):
                 dialog.exec()
             action_Value.triggered.connect(actionValueSlot)
             menu.addAction(action_Value)
-            
-                    # Lista de sugestões para o autocompletar
-        sugestoes = ["Python", "PySide6", "Qt", "QLineEdit", "QCompleter", "AutoComplete", "PyQt6"]
-
-        # Criando o QCompleter e associando à lista de sugestões
-        completer = QCompleter(sugestoes, self.line_edit)
-        completer.setCaseSensitivity(False)  # Ignorar maiúsculas e minúsculas
 
             action_Func = QAction(qta.icon("mdi.alarm-panel"), "Func", self)
             def actionFuncSlot():
                 dialog = QDialog(self)
                 dialog_ui = Ui_Dialog_Func()
                 dialog_ui.setupUi(dialog)  # Configura a interface do QDialog
+                dialog_ui.lineEdit.suggestions = self.suggestions()
+                dialog_ui.lineEdit.adjust_height_by_lines(1)
                 dialog_ui.lineEdit.setText(data.value(HrtState.originValue)[1:])
-                dialog_ui.buttonBox.accepted.connect(lambda: data.setValue(f'@{dialog_ui.lineEdit.text()}',self.state))
+                dialog_ui.buttonBox.accepted.connect(lambda: data.setValue(f'@{dialog_ui.lineEdit.toPlainText()}',self.state))
                 # dialog_ui.buttonBox.accepted.connect(self.redrawAll)                
                 dialog.exec()
             action_Func.triggered.connect(actionFuncSlot)
@@ -164,6 +159,9 @@ class DBTableWidget(QTableWidget):
                 menu.addAction(action) 
             menu.exec(line_edit.mapToGlobal(event))  # Correção aqui
             
+    def suggestions(self):
+        lista = {chave: {} for chave in self.hrtDataFrame.df.index}
+        return {chave: lista for chave in self.hrtDataFrame.df.columns}
     # def redraw(self):   
     #     self.blockSignals(True)  # Bloqueia sinais para evitar loops infinitos
     #     for rowName in self.hrtDataFrame.df.index:               

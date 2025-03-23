@@ -16,15 +16,17 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QAbstractButton, QApplication, QDialog, QDialogButtonBox,
-    QHBoxLayout, QLabel, QLineEdit, QSizePolicy,
-    QVBoxLayout, QWidget)
+    QHBoxLayout, QLabel, QSizePolicy, QVBoxLayout,
+    QWidget)
+
+from comp.smarttextedit import SmartTextEdit
 
 class Ui_Dialog_Func(object):
     def setupUi(self, Dialog_Func):
         if not Dialog_Func.objectName():
             Dialog_Func.setObjectName(u"Dialog_Func")
         Dialog_Func.setWindowModality(Qt.WindowModality.ApplicationModal)
-        Dialog_Func.resize(268, 82)
+        Dialog_Func.resize(555, 82)
         self.verticalLayout = QVBoxLayout(Dialog_Func)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.horizontalLayout = QHBoxLayout()
@@ -34,7 +36,7 @@ class Ui_Dialog_Func(object):
 
         self.horizontalLayout.addWidget(self.label)
 
-        self.lineEdit = QLineEdit(Dialog_Func)
+        self.lineEdit = SmartTextEdit(Dialog_Func)
         self.lineEdit.setObjectName(u"lineEdit")
 
         self.horizontalLayout.addWidget(self.lineEdit)

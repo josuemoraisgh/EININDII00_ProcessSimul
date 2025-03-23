@@ -4,7 +4,7 @@ from PySide6.QtGui import QKeyEvent, QTextCursor
 import sys
 import re
 
-class SmartCompleter(QTextEdit):
+class SmartTextEdit(QTextEdit):
     def __init__(self, suggestions=None):
         super().__init__()
         self.setPlaceholderText("Digite aqui...")
@@ -191,7 +191,7 @@ if __name__ == "__main__":
         }
     }
 
-    editor = SmartCompleter(suggestions=suggestions)
+    editor = SmartTextEdit(suggestions=suggestions)
     editor.adjust_height_by_lines(1)
     layout.addWidget(editor)
 
