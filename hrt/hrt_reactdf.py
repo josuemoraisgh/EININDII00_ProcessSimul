@@ -1,12 +1,12 @@
 from hrt.hrt_reactvar import HrtReactiveVariable
-from hrt_storage import Storage
+from hrt.hrt_storage import Storage
 from functools import partial
 import pandas as pd
 class HrtReactDataFrame():
     def __init__(self):
         # super().__init__('db/dados.xlsx')  # 🔥 Chama o construtor da classe Pai quando xlsx
         # Criando a máscara
-        self._hrt_storage = Storage('banco.db', 'hrt_tabela') # 🔥 Chama o construtor da classe Pai quando sqlite
+        self._hrt_storage = Storage('db/banco.db', 'hrt_tabela') # 🔥 Chama o construtor da classe Pai quando sqlite
         self._createDataFrame()
 
     def connectUpdateState(self, updateFunc):

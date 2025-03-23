@@ -1,11 +1,12 @@
 from PySide6.QtCore import Signal, QObject
 from hrt.hrt_banco import hrt_banco
+from hrt.hrt_state import HrtState
 from functools import reduce
 import numpy as np
 import pandas as pd
 import sqlite3
 import operator
-from hrt_state import HrtState
+
     
 class Storage(QObject):
     data_updated = Signal()  # Sinal emitido ao atualizar dados
