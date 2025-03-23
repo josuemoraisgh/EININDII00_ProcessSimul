@@ -1,6 +1,7 @@
 from PySide6.QtWidgets import QTableWidget, QLineEdit, QComboBox, QMenu, QDialog, QCompleter
 from PySide6.QtGui import QAction, QFont
-from db.storage_sqlite import HrtState
+from hrt.hrt_storage import Storage
+from hrt.hrt_state import HrtState
 import qtawesome as qta
 from PySide6.QtCore import Qt
 from uis.ui_dialog_value import Ui_Dialog_Value
@@ -162,23 +163,3 @@ class DBTableWidget(QTableWidget):
     def suggestions(self):
         lista = {chave: {} for chave in self.hrtDataFrame.df.index}
         return {chave: lista for chave in self.hrtDataFrame.df.columns}
-    # def redraw(self):   
-    #     self.blockSignals(True)  # Bloqueia sinais para evitar loops infinitos
-    #     for rowName in self.hrtDataFrame.df.index:               
-    #         for colName in self.hrtDataFrame.df.columns: 
-    #             data: HrtReactiveVariable = self.hrtDataFrame.df[rowName, colName]
-    #             cell_value = f"{data.value:.2f}" if not self.hrtDataFrame._hrt_storage.state == HrtState.machineValue and isinstance(data, float) else str(data)
-    #             rowID = self.hrtDataFrame.df.index.get_loc(rowName)
-    #             colID = self.hrtDataFrame.df.columns.get_loc(colName)
-    #             widget = self.cellWidget(rowID, colID)
-    #             item = self.item(rowID, colID)
-    #             if item:
-    #                 item.setText(cell_value)
-    #             if widget:
-    #                 if hasattr(widget, "setText"):
-    #                     widget.setText(cell_value)
-    #                 else:
-    #                     widget.setCurrentText(cell_value)
-                    
-    #     self.blockSignals(False)  # Libera sinais após a configuração da tabela
-    #     self.viewport().update()  # Atualiza a interface
