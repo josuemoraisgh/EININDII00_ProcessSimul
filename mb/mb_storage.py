@@ -1,4 +1,5 @@
 from PySide6.QtCore import Signal, QObject
+from inter.istorage import DBStorage
 from hrt.hrt_banco import hrt_banco
 from inter.istate import DBState
 from functools import reduce
@@ -7,7 +8,7 @@ import pandas as pd
 import sqlite3
 import operator
     
-class HrtStorage(QObject):
+class MBStorage(DBStorage):
     data_updated = Signal()  # Sinal emitido ao atualizar dados
 
     def __init__(self, db_name: str, table_name: str):
@@ -103,7 +104,7 @@ class HrtStorage(QObject):
 
 # Exemplo de uso
 if __name__ == '__main__':
-    storage = HrtStorage('banco.db', 'minha_tabela')
+    storage = MBStorage('banco.db', 'minha_tabela')
     storage.data_updated.connect(lambda: print("Dados foram atualizados!"))
     storage.set_variable('PROCESS_VARIABLE', 'TIT100', '42480000')
     valor = storage.get_variable('PROCESS_VARIABLE', 'TIT100')

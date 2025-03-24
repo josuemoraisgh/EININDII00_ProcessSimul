@@ -1,9 +1,6 @@
+from inter.qobjectabcmeta import QObjectABCMeta
 from PySide6.QtCore import QObject, Signal, Slot
-from abc import ABC, ABCMeta, abstractmethod
-
-class QObjectABCMeta(ABCMeta, type(QObject)):
-    """Metaclasse que combina ABCMeta e QMetaObject para evitar conflitos."""
-    pass
+from abc import ABC, abstractmethod
 
 class DBReactiveVariable(QObject, ABC, metaclass=QObjectABCMeta):
     valueChanged = Signal()  # Sinal emitido quando o valor muda

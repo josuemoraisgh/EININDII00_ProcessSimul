@@ -1,23 +1,23 @@
 from PySide6.QtCore import Signal, Slot
-from inter.istorage import DBStorage
-from inter.istate import DBState
 from inter.ireactvar import DBReactiveVariable
+from mb.mb_storage import MBStorage
+from inter.istate import DBState
 from hrt.hrt_type import hrt_type_hex_to, hrt_type_hex_from  # Assuming hrt_type.py exists
 from asteval import Interpreter
 import math
 import random
 import re
 
-class HrtReactiveVariable(DBReactiveVariable):
+class MBReactiveVariable(DBReactiveVariable):
     valueChanged = Signal()  # Sinal emitido quando o valor muda
     expressionToken = Signal(list,bool)
 
-    def __init__(self, rowName, colName, storage: DBStorage):
+    def __init__(self, rowName, colName, mb_storage: MBStorage):
         super().__init__()
         self._rowName = rowName
         self._colName = colName
         # state = 0 -> MachineValue, state = 1 -> HumanValue, state = 2 -> OriginValue
-        self.storage = storage
+        self.mb_storage = mb_storage
         self._tokens = ""
 
     @property # metodo getter 
@@ -36,7 +36,7 @@ class HrtReactiveVariable(DBReactiveVariable):
 
     def setValue(self, value, state : DBState = DBState.originValue):
         if self._rowName == self._colName or self._colName == 'NAME':
-            self.storage.df.loc[self._rowName,0] = value
+            self.mb_storage.df.loc[self._rowName,0] = value
         else:
             modelAntes = self.getDataModel(self._rowName, self._colName) == "Func" # Se antes era Func
             modelAgora = self.model(value) == "Func" != -1 # Se agora é Func
@@ -45,14 +45,14 @@ class HrtReactiveVariable(DBReactiveVariable):
             modelAntes = self.getDataModel(self._rowName, self._colName) == "tFunc" # Se antes era tf
             modelAgora = self.model(value) == "tFunc" # Se agora é tf
             if not modelAntes and modelAgora: # Se antes não era tF e agora é
-                self.storage.tf_dict[self._rowName, self._colName] = 0
+                self.mb_storage.tf_dict[self._rowName, self._colName] = 0
             if modelAntes and not modelAgora: # Se antes era tF e agora não é 
-                self.storage.tf_dict.pop((self._rowName, self._colName), None)
+                self.mb_storage.tf_dict.pop((self._rowName, self._colName), None)
             if state == DBState.humanValue and self.getDataModel(self._rowName, self._colName).find("Func") == -1:
-                value = hrt_type_hex_from(value, self.storage.getStrData(self._rowName, "TYPE"), int(self.hrt_storage.getStrData(self._rowName, "BYTE_SIZE")))
-                self.storage.setStrData(self._rowName, self._colName, value)
+                value = hrt_type_hex_from(value, self.mb_storage.getStrData(self._rowName, "TYPE"), int(self.mb_storage.getStrData(self._rowName, "BYTE_SIZE")))
+                self.mb_storage.setStrData(self._rowName, self._colName, value)
             else:
-                self.storage.setStrData(self._rowName, self._colName, str(value))
+                self.mb_storage.setStrData(self._rowName, self._colName, str(value))
         self.valueChanged.emit()
         
     def bind_to(self, signalOtherVar: Signal, isConnect: bool):  
@@ -67,7 +67,7 @@ class HrtReactiveVariable(DBReactiveVariable):
     
     def model(self, value: str = "") -> str:
         if value == "":
-            value = self.storage.getStrData(self._rowName,self._colName)
+            value = self.mb_storage.getStrData(self._rowName,self._colName)
         if value.startswith('@'):
             return "Func"
         elif value.startswith('$'):
@@ -76,14 +76,14 @@ class HrtReactiveVariable(DBReactiveVariable):
             return "Value"
                
     def getDataModel(self, rowName: str, colName: str) -> str:
-        value = self.storage.getStrData(rowName,colName)
+        value = self.mb_storage.getStrData(rowName,colName)
         return self.model(value)
     
     def getVariable(self, rowName: str, colName: str, state: DBState = DBState.machineValue):
         if rowName == colName or colName == 'NAME':
             return rowName
         else: 
-            value = self.storage.getStrData(rowName, colName)
+            value = self.mb_storage.getStrData(rowName, colName)
             dataModel = self.getDataModel(rowName, colName)
             if not colName in ["NAME", "TYPE", "BYTE_SIZE"]:
                 if dataModel == "Func":
@@ -91,17 +91,17 @@ class HrtReactiveVariable(DBReactiveVariable):
                         return value
                     result = self.evaluate_expression(value)
                     if state == DBState.machineValue:
-                        return hrt_type_hex_from(result, self.storage.getStrData(rowName, "TYPE"), int(self.storage.getStrData(rowName, "BYTE_SIZE")))
+                        return hrt_type_hex_from(result, self.mb_storage.getStrData(rowName, "TYPE"), int(self.mb_storage.getStrData(rowName, "BYTE_SIZE")))
                     else:
                         return result
                 elif dataModel == "tFunc": 
                     if state == DBState.humanValue:
-                        return self.storage.tf_dict[rowName, colName]
+                        return self.mb_storage.tf_dict[rowName, colName]
                     elif state == DBState.machineValue:
-                        resp = hrt_type_hex_from(self.storage.tf_dict[rowName, colName], self.storage.getStrData(rowName, "TYPE"), int(self.storage.getStrData(rowName, "BYTE_SIZE")))
+                        resp = hrt_type_hex_from(self.mb_storage.tf_dict[rowName, colName], self.mb_storage.getStrData(rowName, "TYPE"), int(self.mb_storage.getStrData(rowName, "BYTE_SIZE")))
                         return resp
                 elif state == DBState.humanValue:
-                    return hrt_type_hex_to(self.storage.getStrData(rowName, colName), self.storage.getStrData(rowName, "TYPE"))
+                    return hrt_type_hex_to(self.mb_storage.getStrData(rowName, colName), self.mb_storage.getStrData(rowName, "TYPE"))
             return value
     
     def evaluate_expression(self, func: str):

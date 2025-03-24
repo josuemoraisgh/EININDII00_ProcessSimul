@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>268</width>
-    <height>157</height>
+    <width>370</width>
+    <height>156</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -27,7 +27,20 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="lineEditNum"/>
+      <widget class="QLineEdit" name="lineEditNum">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>218</width>
+         <height>30</height>
+        </size>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
@@ -41,7 +54,20 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="lineEditDen"/>
+      <widget class="QLineEdit" name="lineEditDen">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>218</width>
+         <height>30</height>
+        </size>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
@@ -55,7 +81,20 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="lineEditInput"/>
+      <widget class="SmartTextEdit" name="lineEditInput">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>218</width>
+         <height>30</height>
+        </size>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
@@ -71,6 +110,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>SmartTextEdit</class>
+   <extends>QTextEdit</extends>
+   <header>comp.smarttextedit.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>

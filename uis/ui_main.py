@@ -630,7 +630,7 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
         self.radioButtonHrt.toggled.connect(self.hrtDBTableWidget.changeType)
 
-        self.processTab1.setCurrentIndex(2)
+        self.processTab1.setCurrentIndex(3)
 
 
         QMetaObject.connectSlotsByName(MainWindow)

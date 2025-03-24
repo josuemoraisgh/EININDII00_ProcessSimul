@@ -1,6 +1,6 @@
 from enum import Enum
 
-class HrtState(Enum):
+class DBState(Enum):
     none = 0
     originValue = 1
     machineValue = 2

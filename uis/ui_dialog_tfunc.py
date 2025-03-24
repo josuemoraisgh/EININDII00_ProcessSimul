@@ -19,12 +19,14 @@ from PySide6.QtWidgets import (QAbstractButton, QApplication, QDialog, QDialogBu
     QHBoxLayout, QLabel, QLineEdit, QSizePolicy,
     QVBoxLayout, QWidget)
 
+from comp.smarttextedit import SmartTextEdit
+
 class Ui_Dialog_Tfunc(object):
     def setupUi(self, Dialog_Tfunc):
         if not Dialog_Tfunc.objectName():
             Dialog_Tfunc.setObjectName(u"Dialog_Tfunc")
         Dialog_Tfunc.setWindowModality(Qt.WindowModality.ApplicationModal)
-        Dialog_Tfunc.resize(268, 157)
+        Dialog_Tfunc.resize(370, 156)
         self.verticalLayout = QVBoxLayout(Dialog_Tfunc)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.horizontalLayout = QHBoxLayout()
@@ -36,6 +38,12 @@ class Ui_Dialog_Tfunc(object):
 
         self.lineEditNum = QLineEdit(Dialog_Tfunc)
         self.lineEditNum.setObjectName(u"lineEditNum")
+        sizePolicy = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.lineEditNum.sizePolicy().hasHeightForWidth())
+        self.lineEditNum.setSizePolicy(sizePolicy)
+        self.lineEditNum.setMinimumSize(QSize(218, 30))
 
         self.horizontalLayout.addWidget(self.lineEditNum)
 
@@ -51,6 +59,9 @@ class Ui_Dialog_Tfunc(object):
 
         self.lineEditDen = QLineEdit(Dialog_Tfunc)
         self.lineEditDen.setObjectName(u"lineEditDen")
+        sizePolicy.setHeightForWidth(self.lineEditDen.sizePolicy().hasHeightForWidth())
+        self.lineEditDen.setSizePolicy(sizePolicy)
+        self.lineEditDen.setMinimumSize(QSize(218, 30))
 
         self.horizontalLayout_2.addWidget(self.lineEditDen)
 
@@ -64,8 +75,11 @@ class Ui_Dialog_Tfunc(object):
 
         self.horizontalLayout_3.addWidget(self.label_3)
 
-        self.lineEditInput = QLineEdit(Dialog_Tfunc)
+        self.lineEditInput = SmartTextEdit(Dialog_Tfunc)
         self.lineEditInput.setObjectName(u"lineEditInput")
+        sizePolicy.setHeightForWidth(self.lineEditInput.sizePolicy().hasHeightForWidth())
+        self.lineEditInput.setSizePolicy(sizePolicy)
+        self.lineEditInput.setMinimumSize(QSize(218, 30))
 
         self.horizontalLayout_3.addWidget(self.lineEditInput)
 

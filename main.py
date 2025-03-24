@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import QApplication, QMainWindow
 from PySide6.QtCore import Signal
 from uis.ui_main import Ui_MainWindow  # Interface do Qt Designer
-from hrt.hrt_reactdf import HrtReactDataFrame
+from react.reactDB import ReactDataBase
 from ctrl.simul_tf import SimulTf
 from img.imgCaldeira import imagem_base64
 import sys
@@ -9,19 +9,21 @@ import sys
 class MainWindow(QMainWindow, Ui_MainWindow):
     # resizeEventSignal = Signal()  # 🔥 Declarando o sinal corretamente
     
-    def __init__(self, hrtDataFrame: HrtReactDataFrame):
+    def __init__(self):
         super().__init__()
         self.resize(800, 500)  # Defina o tamanho desejado
         self.setupUi(self)  # Configura a interface do Qt Designer  
         # self.radioButtonHex.clicked["bool"].connect(self.oldDBTableWidget.changeType) 
-        self.hrtDBTableWidget.setBaseData(hrtDataFrame)
-        self.simulTf = SimulTf(hrtDataFrame, 100)
+        self.reactDataBase = ReactDataBase()
+        self.hrtDBTableWidget.setBaseData(self.reactDataBase,"hart")
+        self.mbDBTableWidget.setBaseData(self.reactDataBase,"hart")        
+        self.simulTf = SimulTf(self.reactDataBase, 100)
         self.pushButtonStart.toggled.connect(self.simulTf.start)
         self.pushButtonReset.toggled.connect(self.simulTf.reset)
         # image_path = os.path.abspath("img/caldeira.jpg")
         self.processTab_1.setBackgroundImageFromBase64(imagem_base64)
         self.centralizar_janela()
-
+    
     def centralizar_janela(self):
         # Obtém a tela primária
         screen = QApplication.primaryScreen()
@@ -53,6 +55,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    window = MainWindow(HrtReactDataFrame())
+    window = MainWindow()
     window.show()
     sys.exit(app.exec())
