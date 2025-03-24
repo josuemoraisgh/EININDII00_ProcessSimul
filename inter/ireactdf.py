@@ -1,6 +1,13 @@
-from abc import ABC, abstractmethod
+from PySide6.QtCore import QObject, Signal, Slot
+from abc import ABC, ABCMeta, abstractmethod
 
-class IReactDataFrame(ABC):
+class QObjectABCMeta(ABCMeta, type(QObject)):
+    """Metaclasse que combina ABCMeta e QMetaObject para evitar conflitos."""
+    pass
+
+class DBReactDataFrame(QObject, ABC, metaclass=QObjectABCMeta):
+    """Interface para variáveis reativas com PySide6 e métodos abstratos."""
+    
     @abstractmethod
     def connectUpdateState(self, updateFunc):
         """ Conecta a função ao sinal de atualização do estado. """

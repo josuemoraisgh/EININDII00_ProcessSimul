@@ -1,4 +1,5 @@
-from PySide6.QtCore import QObject, Signal, Slot
+from PySide6.QtCore import Signal, Slot
+from inter.ireactdf import DBReactDataFrame
 from hrt.hrt_storage import Storage
 from hrt.hrt_state import HrtState
 # from db.storage_xlsx import Storage  # Assuming hrt_storage.py exists
@@ -8,7 +9,7 @@ import math
 import random
 import re
 
-class HrtReactiveVariable(QObject):
+class HrtReactiveVariable(DBReactDataFrame):
     valueChanged = Signal()  # Sinal emitido quando o valor muda
     expressionToken = Signal(list,bool)
 

@@ -1,7 +1,11 @@
-from abc import ABC, abstractmethod
 from PySide6.QtCore import QObject, Signal, Slot
+from abc import ABC, ABCMeta, abstractmethod
 
-class IReactiveVariable(QObject, ABC):
+class QObjectABCMeta(ABCMeta, type(QObject)):
+    """Metaclasse que combina ABCMeta e QMetaObject para evitar conflitos."""
+    pass
+
+class DBReactiveVariable(QObject, ABC, metaclass=QObjectABCMeta):
     valueChanged = Signal()  # Sinal emitido quando o valor muda
     expressionToken = Signal(list, bool)
 

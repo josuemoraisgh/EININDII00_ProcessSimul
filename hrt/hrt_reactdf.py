@@ -1,4 +1,6 @@
 from hrt.hrt_reactvar import HrtReactiveVariable
+from inter.ireactdf import DBReactDataFrame
+from PySide6.QtCore import QObject, Signal, Slot
 from hrt.hrt_storage import Storage
 from functools import partial
 import pandas as pd
@@ -12,7 +14,7 @@ def get_db_path():
     else:
         return os.path.join(os.path.abspath("."), "db", "banco.db") # Caminho normal em execução direta
         
-class HrtReactDataFrame():
+class HrtReactDataFrame(DBReactDataFrame, QObject):
     def __init__(self):
         # super().__init__('db/dados.xlsx')  # 🔥 Chama o construtor da classe Pai quando xlsx
         # Criando a máscara

@@ -8,8 +8,8 @@ from uis.ui_dialog_value import Ui_Dialog_Value
 from uis.ui_dialog_func import Ui_Dialog_Func 
 from uis.ui_dialog_tfunc import Ui_Dialog_Tfunc 
 from functools import partial
-from hrt.hrt_reactdf import HrtReactDataFrame
-from hrt.hrt_reactvar import HrtReactiveVariable
+from inter.ireactdf import DBReactDataFrame
+from inter.ireactvar import DBReactiveVariable
 from hrt.hrt_enum import hrt_enum
 from hrt.hrt_bitenum import hrt_bitEnum
 
@@ -26,8 +26,8 @@ class DBTableWidget(QTableWidget):
         super().__init__(parent=parent)
         self.state = HrtState.humanValue
         
-    def setBaseData(self, hrtDataFrame: HrtReactDataFrame):
-        self.hrtDataFrame = hrtDataFrame
+    def setBaseData(self, dbDataFrame: DBReactDataFrame):
+        self.dbDataFrame = dbDataFrame
         horizontalHeader_font = QFont("Arial", 12, QFont.Bold)  # Fonte maior e em negrito
         self.horizontalHeader().setFont(horizontalHeader_font)
         verticalHeader_font = QFont("Arial", 10, QFont.Bold)  # Fonte maior e em negrito
@@ -42,9 +42,9 @@ class DBTableWidget(QTableWidget):
         self.redrawAll()
 
     def redrawAll(self):   
-        rows, cols = self.hrtDataFrame.df.shape
-        rowKeys = self.hrtDataFrame.df.index
-        colKeys = self.hrtDataFrame.df.columns
+        rows, cols = self.dbDataFrame.df.shape
+        rowKeys = self.dbDataFrame.df.index
+        colKeys = self.dbDataFrame.df.columns
         self.blockSignals(True)  # Bloqueia sinais para evitar loops infinitos
         self.setRowCount(rows)
         self.setColumnCount(cols)
@@ -54,7 +54,7 @@ class DBTableWidget(QTableWidget):
       
         for rowName in rowKeys: 
             for colName in colKeys: 
-                data: HrtReactiveVariable = self.hrtDataFrame.df.loc[rowName, colName]
+                data: DBReactiveVariable = self.dbDataFrame.df.loc[rowName, colName]
                 value = data.value(self.state)
                 cellValue = format_number(value) if self.state == HrtState.humanValue and isinstance(value, float) else str(value)
                 typeValue = data.type()
@@ -70,10 +70,10 @@ class DBTableWidget(QTableWidget):
                         dados = list(hrt_bitEnum[int(typeValue[8:])].values())
                     comboBox.addItems(dados)
                     comboBox.setCurrentText(cellValue)
-                    def setDataBaseCombBox(data: HrtReactiveVariable, widget:QComboBox, state: HrtState, _):
+                    def setDataBaseCombBox(data: DBReactiveVariable, widget:QComboBox, state: HrtState, _):
                         data.setValue(widget.currentText(),state)
                     comboBox.currentIndexChanged.connect(partial(setDataBaseCombBox, data,comboBox,self.state))
-                    def setTextCombBox(data: HrtReactiveVariable, widget:QLineEdit, state: HrtState):
+                    def setTextCombBox(data: DBReactiveVariable, widget:QLineEdit, state: HrtState):
                         value = data.value(state)
                         cellValue = str(value)
                         widget.setCurrentText(cellValue)
@@ -84,13 +84,13 @@ class DBTableWidget(QTableWidget):
                     lineEdit = QLineEdit()
                     if(self.state or (colName in ["BYTE_SIZE","TYPE"]) or any(typeValue.find(x)!=-1 for x in ["PACKED", "UNSIGNED", "FLOAT", "INTEGER", "DATE", "TIME"])) and not (dataModel in ["Func", "tFunc"]):
                         lineEdit.setStyleSheet("#QLineEdit{background-color: white;}")
-                        def setDataBaseLineEdit(data: HrtReactiveVariable, widget:QLineEdit, state: HrtState):
+                        def setDataBaseLineEdit(data: DBReactiveVariable, widget:QLineEdit, state: HrtState):
                             data.setValue(format_number(float(widget.text())),state)
                         lineEdit.editingFinished.connect(partial(setDataBaseLineEdit,data,lineEdit,self.state))
                     else:
                         lineEdit.setReadOnly(True)
                         lineEdit.setStyleSheet("background-color: #D3D3D3;")
-                    def setTextLineEdit(data: HrtReactiveVariable, widget:QLineEdit, state: HrtState):
+                    def setTextLineEdit(data: DBReactiveVariable, widget:QLineEdit, state: HrtState):
                         value = data.value(state)
                         cellValue = format_number(value) if state == HrtState.humanValue and isinstance(value, float) else str(value)
                         widget.setText(cellValue)
@@ -111,7 +111,7 @@ class DBTableWidget(QTableWidget):
             menu = QMenu(self)
             
             action_Value = QAction(qta.icon("mdi.numeric"), "Value", self)
-            data : HrtReactiveVariable = self.hrtDataFrame.df.loc[rowName,colName]
+            data : DBReactiveVariable = self.dbDataFrame.df.loc[rowName,colName]
             def actionValueSlot():
                 dialog = QDialog(self)
                 dialog_ui = Ui_Dialog_Value()  # Cria a instância do QDialog
@@ -167,5 +167,5 @@ class DBTableWidget(QTableWidget):
             menu.exec(line_edit.mapToGlobal(event))  # Correção aqui
             
     def suggestions(self):
-        lista = {chave: {} for chave in self.hrtDataFrame.df.index}
-        return {chave: lista for chave in self.hrtDataFrame.df.columns}
+        lista = {chave: {} for chave in self.dbDataFrame.df.index}
+        return {chave: lista for chave in self.dbDataFrame.df.columns}
