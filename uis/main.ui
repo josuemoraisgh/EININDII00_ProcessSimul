@@ -16,19 +16,98 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="QTabWidget" name="tabWidget">
+     <widget class="QTabWidget" name="processTab1">
       <property name="autoFillBackground">
        <bool>true</bool>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>2</number>
       </property>
-      <widget class="QWidget" name="tab_2">
+      <widget class="QWidget" name="configTab">
+       <attribute name="title">
+        <string>Config</string>
+       </attribute>
+      </widget>
+      <widget class="QWidget" name="modbusTab">
        <attribute name="title">
         <string>ModBus</string>
        </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_10">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_10">
+          <item>
+           <widget class="QRadioButton" name="radioButtonHex_2">
+            <property name="text">
+             <string>Machine Value</string>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="radioButtonHrt_2">
+            <property name="text">
+             <string>Human Value</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_9">
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_11">
+              <item>
+               <spacer name="horizontalSpacer_3">
+                <property name="orientation">
+                 <enum>Qt::Orientation::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_7">
+              <item>
+               <spacer name="horizontalSpacer_5">
+                <property name="orientation">
+                 <enum>Qt::Orientation::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="DBTableWidget" name="mbDBTableWidget" native="true">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </widget>
-      <widget class="QWidget" name="tableWidget">
+      <widget class="QWidget" name="hartTab">
        <attribute name="title">
         <string>Hart</string>
        </attribute>
@@ -78,52 +157,12 @@
                 </property>
                </spacer>
               </item>
-              <item>
-               <widget class="QLabel" name="label_4">
-                <property name="text">
-                 <string>Para equações inicie o campo 'TYPE' com '@'.</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_3">
-                <property name="orientation">
-                 <enum>Qt::Orientation::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
              </layout>
             </item>
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_3">
               <item>
                <spacer name="horizontalSpacer_4">
-                <property name="orientation">
-                 <enum>Qt::Orientation::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QLabel" name="label_5">
-                <property name="text">
-                 <string>Para funções de transferência em 'S' inicie o campo 'TYPE' com '$'.</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_5">
                 <property name="orientation">
                  <enum>Qt::Orientation::Horizontal</enum>
                 </property>
@@ -142,7 +181,7 @@
          </layout>
         </item>
         <item>
-         <widget class="DBTableWidget" name="oldDBTableWidget" native="true">
+         <widget class="DBTableWidget" name="hrtDBTableWidget" native="true">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
             <horstretch>0</horstretch>
@@ -153,12 +192,7 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="tab">
-       <attribute name="title">
-        <string>Config</string>
-       </attribute>
-      </widget>
-      <widget class="CtrlGLWidget" name="oldCtrlGLWidget">
+      <widget class="CtrlGLWidget" name="processTab_1">
        <attribute name="title">
         <string>Process</string>
        </attribute>
@@ -1380,7 +1414,7 @@
   <customwidget>
    <class>DBTableWidget</class>
    <extends>QWidget</extends>
-   <header>dbtablewidget.h</header>
+   <header>comp/dbtablewidget.h</header>
    <container>1</container>
    <slots>
     <slot>changeType(bool)</slot>
@@ -1389,7 +1423,7 @@
   <customwidget>
    <class>CtrlGLWidget</class>
    <extends>QWidget</extends>
-   <header>ctrlglwidget.h</header>
+   <header>comp/ctrlglwidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
@@ -1398,7 +1432,7 @@
   <connection>
    <sender>radioButtonHrt</sender>
    <signal>toggled(bool)</signal>
-   <receiver>oldDBTableWidget</receiver>
+   <receiver>hrtDBTableWidget</receiver>
    <slot>changeType(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1413,7 +1447,7 @@
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="buttonGroup"/>
   <buttongroup name="buttonGroup_2"/>
+  <buttongroup name="buttonGroup"/>
  </buttongroups>
 </ui>

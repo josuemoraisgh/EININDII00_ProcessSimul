@@ -13,6 +13,12 @@ from hrt.hrt_reactvar import HrtReactiveVariable
 from hrt.hrt_enum import hrt_enum
 from hrt.hrt_bitenum import hrt_bitEnum
 
+def format_number(num):
+    if abs(num) >= 0.001:  # Se for maior ou igual a 0.001, formata normal
+        return f"{num:.3f}"
+    else:  # Se for menor que 0.001, usa notação científica
+        return f"{num:.2e}"
+
 class DBTableWidget(QTableWidget):
     # def __init__(self):
     def __init__(self, parent: None):
@@ -50,7 +56,7 @@ class DBTableWidget(QTableWidget):
             for colName in colKeys: 
                 data: HrtReactiveVariable = self.hrtDataFrame.df.loc[rowName, colName]
                 value = data.value(self.state)
-                cellValue = format(value, ".2e") if self.state == HrtState.humanValue and isinstance(value, float) else str(value)
+                cellValue = format_number(value) if self.state == HrtState.humanValue and isinstance(value, float) else str(value)
                 typeValue = data.type()
                 dataModel = data.model()
                 rowID = rowKeys.get_loc(rowName)
@@ -69,7 +75,7 @@ class DBTableWidget(QTableWidget):
                     comboBox.currentIndexChanged.connect(partial(setDataBaseCombBox, data,comboBox,self.state))
                     def setTextCombBox(data: HrtReactiveVariable, widget:QLineEdit, state: HrtState):
                         value = data.value(state)
-                        cellValue = format(value, ".2e") if state == HrtState.humanValue and isinstance(value, float) else str(value)
+                        cellValue = str(value)
                         widget.setCurrentText(cellValue)
                     data.valueChanged.connect(partial(setTextCombBox,data,lineEdit,self.state))
                     self.setCellWidget(rowID, colID, comboBox)
@@ -79,14 +85,14 @@ class DBTableWidget(QTableWidget):
                     if(self.state or (colName in ["BYTE_SIZE","TYPE"]) or any(typeValue.find(x)!=-1 for x in ["PACKED", "UNSIGNED", "FLOAT", "INTEGER", "DATE", "TIME"])) and not (dataModel in ["Func", "tFunc"]):
                         lineEdit.setStyleSheet("#QLineEdit{background-color: white;}")
                         def setDataBaseLineEdit(data: HrtReactiveVariable, widget:QLineEdit, state: HrtState):
-                            data.setValue(widget.text(),state)
+                            data.setValue(format_number(float(widget.text())),state)
                         lineEdit.editingFinished.connect(partial(setDataBaseLineEdit,data,lineEdit,self.state))
                     else:
                         lineEdit.setReadOnly(True)
                         lineEdit.setStyleSheet("background-color: #D3D3D3;")
                     def setTextLineEdit(data: HrtReactiveVariable, widget:QLineEdit, state: HrtState):
                         value = data.value(state)
-                        cellValue = f"{value:.2f}" if state == HrtState.humanValue and isinstance(value, float) else str(value)
+                        cellValue = format_number(value) if state == HrtState.humanValue and isinstance(value, float) else str(value)
                         widget.setText(cellValue)
                     data.valueChanged.connect(partial(setTextLineEdit,data,lineEdit,self.state))
                     lineEdit.setContextMenuPolicy(Qt.CustomContextMenu)

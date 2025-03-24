@@ -20,8 +20,8 @@ from PySide6.QtWidgets import (QApplication, QButtonGroup, QGroupBox, QHBoxLayou
     QRadioButton, QSizePolicy, QSlider, QSpacerItem,
     QStatusBar, QTabWidget, QVBoxLayout, QWidget)
 
-from ctrlglwidget import CtrlGLWidget
-from dbtablewidget import DBTableWidget
+from comp.ctrlglwidget import CtrlGLWidget
+from comp.dbtablewidget import DBTableWidget
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -32,19 +32,74 @@ class Ui_MainWindow(object):
         self.centralwidget.setObjectName(u"centralwidget")
         self.verticalLayout = QVBoxLayout(self.centralwidget)
         self.verticalLayout.setObjectName(u"verticalLayout")
-        self.tabWidget = QTabWidget(self.centralwidget)
-        self.tabWidget.setObjectName(u"tabWidget")
-        self.tabWidget.setAutoFillBackground(True)
-        self.tab_2 = QWidget()
-        self.tab_2.setObjectName(u"tab_2")
-        self.tabWidget.addTab(self.tab_2, "")
-        self.tableWidget = QWidget()
-        self.tableWidget.setObjectName(u"tableWidget")
-        self.verticalLayout_4 = QVBoxLayout(self.tableWidget)
+        self.processTab1 = QTabWidget(self.centralwidget)
+        self.processTab1.setObjectName(u"processTab1")
+        self.processTab1.setAutoFillBackground(True)
+        self.configTab = QWidget()
+        self.configTab.setObjectName(u"configTab")
+        self.processTab1.addTab(self.configTab, "")
+        self.modbusTab = QWidget()
+        self.modbusTab.setObjectName(u"modbusTab")
+        self.verticalLayout_10 = QVBoxLayout(self.modbusTab)
+        self.verticalLayout_10.setObjectName(u"verticalLayout_10")
+        self.horizontalLayout_10 = QHBoxLayout()
+        self.horizontalLayout_10.setObjectName(u"horizontalLayout_10")
+        self.radioButtonHex_2 = QRadioButton(self.modbusTab)
+        self.radioButtonHex_2.setObjectName(u"radioButtonHex_2")
+        self.radioButtonHex_2.setChecked(False)
+
+        self.horizontalLayout_10.addWidget(self.radioButtonHex_2)
+
+        self.radioButtonHrt_2 = QRadioButton(self.modbusTab)
+        self.radioButtonHrt_2.setObjectName(u"radioButtonHrt_2")
+        self.radioButtonHrt_2.setChecked(True)
+
+        self.horizontalLayout_10.addWidget(self.radioButtonHrt_2)
+
+        self.verticalLayout_9 = QVBoxLayout()
+        self.verticalLayout_9.setObjectName(u"verticalLayout_9")
+        self.horizontalLayout_11 = QHBoxLayout()
+        self.horizontalLayout_11.setObjectName(u"horizontalLayout_11")
+        self.horizontalSpacer_3 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_11.addItem(self.horizontalSpacer_3)
+
+
+        self.verticalLayout_9.addLayout(self.horizontalLayout_11)
+
+        self.horizontalLayout_7 = QHBoxLayout()
+        self.horizontalLayout_7.setObjectName(u"horizontalLayout_7")
+        self.horizontalSpacer_5 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_7.addItem(self.horizontalSpacer_5)
+
+
+        self.verticalLayout_9.addLayout(self.horizontalLayout_7)
+
+
+        self.horizontalLayout_10.addLayout(self.verticalLayout_9)
+
+
+        self.verticalLayout_10.addLayout(self.horizontalLayout_10)
+
+        self.mbDBTableWidget = DBTableWidget(self.modbusTab)
+        self.mbDBTableWidget.setObjectName(u"mbDBTableWidget")
+        sizePolicy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.mbDBTableWidget.sizePolicy().hasHeightForWidth())
+        self.mbDBTableWidget.setSizePolicy(sizePolicy)
+
+        self.verticalLayout_10.addWidget(self.mbDBTableWidget)
+
+        self.processTab1.addTab(self.modbusTab, "")
+        self.hartTab = QWidget()
+        self.hartTab.setObjectName(u"hartTab")
+        self.verticalLayout_4 = QVBoxLayout(self.hartTab)
         self.verticalLayout_4.setObjectName(u"verticalLayout_4")
         self.horizontalLayout_9 = QHBoxLayout()
         self.horizontalLayout_9.setObjectName(u"horizontalLayout_9")
-        self.radioButtonHex = QRadioButton(self.tableWidget)
+        self.radioButtonHex = QRadioButton(self.hartTab)
         self.buttonGroup = QButtonGroup(MainWindow)
         self.buttonGroup.setObjectName(u"buttonGroup")
         self.buttonGroup.addButton(self.radioButtonHex)
@@ -53,7 +108,7 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_9.addWidget(self.radioButtonHex)
 
-        self.radioButtonHrt = QRadioButton(self.tableWidget)
+        self.radioButtonHrt = QRadioButton(self.hartTab)
         self.buttonGroup.addButton(self.radioButtonHrt)
         self.radioButtonHrt.setObjectName(u"radioButtonHrt")
         self.radioButtonHrt.setChecked(True)
@@ -68,15 +123,6 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_8.addItem(self.horizontalSpacer_2)
 
-        self.label_4 = QLabel(self.tableWidget)
-        self.label_4.setObjectName(u"label_4")
-
-        self.horizontalLayout_8.addWidget(self.label_4)
-
-        self.horizontalSpacer_3 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-
-        self.horizontalLayout_8.addItem(self.horizontalSpacer_3)
-
 
         self.verticalLayout_3.addLayout(self.horizontalLayout_8)
 
@@ -85,15 +131,6 @@ class Ui_MainWindow(object):
         self.horizontalSpacer_4 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.horizontalLayout_3.addItem(self.horizontalSpacer_4)
-
-        self.label_5 = QLabel(self.tableWidget)
-        self.label_5.setObjectName(u"label_5")
-
-        self.horizontalLayout_3.addWidget(self.label_5)
-
-        self.horizontalSpacer_5 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-
-        self.horizontalLayout_3.addItem(self.horizontalSpacer_5)
 
 
         self.verticalLayout_3.addLayout(self.horizontalLayout_3)
@@ -104,23 +141,17 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_4.addLayout(self.horizontalLayout_9)
 
-        self.oldDBTableWidget = DBTableWidget(self.tableWidget)
-        self.oldDBTableWidget.setObjectName(u"oldDBTableWidget")
-        sizePolicy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Expanding)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.oldDBTableWidget.sizePolicy().hasHeightForWidth())
-        self.oldDBTableWidget.setSizePolicy(sizePolicy)
+        self.hrtDBTableWidget = DBTableWidget(self.hartTab)
+        self.hrtDBTableWidget.setObjectName(u"hrtDBTableWidget")
+        sizePolicy.setHeightForWidth(self.hrtDBTableWidget.sizePolicy().hasHeightForWidth())
+        self.hrtDBTableWidget.setSizePolicy(sizePolicy)
 
-        self.verticalLayout_4.addWidget(self.oldDBTableWidget)
+        self.verticalLayout_4.addWidget(self.hrtDBTableWidget)
 
-        self.tabWidget.addTab(self.tableWidget, "")
-        self.tab = QWidget()
-        self.tab.setObjectName(u"tab")
-        self.tabWidget.addTab(self.tab, "")
-        self.oldCtrlGLWidget = CtrlGLWidget()
-        self.oldCtrlGLWidget.setObjectName(u"oldCtrlGLWidget")
-        self.widgetLI100 = QWidget(self.oldCtrlGLWidget)
+        self.processTab1.addTab(self.hartTab, "")
+        self.processTab_1 = CtrlGLWidget()
+        self.processTab_1.setObjectName(u"processTab_1")
+        self.widgetLI100 = QWidget(self.processTab_1)
         self.widgetLI100.setObjectName(u"widgetLI100")
         self.widgetLI100.setGeometry(QRect(500, 10, 111, 71))
         self.widgetLI100.setMinimumSize(QSize(111, 71))
@@ -158,7 +189,7 @@ class Ui_MainWindow(object):
         self.lcdLI100.setSizePolicy(sizePolicy2)
         self.lcdLI100.setSmallDecimalPoint(True)
         self.lcdLI100.setDigitCount(6)
-        self.widgetPI100 = QWidget(self.oldCtrlGLWidget)
+        self.widgetPI100 = QWidget(self.processTab_1)
         self.widgetPI100.setObjectName(u"widgetPI100")
         self.widgetPI100.setGeometry(QRect(0, 10, 121, 71))
         font1 = QFont()
@@ -197,7 +228,7 @@ class Ui_MainWindow(object):
         self.label_26 = QLabel(self.widgetPI100)
         self.label_26.setObjectName(u"label_26")
         self.label_26.setGeometry(QRect(95, 40, 41, 16))
-        self.widgetFI100A = QWidget(self.oldCtrlGLWidget)
+        self.widgetFI100A = QWidget(self.processTab_1)
         self.widgetFI100A.setObjectName(u"widgetFI100A")
         self.widgetFI100A.setGeometry(QRect(0, 170, 141, 60))
         self.widgetFI100A.setAutoFillBackground(False)
@@ -226,7 +257,7 @@ class Ui_MainWindow(object):
         self.label_25 = QLabel(self.widgetFI100A)
         self.label_25.setObjectName(u"label_25")
         self.label_25.setGeometry(QRect(95, 33, 41, 16))
-        self.widgetTI100 = QWidget(self.oldCtrlGLWidget)
+        self.widgetTI100 = QWidget(self.processTab_1)
         self.widgetTI100.setObjectName(u"widgetTI100")
         self.widgetTI100.setGeometry(QRect(0, 90, 121, 71))
         self.widgetTI100.setMinimumSize(QSize(121, 71))
@@ -256,7 +287,7 @@ class Ui_MainWindow(object):
         self.label_27 = QLabel(self.widgetTI100)
         self.label_27.setObjectName(u"label_27")
         self.label_27.setGeometry(QRect(96, 40, 21, 16))
-        self.widgetFI100V = QWidget(self.oldCtrlGLWidget)
+        self.widgetFI100V = QWidget(self.processTab_1)
         self.widgetFI100V.setObjectName(u"widgetFI100V")
         self.widgetFI100V.setGeometry(QRect(140, 10, 198, 219))
         self.horizontalLayout = QHBoxLayout(self.widgetFI100V)
@@ -330,7 +361,7 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout.addLayout(self.verticalLayout_2)
 
-        self.widgetFV100A = QWidget(self.oldCtrlGLWidget)
+        self.widgetFV100A = QWidget(self.processTab_1)
         self.widgetFV100A.setObjectName(u"widgetFV100A")
         self.widgetFV100A.setGeometry(QRect(340, 10, 168, 219))
         self.horizontalLayout_4 = QHBoxLayout(self.widgetFV100A)
@@ -401,7 +432,7 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_4.addWidget(self.widgetSliderFV100A)
 
-        self.widgetVI100AR = QWidget(self.oldCtrlGLWidget)
+        self.widgetVI100AR = QWidget(self.processTab_1)
         self.widgetVI100AR.setObjectName(u"widgetVI100AR")
         self.widgetVI100AR.setGeometry(QRect(390, 230, 223, 128))
         self.verticalLayout_7 = QVBoxLayout(self.widgetVI100AR)
@@ -471,7 +502,7 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_7.addWidget(self.widgetSliderVI100AR)
 
-        self.widgetVI100CA = QWidget(self.oldCtrlGLWidget)
+        self.widgetVI100CA = QWidget(self.processTab_1)
         self.widgetVI100CA.setObjectName(u"widgetVI100CA")
         self.widgetVI100CA.setGeometry(QRect(390, 360, 223, 128))
         self.verticalLayout_8 = QVBoxLayout(self.widgetVI100CA)
@@ -541,7 +572,7 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_8.addWidget(self.widgetSliderVI100CA)
 
-        self.groupBoxSimul = QGroupBox(self.oldCtrlGLWidget)
+        self.groupBoxSimul = QGroupBox(self.processTab_1)
         self.groupBoxSimul.setObjectName(u"groupBoxSimul")
         self.groupBoxSimul.setGeometry(QRect(810, 380, 161, 151))
         self.verticalLayout_5 = QVBoxLayout(self.groupBoxSimul)
@@ -587,9 +618,9 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_5.addWidget(self.pushButtonReset)
 
-        self.tabWidget.addTab(self.oldCtrlGLWidget, "")
+        self.processTab1.addTab(self.processTab_1, "")
 
-        self.verticalLayout.addWidget(self.tabWidget)
+        self.verticalLayout.addWidget(self.processTab1)
 
         MainWindow.setCentralWidget(self.centralwidget)
         self.statusbar = QStatusBar(MainWindow)
@@ -597,9 +628,9 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
 
         self.retranslateUi(MainWindow)
-        self.radioButtonHrt.toggled.connect(self.oldDBTableWidget.changeType)
+        self.radioButtonHrt.toggled.connect(self.hrtDBTableWidget.changeType)
 
-        self.tabWidget.setCurrentIndex(3)
+        self.processTab1.setCurrentIndex(2)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -607,13 +638,13 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), QCoreApplication.translate("MainWindow", u"ModBus", None))
+        self.processTab1.setTabText(self.processTab1.indexOf(self.configTab), QCoreApplication.translate("MainWindow", u"Config", None))
+        self.radioButtonHex_2.setText(QCoreApplication.translate("MainWindow", u"Machine Value", None))
+        self.radioButtonHrt_2.setText(QCoreApplication.translate("MainWindow", u"Human Value", None))
+        self.processTab1.setTabText(self.processTab1.indexOf(self.modbusTab), QCoreApplication.translate("MainWindow", u"ModBus", None))
         self.radioButtonHex.setText(QCoreApplication.translate("MainWindow", u"Machine Value", None))
         self.radioButtonHrt.setText(QCoreApplication.translate("MainWindow", u"Human Value", None))
-        self.label_4.setText(QCoreApplication.translate("MainWindow", u"Para equa\u00e7\u00f5es inicie o campo 'TYPE' com '@'.", None))
-        self.label_5.setText(QCoreApplication.translate("MainWindow", u"Para fun\u00e7\u00f5es de transfer\u00eancia em 'S' inicie o campo 'TYPE' com '$'.", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tableWidget), QCoreApplication.translate("MainWindow", u"Hart", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), QCoreApplication.translate("MainWindow", u"Config", None))
+        self.processTab1.setTabText(self.processTab1.indexOf(self.hartTab), QCoreApplication.translate("MainWindow", u"Hart", None))
 #if QT_CONFIG(tooltip)
         self.widgetLI100.setToolTip(QCoreApplication.translate("MainWindow", u"N\u00edvel do Tubul\u00e3o Superior", None))
 #endif // QT_CONFIG(tooltip)
@@ -718,6 +749,6 @@ class Ui_MainWindow(object):
         self.pushButtonStart.setText(QCoreApplication.translate("MainWindow", u"Start", None))
         self.pushButtonStop.setText(QCoreApplication.translate("MainWindow", u"Stop", None))
         self.pushButtonReset.setText(QCoreApplication.translate("MainWindow", u"reset", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.oldCtrlGLWidget), QCoreApplication.translate("MainWindow", u"Process", None))
+        self.processTab1.setTabText(self.processTab1.indexOf(self.processTab_1), QCoreApplication.translate("MainWindow", u"Process", None))
     # retranslateUi
 

@@ -14,12 +14,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.resize(800, 500)  # Defina o tamanho desejado
         self.setupUi(self)  # Configura a interface do Qt Designer  
         # self.radioButtonHex.clicked["bool"].connect(self.oldDBTableWidget.changeType) 
-        self.oldDBTableWidget.setBaseData(hrtDataFrame)
+        self.hrtDBTableWidget.setBaseData(hrtDataFrame)
         self.simulTf = SimulTf(hrtDataFrame, 100)
         self.pushButtonStart.toggled.connect(self.simulTf.start)
         self.pushButtonReset.toggled.connect(self.simulTf.reset)
         # image_path = os.path.abspath("img/caldeira.jpg")
-        self.oldCtrlGLWidget.setBackgroundImageFromBase64(imagem_base64)
+        self.processTab_1.setBackgroundImageFromBase64(imagem_base64)
         self.centralizar_janela()
 
     def centralizar_janela(self):

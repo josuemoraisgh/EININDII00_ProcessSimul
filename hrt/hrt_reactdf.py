@@ -7,12 +7,11 @@ import sys
 
 def get_db_path():
     if getattr(sys, 'frozen', False):  # Se for executável compilado com PyInstaller
-        base_path = sys._MEIPASS  # PyInstaller move arquivos para esta pasta temporária
+        # base_path = sys._MEIPASS  # PyInstaller move arquivos para esta pasta temporária
+        return os.path.join(os.path.abspath("."), "banco.db")
     else:
-        base_path = os.path.abspath(".")  # Caminho normal em execução direta
-
-    return os.path.join(base_path, "db", "banco.db")
-
+        return os.path.join(os.path.abspath("."), "db", "banco.db") # Caminho normal em execução direta
+        
 class HrtReactDataFrame():
     def __init__(self):
         # super().__init__('db/dados.xlsx')  # 🔥 Chama o construtor da classe Pai quando xlsx
