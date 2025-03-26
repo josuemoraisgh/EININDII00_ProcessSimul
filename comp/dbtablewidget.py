@@ -31,7 +31,7 @@ class DBTableWidget(QTableWidget):
     def setBaseData(self, dbDataFrame: ReactDataBase, source: str):
         self.source = source
         self.dbDataFrame = dbDataFrame
-        self.df = dbDataFrame.dfhrt if source == "HRT" else dbDataFrame.dfmb
+        self.df = dbDataFrame.dfhrt if source == "HART" else dbDataFrame.dfmb
         horizontalHeader_font = QFont("Arial", 12, QFont.Bold)  # Fonte maior e em negrito
         self.horizontalHeader().setFont(horizontalHeader_font)
         verticalHeader_font = QFont("Arial", 10, QFont.Bold)  # Fonte maior e em negrito
@@ -69,9 +69,9 @@ class DBTableWidget(QTableWidget):
                 if  self.state != DBState.machineValue and any(typeValue.find(x)!=-1 for x in ["ENUM", "BIT_ENUM"]) and not (dataModel in ["Func", "tFunc"]) and not(colName in ["BYTE_SIZE","TYPE"]):
                     comboBox = QComboBox()
                     if typeValue.find("BIT_") == -1:
-                        dados = list(hrt_enum[int(typeValue[4:])].values()) if self.source == "HRT" else {}
+                        dados = list(hrt_enum[int(typeValue[4:])].values()) if self.source == "HART" else {}
                     else:
-                        dados = list(hrt_bitEnum[int(typeValue[8:])].values()) if self.source == "HRT" else {}
+                        dados = list(hrt_bitEnum[int(typeValue[8:])].values()) if self.source == "HART" else {}
                     comboBox.addItems(dados)
                     comboBox.setCurrentText(cellValue)
                     def setDataBaseCombBox(data: DBReactiveVariable, widget:QComboBox, state: DBState, _):

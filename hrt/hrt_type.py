@@ -181,7 +181,10 @@ def _hrt_type_time2_hex(valor: datetime, byte_size: int) -> str:
 def hrt_type_hex_from(valor, type_str: str, byte_size: int) -> str:
     t = type_str.upper()
     if t.find('UNSIGNED') != -1:
-        return _hrt_type_uint2_hex(int(valor), byte_size)
+        try:
+            return _hrt_type_uint2_hex(int(valor), byte_size)
+        except Exception as e:
+            return "00"
     elif t.find('FLOAT') != -1:
         return _hrt_type_sreal2_hex(float(valor), byte_size)
     elif t.find("ENUM") != -1:

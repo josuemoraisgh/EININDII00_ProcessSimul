@@ -10,6 +10,7 @@ CALL pip install xlrd
 CALL pip install qtawesome
 CALL pip install PyOpenGL 
 CALL pip install pyinstaller
+CALL pip install pymodbus
 CALL pip install PyOpenGL-accelerate
 
 @REM pyside6-uic main.ui -o ui_main.py

@@ -49,7 +49,7 @@ class HrtReactiveVariable(DBReactiveVariable):
             if modelAntes and not modelAgora: # Se antes era tF e agora não é 
                 self.storage.tf_dict.pop((self._rowName, self._colName), None)
             if state == DBState.humanValue and self.getDataModel(self._rowName, self._colName).find("Func") == -1:
-                value = hrt_type_hex_from(value, self.storage.getStrData(self._rowName, "TYPE"), int(self.hrt_storage.getStrData(self._rowName, "BYTE_SIZE")))
+                value = hrt_type_hex_from(value, self.storage.getStrData(self._rowName, "TYPE"), int(self.storage.getStrData(self._rowName, "BYTE_SIZE")))
                 self.storage.setStrData(self._rowName, self._colName, value)
             else:
                 self.storage.setStrData(self._rowName, self._colName, str(value))

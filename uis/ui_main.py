@@ -32,12 +32,12 @@ class Ui_MainWindow(object):
         self.centralwidget.setObjectName(u"centralwidget")
         self.verticalLayout = QVBoxLayout(self.centralwidget)
         self.verticalLayout.setObjectName(u"verticalLayout")
-        self.processTab1 = QTabWidget(self.centralwidget)
-        self.processTab1.setObjectName(u"processTab1")
-        self.processTab1.setAutoFillBackground(True)
+        self.mainTab = QTabWidget(self.centralwidget)
+        self.mainTab.setObjectName(u"mainTab")
+        self.mainTab.setAutoFillBackground(True)
         self.configTab = QWidget()
         self.configTab.setObjectName(u"configTab")
-        self.processTab1.addTab(self.configTab, "")
+        self.mainTab.addTab(self.configTab, "")
         self.modbusTab = QWidget()
         self.modbusTab.setObjectName(u"modbusTab")
         self.verticalLayout_10 = QVBoxLayout(self.modbusTab)
@@ -92,7 +92,7 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_10.addWidget(self.mbDBTableWidget)
 
-        self.processTab1.addTab(self.modbusTab, "")
+        self.mainTab.addTab(self.modbusTab, "")
         self.hartTab = QWidget()
         self.hartTab.setObjectName(u"hartTab")
         self.verticalLayout_4 = QVBoxLayout(self.hartTab)
@@ -148,10 +148,10 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_4.addWidget(self.hrtDBTableWidget)
 
-        self.processTab1.addTab(self.hartTab, "")
-        self.processTab_1 = CtrlGLWidget()
-        self.processTab_1.setObjectName(u"processTab_1")
-        self.widgetLI100 = QWidget(self.processTab_1)
+        self.mainTab.addTab(self.hartTab, "")
+        self.processTab1 = CtrlGLWidget()
+        self.processTab1.setObjectName(u"processTab1")
+        self.widgetLI100 = QWidget(self.processTab1)
         self.widgetLI100.setObjectName(u"widgetLI100")
         self.widgetLI100.setGeometry(QRect(500, 10, 111, 71))
         self.widgetLI100.setMinimumSize(QSize(111, 71))
@@ -187,19 +187,25 @@ class Ui_MainWindow(object):
         sizePolicy2.setVerticalStretch(0)
         sizePolicy2.setHeightForWidth(self.lcdLI100.sizePolicy().hasHeightForWidth())
         self.lcdLI100.setSizePolicy(sizePolicy2)
+        self.lcdLI100.setStyleSheet(u"#lcdLI100 {\n"
+"        color: red;\n"
+"        background-color: black;\n"
+"        border: 2px solid gray;\n"
+"        border-radius: 5px;\n"
+"    }")
         self.lcdLI100.setSmallDecimalPoint(True)
         self.lcdLI100.setDigitCount(6)
-        self.widgetPI100 = QWidget(self.processTab_1)
-        self.widgetPI100.setObjectName(u"widgetPI100")
-        self.widgetPI100.setGeometry(QRect(0, 10, 121, 71))
+        self.widgetPI100V = QWidget(self.processTab1)
+        self.widgetPI100V.setObjectName(u"widgetPI100V")
+        self.widgetPI100V.setGeometry(QRect(0, 10, 121, 71))
         font1 = QFont()
         font1.setUnderline(False)
         font1.setStrikeOut(False)
-        self.widgetPI100.setFont(font1)
-        self.widgetPI100.setTabletTracking(False)
-        self.widgetPI100.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-        self.widgetPI100.setAutoFillBackground(False)
-        self.widgetPI100.setStyleSheet(u"#widgetPI100{\n"
+        self.widgetPI100V.setFont(font1)
+        self.widgetPI100V.setTabletTracking(False)
+        self.widgetPI100V.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.widgetPI100V.setAutoFillBackground(False)
+        self.widgetPI100V.setStyleSheet(u"#widgetPI100V{\n"
 "    background-color: #c0c0c0; /* Uma cor de fundo neutra */\n"
 "    border-width: 2px;\n"
 "    border-style: solid;\n"
@@ -207,9 +213,9 @@ class Ui_MainWindow(object):
 "    border-radius: 4px; /* Bordas arredondadas (opcional) */\n"
 "    padding: 4px; /* Espa\u00e7amento interno (opcional) */\n"
 "}")
-        self.label_6 = QLabel(self.widgetPI100)
+        self.label_6 = QLabel(self.widgetPI100V)
         self.label_6.setObjectName(u"label_6")
-        self.label_6.setGeometry(QRect(30, 10, 48, 22))
+        self.label_6.setGeometry(QRect(20, 10, 71, 22))
         sizePolicy1.setHeightForWidth(self.label_6.sizePolicy().hasHeightForWidth())
         self.label_6.setSizePolicy(sizePolicy1)
         font2 = QFont()
@@ -217,18 +223,25 @@ class Ui_MainWindow(object):
         font2.setUnderline(False)
         font2.setStrikeOut(False)
         self.label_6.setFont(font2)
+        self.label_6.setLineWidth(2)
         self.label_6.setAlignment(Qt.AlignmentFlag.AlignBottom|Qt.AlignmentFlag.AlignHCenter)
-        self.lcdPI100 = QLCDNumber(self.widgetPI100)
-        self.lcdPI100.setObjectName(u"lcdPI100")
-        self.lcdPI100.setGeometry(QRect(10, 32, 81, 31))
-        sizePolicy2.setHeightForWidth(self.lcdPI100.sizePolicy().hasHeightForWidth())
-        self.lcdPI100.setSizePolicy(sizePolicy2)
-        self.lcdPI100.setSmallDecimalPoint(True)
-        self.lcdPI100.setDigitCount(6)
-        self.label_26 = QLabel(self.widgetPI100)
+        self.lcdPI100V = QLCDNumber(self.widgetPI100V)
+        self.lcdPI100V.setObjectName(u"lcdPI100V")
+        self.lcdPI100V.setGeometry(QRect(10, 32, 81, 31))
+        sizePolicy2.setHeightForWidth(self.lcdPI100V.sizePolicy().hasHeightForWidth())
+        self.lcdPI100V.setSizePolicy(sizePolicy2)
+        self.lcdPI100V.setStyleSheet(u"#lcdPI100V {\n"
+"        color: red;\n"
+"        background-color: black;\n"
+"        border: 2px solid gray;\n"
+"        border-radius: 5px;\n"
+"    }")
+        self.lcdPI100V.setSmallDecimalPoint(True)
+        self.lcdPI100V.setDigitCount(6)
+        self.label_26 = QLabel(self.widgetPI100V)
         self.label_26.setObjectName(u"label_26")
         self.label_26.setGeometry(QRect(95, 40, 41, 16))
-        self.widgetFI100A = QWidget(self.processTab_1)
+        self.widgetFI100A = QWidget(self.processTab1)
         self.widgetFI100A.setObjectName(u"widgetFI100A")
         self.widgetFI100A.setGeometry(QRect(0, 170, 141, 60))
         self.widgetFI100A.setAutoFillBackground(False)
@@ -252,12 +265,18 @@ class Ui_MainWindow(object):
         self.lcdFI100A.setGeometry(QRect(10, 25, 81, 31))
         sizePolicy2.setHeightForWidth(self.lcdFI100A.sizePolicy().hasHeightForWidth())
         self.lcdFI100A.setSizePolicy(sizePolicy2)
+        self.lcdFI100A.setStyleSheet(u"#lcdFI100A {\n"
+"        color: red;\n"
+"        background-color: black;\n"
+"        border: 2px solid gray;\n"
+"        border-radius: 5px;\n"
+"    }")
         self.lcdFI100A.setSmallDecimalPoint(True)
         self.lcdFI100A.setDigitCount(6)
         self.label_25 = QLabel(self.widgetFI100A)
         self.label_25.setObjectName(u"label_25")
         self.label_25.setGeometry(QRect(95, 33, 41, 16))
-        self.widgetTI100 = QWidget(self.processTab_1)
+        self.widgetTI100 = QWidget(self.processTab1)
         self.widgetTI100.setObjectName(u"widgetTI100")
         self.widgetTI100.setGeometry(QRect(0, 90, 121, 71))
         self.widgetTI100.setMinimumSize(QSize(121, 71))
@@ -277,17 +296,23 @@ class Ui_MainWindow(object):
         self.label_9.setSizePolicy(sizePolicy1)
         self.label_9.setFont(font)
         self.label_9.setAlignment(Qt.AlignmentFlag.AlignBottom|Qt.AlignmentFlag.AlignHCenter)
-        self.lcdTIC100 = QLCDNumber(self.widgetTI100)
-        self.lcdTIC100.setObjectName(u"lcdTIC100")
-        self.lcdTIC100.setGeometry(QRect(10, 32, 81, 31))
-        sizePolicy2.setHeightForWidth(self.lcdTIC100.sizePolicy().hasHeightForWidth())
-        self.lcdTIC100.setSizePolicy(sizePolicy2)
-        self.lcdTIC100.setSmallDecimalPoint(True)
-        self.lcdTIC100.setDigitCount(6)
+        self.lcdTI100 = QLCDNumber(self.widgetTI100)
+        self.lcdTI100.setObjectName(u"lcdTI100")
+        self.lcdTI100.setGeometry(QRect(10, 32, 81, 31))
+        sizePolicy2.setHeightForWidth(self.lcdTI100.sizePolicy().hasHeightForWidth())
+        self.lcdTI100.setSizePolicy(sizePolicy2)
+        self.lcdTI100.setStyleSheet(u"#lcdTI100 {\n"
+"        color: red;\n"
+"        background-color: black;\n"
+"        border: 2px solid gray;\n"
+"        border-radius: 5px;\n"
+"    }")
+        self.lcdTI100.setSmallDecimalPoint(True)
+        self.lcdTI100.setDigitCount(6)
         self.label_27 = QLabel(self.widgetTI100)
         self.label_27.setObjectName(u"label_27")
         self.label_27.setGeometry(QRect(96, 40, 21, 16))
-        self.widgetFI100V = QWidget(self.processTab_1)
+        self.widgetFI100V = QWidget(self.processTab1)
         self.widgetFI100V.setObjectName(u"widgetFI100V")
         self.widgetFI100V.setGeometry(QRect(140, 10, 198, 219))
         self.horizontalLayout = QHBoxLayout(self.widgetFI100V)
@@ -346,6 +371,12 @@ class Ui_MainWindow(object):
         self.lcdFI100V.setGeometry(QRect(10, 32, 81, 31))
         sizePolicy2.setHeightForWidth(self.lcdFI100V.sizePolicy().hasHeightForWidth())
         self.lcdFI100V.setSizePolicy(sizePolicy2)
+        self.lcdFI100V.setStyleSheet(u"#lcdFI100V {\n"
+"        color: red;\n"
+"        background-color: black;\n"
+"        border: 2px solid gray;\n"
+"        border-radius: 5px;\n"
+"    }")
         self.lcdFI100V.setSmallDecimalPoint(True)
         self.lcdFI100V.setDigitCount(6)
         self.label = QLabel(self.widgetFI100V_1)
@@ -361,7 +392,7 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout.addLayout(self.verticalLayout_2)
 
-        self.widgetFV100A = QWidget(self.processTab_1)
+        self.widgetFV100A = QWidget(self.processTab1)
         self.widgetFV100A.setObjectName(u"widgetFV100A")
         self.widgetFV100A.setGeometry(QRect(340, 10, 168, 219))
         self.horizontalLayout_4 = QHBoxLayout(self.widgetFV100A)
@@ -392,13 +423,19 @@ class Ui_MainWindow(object):
         self.label_12.setSizePolicy(sizePolicy1)
         self.label_12.setFont(font)
         self.label_12.setAlignment(Qt.AlignmentFlag.AlignBottom|Qt.AlignmentFlag.AlignHCenter)
-        self.lcdPVFV100A = QLCDNumber(self.widgetCtrlFV100A)
-        self.lcdPVFV100A.setObjectName(u"lcdPVFV100A")
-        self.lcdPVFV100A.setGeometry(QRect(10, 32, 81, 31))
-        sizePolicy2.setHeightForWidth(self.lcdPVFV100A.sizePolicy().hasHeightForWidth())
-        self.lcdPVFV100A.setSizePolicy(sizePolicy2)
-        self.lcdPVFV100A.setSmallDecimalPoint(True)
-        self.lcdPVFV100A.setDigitCount(6)
+        self.lcdFV100A = QLCDNumber(self.widgetCtrlFV100A)
+        self.lcdFV100A.setObjectName(u"lcdFV100A")
+        self.lcdFV100A.setGeometry(QRect(10, 32, 81, 31))
+        sizePolicy2.setHeightForWidth(self.lcdFV100A.sizePolicy().hasHeightForWidth())
+        self.lcdFV100A.setSizePolicy(sizePolicy2)
+        self.lcdFV100A.setStyleSheet(u"#lcdFV100A {\n"
+"        color: red;\n"
+"        background-color: black;\n"
+"        border: 2px solid gray;\n"
+"        border-radius: 5px;\n"
+"    }")
+        self.lcdFV100A.setSmallDecimalPoint(True)
+        self.lcdFV100A.setDigitCount(6)
         self.label_23 = QLabel(self.widgetCtrlFV100A)
         self.label_23.setObjectName(u"label_23")
         self.label_23.setGeometry(QRect(95, 40, 21, 16))
@@ -432,7 +469,7 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_4.addWidget(self.widgetSliderFV100A)
 
-        self.widgetVI100AR = QWidget(self.processTab_1)
+        self.widgetVI100AR = QWidget(self.processTab1)
         self.widgetVI100AR.setObjectName(u"widgetVI100AR")
         self.widgetVI100AR.setGeometry(QRect(390, 230, 223, 128))
         self.verticalLayout_7 = QVBoxLayout(self.widgetVI100AR)
@@ -457,7 +494,7 @@ class Ui_MainWindow(object):
 "}")
         self.label_32 = QLabel(self.widgetCtrlVI100AR)
         self.label_32.setObjectName(u"label_32")
-        self.label_32.setGeometry(QRect(17, 10, 71, 22))
+        self.label_32.setGeometry(QRect(20, 10, 71, 22))
         sizePolicy1.setHeightForWidth(self.label_32.sizePolicy().hasHeightForWidth())
         self.label_32.setSizePolicy(sizePolicy1)
         self.label_32.setFont(font)
@@ -467,6 +504,12 @@ class Ui_MainWindow(object):
         self.lcdVI100AR.setGeometry(QRect(10, 32, 81, 31))
         sizePolicy2.setHeightForWidth(self.lcdVI100AR.sizePolicy().hasHeightForWidth())
         self.lcdVI100AR.setSizePolicy(sizePolicy2)
+        self.lcdVI100AR.setStyleSheet(u"#lcdVI100AR {\n"
+"        color: red;\n"
+"        background-color: black;\n"
+"        border: 2px solid gray;\n"
+"        border-radius: 5px;\n"
+"    }")
         self.lcdVI100AR.setSmallDecimalPoint(True)
         self.lcdVI100AR.setDigitCount(6)
         self.label_33 = QLabel(self.widgetCtrlVI100AR)
@@ -502,7 +545,7 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_7.addWidget(self.widgetSliderVI100AR)
 
-        self.widgetVI100CA = QWidget(self.processTab_1)
+        self.widgetVI100CA = QWidget(self.processTab1)
         self.widgetVI100CA.setObjectName(u"widgetVI100CA")
         self.widgetVI100CA.setGeometry(QRect(390, 360, 223, 128))
         self.verticalLayout_8 = QVBoxLayout(self.widgetVI100CA)
@@ -537,6 +580,12 @@ class Ui_MainWindow(object):
         self.lcdVI100CA.setGeometry(QRect(10, 32, 81, 31))
         sizePolicy2.setHeightForWidth(self.lcdVI100CA.sizePolicy().hasHeightForWidth())
         self.lcdVI100CA.setSizePolicy(sizePolicy2)
+        self.lcdVI100CA.setStyleSheet(u"#lcdVI100CA {\n"
+"        color: red;\n"
+"        background-color: black;\n"
+"        border: 2px solid gray;\n"
+"        border-radius: 5px;\n"
+"    }")
         self.lcdVI100CA.setSmallDecimalPoint(True)
         self.lcdVI100CA.setDigitCount(6)
         self.label_35 = QLabel(self.widgetCtrlVI100CA)
@@ -572,7 +621,7 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_8.addWidget(self.widgetSliderVI100CA)
 
-        self.groupBoxSimul = QGroupBox(self.processTab_1)
+        self.groupBoxSimul = QGroupBox(self.processTab1)
         self.groupBoxSimul.setObjectName(u"groupBoxSimul")
         self.groupBoxSimul.setGeometry(QRect(810, 380, 161, 151))
         self.verticalLayout_5 = QVBoxLayout(self.groupBoxSimul)
@@ -618,9 +667,9 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_5.addWidget(self.pushButtonReset)
 
-        self.processTab1.addTab(self.processTab_1, "")
+        self.mainTab.addTab(self.processTab1, "")
 
-        self.verticalLayout.addWidget(self.processTab1)
+        self.verticalLayout.addWidget(self.mainTab)
 
         MainWindow.setCentralWidget(self.centralwidget)
         self.statusbar = QStatusBar(MainWindow)
@@ -630,7 +679,7 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
         self.radioButtonHrt.toggled.connect(self.hrtDBTableWidget.changeType)
 
-        self.processTab1.setCurrentIndex(3)
+        self.mainTab.setCurrentIndex(3)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -638,13 +687,13 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
-        self.processTab1.setTabText(self.processTab1.indexOf(self.configTab), QCoreApplication.translate("MainWindow", u"Config", None))
+        self.mainTab.setTabText(self.mainTab.indexOf(self.configTab), QCoreApplication.translate("MainWindow", u"Config", None))
         self.radioButtonHex_2.setText(QCoreApplication.translate("MainWindow", u"Machine Value", None))
         self.radioButtonHrt_2.setText(QCoreApplication.translate("MainWindow", u"Human Value", None))
-        self.processTab1.setTabText(self.processTab1.indexOf(self.modbusTab), QCoreApplication.translate("MainWindow", u"ModBus", None))
+        self.mainTab.setTabText(self.mainTab.indexOf(self.modbusTab), QCoreApplication.translate("MainWindow", u"ModBus", None))
         self.radioButtonHex.setText(QCoreApplication.translate("MainWindow", u"Machine Value", None))
         self.radioButtonHrt.setText(QCoreApplication.translate("MainWindow", u"Human Value", None))
-        self.processTab1.setTabText(self.processTab1.indexOf(self.hartTab), QCoreApplication.translate("MainWindow", u"Hart", None))
+        self.mainTab.setTabText(self.mainTab.indexOf(self.hartTab), QCoreApplication.translate("MainWindow", u"Hart", None))
 #if QT_CONFIG(tooltip)
         self.widgetLI100.setToolTip(QCoreApplication.translate("MainWindow", u"N\u00edvel do Tubul\u00e3o Superior", None))
 #endif // QT_CONFIG(tooltip)
@@ -654,12 +703,12 @@ class Ui_MainWindow(object):
         self.label_3.setText(QCoreApplication.translate("MainWindow", u"LI100", None))
         self.label_24.setText(QCoreApplication.translate("MainWindow", u"%", None))
 #if QT_CONFIG(tooltip)
-        self.widgetPI100.setToolTip(QCoreApplication.translate("MainWindow", u"Press\u00e3o na Fornalha", None))
+        self.widgetPI100V.setToolTip(QCoreApplication.translate("MainWindow", u"Press\u00e3o de Vapor", None))
 #endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(accessibility)
-        self.widgetPI100.setAccessibleDescription("")
+        self.widgetPI100V.setAccessibleDescription("")
 #endif // QT_CONFIG(accessibility)
-        self.label_6.setText(QCoreApplication.translate("MainWindow", u"PI100", None))
+        self.label_6.setText(QCoreApplication.translate("MainWindow", u"PI100V", None))
         self.label_26.setText(QCoreApplication.translate("MainWindow", u"bar", None))
 #if QT_CONFIG(tooltip)
         self.widgetFI100A.setToolTip(QCoreApplication.translate("MainWindow", u"Indicador da Vaz\u00e3o de \u00c1gua", None))
@@ -749,6 +798,6 @@ class Ui_MainWindow(object):
         self.pushButtonStart.setText(QCoreApplication.translate("MainWindow", u"Start", None))
         self.pushButtonStop.setText(QCoreApplication.translate("MainWindow", u"Stop", None))
         self.pushButtonReset.setText(QCoreApplication.translate("MainWindow", u"reset", None))
-        self.processTab1.setTabText(self.processTab1.indexOf(self.processTab_1), QCoreApplication.translate("MainWindow", u"Process", None))
+        self.mainTab.setTabText(self.mainTab.indexOf(self.processTab1), QCoreApplication.translate("MainWindow", u"Process", None))
     # retranslateUi
 
