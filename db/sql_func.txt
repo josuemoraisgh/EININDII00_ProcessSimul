@@ -1,0 +1,71 @@
+CREATE TABLE "mb_tabela1" (
+	"ID"	INTEGER,
+	"NAME"	TEXT,
+	"*ADDRESS*"	TEXT,	
+	"BYTE_SIZE"	INTEGER,
+	"TYPE"	TEXT,
+	"VALUE"	TEXT,
+);
+
+ALTER TABLE nome_da_tabela RENAME COLUMN nome_antigo TO nome_novo;
+
+import sqlite3
+
+# Conecta ou cria o banco
+conn = sqlite3.connect("banco.db")
+cursor = conn.cursor()
+
+# Cria a tabela com rowName e colName como par único
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS dados (
+    rowName TEXT NOT NULL,
+    colName TEXT NOT NULL,
+    valor TEXT,
+    PRIMARY KEY (rowName, colName)
+)
+""")
+conn.commit()
+
+# 🔹 Inserir valor
+def inserir_dado(rowName, colName, valor):
+    try:
+        cursor.execute("INSERT INTO dados (rowName, colName, valor) VALUES (?, ?, ?)", (rowName, colName, valor))
+        conn.commit()
+        print("✅ Valor inserido com sucesso.")
+    except sqlite3.IntegrityError:
+        print("⚠️ Esse par (rowName, colName) já existe.")
+
+# 🔹 Remover linha pela chave (rowName e colName)
+def remover_dado(rowName, colName):
+    cursor.execute("DELETE FROM dados WHERE rowName = ? AND colName = ?", (rowName, colName))
+    conn.commit()
+    if cursor.rowcount:
+        print("🗑️ Linha removida com sucesso.")
+    else:
+        print("❌ Nenhuma linha encontrada com esse par (rowName, colName).")
+
+# 🔹 Editar valor pela chave
+def editar_dado(rowName, colName, novo_valor):
+    cursor.execute("UPDATE dados SET valor = ? WHERE rowName = ? AND colName = ?", (novo_valor, rowName, colName))
+    conn.commit()
+    if cursor.rowcount:
+        print("✏️ Valor atualizado.")
+    else:
+        print("❌ Linha não encontrada para atualizar.")
+
+# 🔹 Listar todos os dados
+def listar_dados():
+    cursor.execute("SELECT * FROM dados")
+    for linha in cursor.fetchall():
+        print(linha)
+
+# ----------------------------
+# Exemplos de uso:
+
+# inserir_dado("ProdutoA", "Preço", "19.99")
+# editar_dado("ProdutoA", "Preço", "21.50")
+# remover_dado("ProdutoA", "Preço")
+# listar_dados()
+
+# Fecha conexão ao final
+# conn.close()
