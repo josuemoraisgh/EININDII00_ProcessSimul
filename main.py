@@ -7,6 +7,7 @@ from inter.istate import DBState
 from ctrl.simul_tf import SimulTf
 from functools import partial
 from img.imgCaldeira import imagem_base64
+from mb.mb_server import ModbusServerThread
 import sys
 
 class MainWindow(QMainWindow, Ui_MainWindow):
@@ -17,6 +18,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.resize(800, 500)  # Defina o tamanho desejado
         self.setupUi(self)  # Configura a interface do Qt Designer  
         # self.radioButtonHex.clicked["bool"].connect(self.oldDBTableWidget.changeType) 
+        servidor_thread = ModbusServerThread(num_slaves=3, port=5020)
+        servidor_thread.start()            
         self.reactDataBase = ReactDataBase()
         self.hrtDBTableWidget.setBaseData(self.reactDataBase,"HART")
         self.mbDBTableWidget.setBaseData(self.reactDataBase,"HART")        
@@ -26,7 +29,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # image_path = os.path.abspath("img/caldeira.jpg")
         self.processTab1.setBackgroundImageFromBase64(imagem_base64)
         self.connectLCDs()
-        self.centralizar_janela()
+        self.centralizar_janela()   
     
     def centralizar_janela(self):
         # Obtém a tela primária
