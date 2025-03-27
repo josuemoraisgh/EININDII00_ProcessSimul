@@ -27,7 +27,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(1001, 600)
+        MainWindow.resize(966, 613)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.verticalLayout = QVBoxLayout(self.centralwidget)
@@ -153,7 +153,7 @@ class Ui_MainWindow(object):
         self.processTab1.setObjectName(u"processTab1")
         self.widgetLI100 = QWidget(self.processTab1)
         self.widgetLI100.setObjectName(u"widgetLI100")
-        self.widgetLI100.setGeometry(QRect(500, 10, 111, 71))
+        self.widgetLI100.setGeometry(QRect(150, 20, 111, 71))
         self.widgetLI100.setMinimumSize(QSize(111, 71))
         self.widgetLI100.setAutoFillBackground(False)
         self.widgetLI100.setStyleSheet(u"#widgetLI100 {\n"
@@ -312,166 +312,12 @@ class Ui_MainWindow(object):
         self.label_27 = QLabel(self.widgetTI100)
         self.label_27.setObjectName(u"label_27")
         self.label_27.setGeometry(QRect(96, 40, 21, 16))
-        self.widgetFI100V = QWidget(self.processTab1)
-        self.widgetFI100V.setObjectName(u"widgetFI100V")
-        self.widgetFI100V.setGeometry(QRect(140, 10, 198, 219))
-        self.horizontalLayout = QHBoxLayout(self.widgetFI100V)
-        self.horizontalLayout.setObjectName(u"horizontalLayout")
-        self.widgetFI100V_2 = QWidget(self.widgetFI100V)
-        self.widgetFI100V_2.setObjectName(u"widgetFI100V_2")
-        sizePolicy1.setHeightForWidth(self.widgetFI100V_2.sizePolicy().hasHeightForWidth())
-        self.widgetFI100V_2.setSizePolicy(sizePolicy1)
-        self.widgetFI100V_2.setMinimumSize(QSize(31, 201))
-        self.widgetFI100V_2.setStyleSheet(u"#widgetFI100V_2 {\n"
-"    background-color: #c0c0c0; /* Uma cor de fundo neutra */\n"
-"    border-width: 2px;\n"
-"    border-style: solid;\n"
-"    border-color: #ffffff #888888 #888888 #ffffff; /* Bordas: cima, direita, baixo, esquerda */\n"
-"    border-radius: 4px; /* Bordas arredondadas (opcional) */\n"
-"    padding: 4px; /* Espa\u00e7amento interno (opcional) */\n"
-"}")
-        self.verticalSliderFI100V = QSlider(self.widgetFI100V_2)
-        self.verticalSliderFI100V.setObjectName(u"verticalSliderFI100V")
-        self.verticalSliderFI100V.setGeometry(QRect(6, 14, 20, 181))
-        sizePolicy1.setHeightForWidth(self.verticalSliderFI100V.sizePolicy().hasHeightForWidth())
-        self.verticalSliderFI100V.setSizePolicy(sizePolicy1)
-        self.verticalSliderFI100V.setOrientation(Qt.Orientation.Vertical)
-
-        self.horizontalLayout.addWidget(self.widgetFI100V_2)
-
-        self.verticalLayout_2 = QVBoxLayout()
-        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
-        self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
-
-        self.verticalLayout_2.addItem(self.verticalSpacer)
-
-        self.widgetFI100V_1 = QWidget(self.widgetFI100V)
-        self.widgetFI100V_1.setObjectName(u"widgetFI100V_1")
-        sizePolicy1.setHeightForWidth(self.widgetFI100V_1.sizePolicy().hasHeightForWidth())
-        self.widgetFI100V_1.setSizePolicy(sizePolicy1)
-        self.widgetFI100V_1.setMinimumSize(QSize(141, 71))
-        self.widgetFI100V_1.setAutoFillBackground(False)
-        self.widgetFI100V_1.setStyleSheet(u"#widgetFI100V_1 {\n"
-"    background-color: #c0c0c0; /* Uma cor de fundo neutra */\n"
-"    border-width: 2px;\n"
-"    border-style: solid;\n"
-"    border-color: #ffffff #888888 #888888 #ffffff; /* Bordas: cima, direita, baixo, esquerda */\n"
-"    border-radius: 4px; /* Bordas arredondadas (opcional) */\n"
-"    padding: 4px; /* Espa\u00e7amento interno (opcional) */\n"
-"}")
-        self.label_7 = QLabel(self.widgetFI100V_1)
-        self.label_7.setObjectName(u"label_7")
-        self.label_7.setGeometry(QRect(30, 10, 48, 22))
-        sizePolicy1.setHeightForWidth(self.label_7.sizePolicy().hasHeightForWidth())
-        self.label_7.setSizePolicy(sizePolicy1)
-        self.label_7.setFont(font)
-        self.label_7.setAlignment(Qt.AlignmentFlag.AlignBottom|Qt.AlignmentFlag.AlignHCenter)
-        self.lcdFI100V = QLCDNumber(self.widgetFI100V_1)
-        self.lcdFI100V.setObjectName(u"lcdFI100V")
-        self.lcdFI100V.setGeometry(QRect(10, 32, 81, 31))
-        sizePolicy2.setHeightForWidth(self.lcdFI100V.sizePolicy().hasHeightForWidth())
-        self.lcdFI100V.setSizePolicy(sizePolicy2)
-        self.lcdFI100V.setStyleSheet(u"#lcdFI100V {\n"
-"        color: red;\n"
-"        background-color: black;\n"
-"        border: 2px solid gray;\n"
-"        border-radius: 5px;\n"
-"    }")
-        self.lcdFI100V.setSmallDecimalPoint(True)
-        self.lcdFI100V.setDigitCount(6)
-        self.label = QLabel(self.widgetFI100V_1)
-        self.label.setObjectName(u"label")
-        self.label.setGeometry(QRect(95, 40, 41, 16))
-
-        self.verticalLayout_2.addWidget(self.widgetFI100V_1)
-
-        self.verticalSpacer_2 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
-
-        self.verticalLayout_2.addItem(self.verticalSpacer_2)
-
-
-        self.horizontalLayout.addLayout(self.verticalLayout_2)
-
-        self.widgetFV100A = QWidget(self.processTab1)
-        self.widgetFV100A.setObjectName(u"widgetFV100A")
-        self.widgetFV100A.setGeometry(QRect(340, 10, 168, 219))
-        self.horizontalLayout_4 = QHBoxLayout(self.widgetFV100A)
-        self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
-        self.verticalLayout_6 = QVBoxLayout()
-        self.verticalLayout_6.setObjectName(u"verticalLayout_6")
-        self.verticalSpacer_5 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
-
-        self.verticalLayout_6.addItem(self.verticalSpacer_5)
-
-        self.widgetCtrlFV100A = QWidget(self.widgetFV100A)
-        self.widgetCtrlFV100A.setObjectName(u"widgetCtrlFV100A")
-        self.widgetCtrlFV100A.setMinimumSize(QSize(111, 71))
-        self.widgetCtrlFV100A.setContextMenuPolicy(Qt.ContextMenuPolicy.NoContextMenu)
-        self.widgetCtrlFV100A.setAutoFillBackground(False)
-        self.widgetCtrlFV100A.setStyleSheet(u"#widgetCtrlFV100A{\n"
-"    background-color: #c0c0c0; /* Uma cor de fundo neutra */\n"
-"    border-width: 2px;\n"
-"    border-style: solid;\n"
-"    border-color: #ffffff #888888 #888888 #ffffff; /* Bordas: cima, direita, baixo, esquerda */\n"
-"    border-radius: 4px; /* Bordas arredondadas (opcional) */\n"
-"    padding: 4px; /* Espa\u00e7amento interno (opcional) */\n"
-"}")
-        self.label_12 = QLabel(self.widgetCtrlFV100A)
-        self.label_12.setObjectName(u"label_12")
-        self.label_12.setGeometry(QRect(19, 7, 71, 22))
-        sizePolicy1.setHeightForWidth(self.label_12.sizePolicy().hasHeightForWidth())
-        self.label_12.setSizePolicy(sizePolicy1)
-        self.label_12.setFont(font)
-        self.label_12.setAlignment(Qt.AlignmentFlag.AlignBottom|Qt.AlignmentFlag.AlignHCenter)
-        self.lcdFV100A = QLCDNumber(self.widgetCtrlFV100A)
-        self.lcdFV100A.setObjectName(u"lcdFV100A")
-        self.lcdFV100A.setGeometry(QRect(10, 32, 81, 31))
-        sizePolicy2.setHeightForWidth(self.lcdFV100A.sizePolicy().hasHeightForWidth())
-        self.lcdFV100A.setSizePolicy(sizePolicy2)
-        self.lcdFV100A.setStyleSheet(u"#lcdFV100A {\n"
-"        color: red;\n"
-"        background-color: black;\n"
-"        border: 2px solid gray;\n"
-"        border-radius: 5px;\n"
-"    }")
-        self.lcdFV100A.setSmallDecimalPoint(True)
-        self.lcdFV100A.setDigitCount(6)
-        self.label_23 = QLabel(self.widgetCtrlFV100A)
-        self.label_23.setObjectName(u"label_23")
-        self.label_23.setGeometry(QRect(95, 40, 21, 16))
-
-        self.verticalLayout_6.addWidget(self.widgetCtrlFV100A)
-
-        self.verticalSpacer_6 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
-
-        self.verticalLayout_6.addItem(self.verticalSpacer_6)
-
-
-        self.horizontalLayout_4.addLayout(self.verticalLayout_6)
-
-        self.widgetSliderFV100A = QWidget(self.widgetFV100A)
-        self.widgetSliderFV100A.setObjectName(u"widgetSliderFV100A")
-        sizePolicy1.setHeightForWidth(self.widgetSliderFV100A.sizePolicy().hasHeightForWidth())
-        self.widgetSliderFV100A.setSizePolicy(sizePolicy1)
-        self.widgetSliderFV100A.setMinimumSize(QSize(31, 201))
-        self.widgetSliderFV100A.setStyleSheet(u"#widgetSliderFV100A {\n"
-"    background-color: #c0c0c0; /* Uma cor de fundo neutra */\n"
-"    border-width: 2px;\n"
-"    border-style: solid;\n"
-"    border-color: #ffffff #888888 #888888 #ffffff; /* Bordas: cima, direita, baixo, esquerda */\n"
-"    border-radius: 4px; /* Bordas arredondadas (opcional) */\n"
-"    padding: 4px; /* Espa\u00e7amento interno (opcional) */\n"
-"}")
-        self.verticalSliderFV100A_1 = QSlider(self.widgetSliderFV100A)
-        self.verticalSliderFV100A_1.setObjectName(u"verticalSliderFV100A_1")
-        self.verticalSliderFV100A_1.setGeometry(QRect(6, 11, 20, 181))
-        self.verticalSliderFV100A_1.setOrientation(Qt.Orientation.Vertical)
-
-        self.horizontalLayout_4.addWidget(self.widgetSliderFV100A)
-
         self.widgetVI100AR = QWidget(self.processTab1)
         self.widgetVI100AR.setObjectName(u"widgetVI100AR")
-        self.widgetVI100AR.setGeometry(QRect(390, 230, 223, 128))
+        self.widgetVI100AR.setGeometry(QRect(10, 360, 223, 128))
+        sizePolicy2.setHeightForWidth(self.widgetVI100AR.sizePolicy().hasHeightForWidth())
+        self.widgetVI100AR.setSizePolicy(sizePolicy2)
+        self.widgetVI100AR.setMinimumSize(QSize(223, 128))
         self.verticalLayout_7 = QVBoxLayout(self.widgetVI100AR)
         self.verticalLayout_7.setObjectName(u"verticalLayout_7")
         self.horizontalLayout_5 = QHBoxLayout()
@@ -518,6 +364,32 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_5.addWidget(self.widgetCtrlVI100AR)
 
+        self.verticalLayout_11 = QVBoxLayout()
+        self.verticalLayout_11.setObjectName(u"verticalLayout_11")
+        self.verticalSpacer_3 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+
+        self.verticalLayout_11.addItem(self.verticalSpacer_3)
+
+        self.pbAMVI100AR = QPushButton(self.widgetVI100AR)
+        self.pbAMVI100AR.setObjectName(u"pbAMVI100AR")
+        sizePolicy2.setHeightForWidth(self.pbAMVI100AR.sizePolicy().hasHeightForWidth())
+        self.pbAMVI100AR.setSizePolicy(sizePolicy2)
+        self.pbAMVI100AR.setMinimumSize(QSize(30, 30))
+        self.pbAMVI100AR.setStyleSheet(u"#pbAMVI100AR {\n"
+"    background-color: #c0c0c0; /* Uma cor de fundo neutra */\n"
+"    border-width: 2px;\n"
+"    border-style: solid;\n"
+"    border-color: #ffffff #888888 #888888 #ffffff; /* Bordas: cima, direita, baixo, esquerda */\n"
+"    border-radius: 4px; /* Bordas arredondadas (opcional) */\n"
+"    padding: 4px; /* Espa\u00e7amento interno (opcional) */\n"
+"}")
+        self.pbAMVI100AR.setCheckable(True)
+
+        self.verticalLayout_11.addWidget(self.pbAMVI100AR)
+
+
+        self.horizontalLayout_5.addLayout(self.verticalLayout_11)
+
         self.horizontalSpacer_6 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.horizontalLayout_5.addItem(self.horizontalSpacer_6)
@@ -545,10 +417,10 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_7.addWidget(self.widgetSliderVI100AR)
 
-        self.widgetVI100CA = QWidget(self.processTab1)
-        self.widgetVI100CA.setObjectName(u"widgetVI100CA")
-        self.widgetVI100CA.setGeometry(QRect(390, 360, 223, 128))
-        self.verticalLayout_8 = QVBoxLayout(self.widgetVI100CA)
+        self.widgetFI100V = QWidget(self.processTab1)
+        self.widgetFI100V.setObjectName(u"widgetFI100V")
+        self.widgetFI100V.setGeometry(QRect(520, 370, 223, 128))
+        self.verticalLayout_8 = QVBoxLayout(self.widgetFI100V)
         self.verticalLayout_8.setObjectName(u"verticalLayout_8")
         self.horizontalLayout_6 = QHBoxLayout()
         self.horizontalLayout_6.setObjectName(u"horizontalLayout_6")
@@ -556,11 +428,11 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_6.addItem(self.horizontalSpacer_7)
 
-        self.widgetCtrlVI100CA = QWidget(self.widgetVI100CA)
-        self.widgetCtrlVI100CA.setObjectName(u"widgetCtrlVI100CA")
-        self.widgetCtrlVI100CA.setMinimumSize(QSize(111, 71))
-        self.widgetCtrlVI100CA.setAutoFillBackground(False)
-        self.widgetCtrlVI100CA.setStyleSheet(u"#widgetCtrlVI100CA{\n"
+        self.widgetCtrlFI100V = QWidget(self.widgetFI100V)
+        self.widgetCtrlFI100V.setObjectName(u"widgetCtrlFI100V")
+        self.widgetCtrlFI100V.setMinimumSize(QSize(131, 71))
+        self.widgetCtrlFI100V.setAutoFillBackground(False)
+        self.widgetCtrlFI100V.setStyleSheet(u"#widgetCtrlFI100V{\n"
 "    background-color: #c0c0c0; /* Uma cor de fundo neutra */\n"
 "    border-width: 2px;\n"
 "    border-style: solid;\n"
@@ -568,31 +440,57 @@ class Ui_MainWindow(object):
 "    border-radius: 4px; /* Bordas arredondadas (opcional) */\n"
 "    padding: 4px; /* Espa\u00e7amento interno (opcional) */\n"
 "}")
-        self.label_34 = QLabel(self.widgetCtrlVI100CA)
+        self.label_34 = QLabel(self.widgetCtrlFI100V)
         self.label_34.setObjectName(u"label_34")
         self.label_34.setGeometry(QRect(17, 10, 71, 22))
         sizePolicy1.setHeightForWidth(self.label_34.sizePolicy().hasHeightForWidth())
         self.label_34.setSizePolicy(sizePolicy1)
         self.label_34.setFont(font)
         self.label_34.setAlignment(Qt.AlignmentFlag.AlignBottom|Qt.AlignmentFlag.AlignHCenter)
-        self.lcdVI100CA = QLCDNumber(self.widgetCtrlVI100CA)
-        self.lcdVI100CA.setObjectName(u"lcdVI100CA")
-        self.lcdVI100CA.setGeometry(QRect(10, 32, 81, 31))
-        sizePolicy2.setHeightForWidth(self.lcdVI100CA.sizePolicy().hasHeightForWidth())
-        self.lcdVI100CA.setSizePolicy(sizePolicy2)
-        self.lcdVI100CA.setStyleSheet(u"#lcdVI100CA {\n"
+        self.lcdFI100V = QLCDNumber(self.widgetCtrlFI100V)
+        self.lcdFI100V.setObjectName(u"lcdFI100V")
+        self.lcdFI100V.setGeometry(QRect(10, 32, 81, 31))
+        sizePolicy2.setHeightForWidth(self.lcdFI100V.sizePolicy().hasHeightForWidth())
+        self.lcdFI100V.setSizePolicy(sizePolicy2)
+        self.lcdFI100V.setStyleSheet(u"#lcdFI100V {\n"
 "        color: red;\n"
 "        background-color: black;\n"
 "        border: 2px solid gray;\n"
 "        border-radius: 5px;\n"
 "    }")
-        self.lcdVI100CA.setSmallDecimalPoint(True)
-        self.lcdVI100CA.setDigitCount(6)
-        self.label_35 = QLabel(self.widgetCtrlVI100CA)
+        self.lcdFI100V.setSmallDecimalPoint(True)
+        self.lcdFI100V.setDigitCount(6)
+        self.label_35 = QLabel(self.widgetCtrlFI100V)
         self.label_35.setObjectName(u"label_35")
-        self.label_35.setGeometry(QRect(96, 40, 16, 16))
+        self.label_35.setGeometry(QRect(96, 40, 31, 16))
 
-        self.horizontalLayout_6.addWidget(self.widgetCtrlVI100CA)
+        self.horizontalLayout_6.addWidget(self.widgetCtrlFI100V)
+
+        self.verticalLayout_12 = QVBoxLayout()
+        self.verticalLayout_12.setObjectName(u"verticalLayout_12")
+        self.verticalSpacer_4 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+
+        self.verticalLayout_12.addItem(self.verticalSpacer_4)
+
+        self.pbAMFI100V = QPushButton(self.widgetFI100V)
+        self.pbAMFI100V.setObjectName(u"pbAMFI100V")
+        sizePolicy2.setHeightForWidth(self.pbAMFI100V.sizePolicy().hasHeightForWidth())
+        self.pbAMFI100V.setSizePolicy(sizePolicy2)
+        self.pbAMFI100V.setMinimumSize(QSize(30, 30))
+        self.pbAMFI100V.setStyleSheet(u"#pbAMFI100V {\n"
+"    background-color: #c0c0c0; /* Uma cor de fundo neutra */\n"
+"    border-width: 2px;\n"
+"    border-style: solid;\n"
+"    border-color: #ffffff #888888 #888888 #ffffff; /* Bordas: cima, direita, baixo, esquerda */\n"
+"    border-radius: 4px; /* Bordas arredondadas (opcional) */\n"
+"    padding: 4px; /* Espa\u00e7amento interno (opcional) */\n"
+"}")
+        self.pbAMFI100V.setCheckable(True)
+
+        self.verticalLayout_12.addWidget(self.pbAMFI100V)
+
+
+        self.horizontalLayout_6.addLayout(self.verticalLayout_12)
 
         self.horizontalSpacer_8 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
@@ -601,12 +499,12 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_8.addLayout(self.horizontalLayout_6)
 
-        self.widgetSliderVI100CA = QWidget(self.widgetVI100CA)
-        self.widgetSliderVI100CA.setObjectName(u"widgetSliderVI100CA")
-        sizePolicy1.setHeightForWidth(self.widgetSliderVI100CA.sizePolicy().hasHeightForWidth())
-        self.widgetSliderVI100CA.setSizePolicy(sizePolicy1)
-        self.widgetSliderVI100CA.setMinimumSize(QSize(201, 31))
-        self.widgetSliderVI100CA.setStyleSheet(u"#widgetSliderVI100CA {\n"
+        self.widgetSliderFI100V = QWidget(self.widgetFI100V)
+        self.widgetSliderFI100V.setObjectName(u"widgetSliderFI100V")
+        sizePolicy1.setHeightForWidth(self.widgetSliderFI100V.sizePolicy().hasHeightForWidth())
+        self.widgetSliderFI100V.setSizePolicy(sizePolicy1)
+        self.widgetSliderFI100V.setMinimumSize(QSize(201, 31))
+        self.widgetSliderFI100V.setStyleSheet(u"#widgetSliderFI100V {\n"
 "    background-color: #c0c0c0; /* Uma cor de fundo neutra */\n"
 "    border-width: 2px;\n"
 "    border-style: solid;\n"
@@ -614,16 +512,16 @@ class Ui_MainWindow(object):
 "    border-radius: 4px; /* Bordas arredondadas (opcional) */\n"
 "    padding: 4px; /* Espa\u00e7amento interno (opcional) */\n"
 "}")
-        self.verticalSliderVI100CA = QSlider(self.widgetSliderVI100CA)
-        self.verticalSliderVI100CA.setObjectName(u"verticalSliderVI100CA")
-        self.verticalSliderVI100CA.setGeometry(QRect(4, 7, 201, 20))
-        self.verticalSliderVI100CA.setOrientation(Qt.Orientation.Horizontal)
+        self.verticalSliderFI100V = QSlider(self.widgetSliderFI100V)
+        self.verticalSliderFI100V.setObjectName(u"verticalSliderFI100V")
+        self.verticalSliderFI100V.setGeometry(QRect(4, 7, 201, 20))
+        self.verticalSliderFI100V.setOrientation(Qt.Orientation.Horizontal)
 
-        self.verticalLayout_8.addWidget(self.widgetSliderVI100CA)
+        self.verticalLayout_8.addWidget(self.widgetSliderFI100V)
 
         self.groupBoxSimul = QGroupBox(self.processTab1)
         self.groupBoxSimul.setObjectName(u"groupBoxSimul")
-        self.groupBoxSimul.setGeometry(QRect(740, 230, 161, 151))
+        self.groupBoxSimul.setGeometry(QRect(760, 370, 161, 151))
         self.verticalLayout_5 = QVBoxLayout(self.groupBoxSimul)
         self.verticalLayout_5.setObjectName(u"verticalLayout_5")
         self.pushButtonStart = QPushButton(self.groupBoxSimul)
@@ -667,6 +565,387 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_5.addWidget(self.pushButtonReset)
 
+        self.widgetFV100CA = QWidget(self.processTab1)
+        self.widgetFV100CA.setObjectName(u"widgetFV100CA")
+        self.widgetFV100CA.setGeometry(QRect(670, 230, 223, 128))
+        self.verticalLayout_13 = QVBoxLayout(self.widgetFV100CA)
+        self.verticalLayout_13.setObjectName(u"verticalLayout_13")
+        self.horizontalLayout_12 = QHBoxLayout()
+        self.horizontalLayout_12.setObjectName(u"horizontalLayout_12")
+        self.horizontalSpacer_9 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_12.addItem(self.horizontalSpacer_9)
+
+        self.widgetCtrlFV100CA = QWidget(self.widgetFV100CA)
+        self.widgetCtrlFV100CA.setObjectName(u"widgetCtrlFV100CA")
+        self.widgetCtrlFV100CA.setMinimumSize(QSize(111, 71))
+        self.widgetCtrlFV100CA.setAutoFillBackground(False)
+        self.widgetCtrlFV100CA.setStyleSheet(u"#widgetCtrlFV100CA{\n"
+"    background-color: #c0c0c0; /* Uma cor de fundo neutra */\n"
+"    border-width: 2px;\n"
+"    border-style: solid;\n"
+"    border-color: #ffffff #888888 #888888 #ffffff; /* Bordas: cima, direita, baixo, esquerda */\n"
+"    border-radius: 4px; /* Bordas arredondadas (opcional) */\n"
+"    padding: 4px; /* Espa\u00e7amento interno (opcional) */\n"
+"}")
+        self.label_36 = QLabel(self.widgetCtrlFV100CA)
+        self.label_36.setObjectName(u"label_36")
+        self.label_36.setGeometry(QRect(17, 10, 71, 22))
+        sizePolicy1.setHeightForWidth(self.label_36.sizePolicy().hasHeightForWidth())
+        self.label_36.setSizePolicy(sizePolicy1)
+        self.label_36.setFont(font)
+        self.label_36.setAlignment(Qt.AlignmentFlag.AlignBottom|Qt.AlignmentFlag.AlignHCenter)
+        self.lcdFV100CA = QLCDNumber(self.widgetCtrlFV100CA)
+        self.lcdFV100CA.setObjectName(u"lcdFV100CA")
+        self.lcdFV100CA.setGeometry(QRect(10, 32, 81, 31))
+        sizePolicy2.setHeightForWidth(self.lcdFV100CA.sizePolicy().hasHeightForWidth())
+        self.lcdFV100CA.setSizePolicy(sizePolicy2)
+        self.lcdFV100CA.setStyleSheet(u"#lcdFV100CA {\n"
+"        color: red;\n"
+"        background-color: black;\n"
+"        border: 2px solid gray;\n"
+"        border-radius: 5px;\n"
+"    }")
+        self.lcdFV100CA.setSmallDecimalPoint(True)
+        self.lcdFV100CA.setDigitCount(6)
+        self.label_37 = QLabel(self.widgetCtrlFV100CA)
+        self.label_37.setObjectName(u"label_37")
+        self.label_37.setGeometry(QRect(96, 40, 16, 16))
+
+        self.horizontalLayout_12.addWidget(self.widgetCtrlFV100CA)
+
+        self.verticalLayout_14 = QVBoxLayout()
+        self.verticalLayout_14.setObjectName(u"verticalLayout_14")
+        self.verticalSpacer_7 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+
+        self.verticalLayout_14.addItem(self.verticalSpacer_7)
+
+        self.pbAMFV100CA = QPushButton(self.widgetFV100CA)
+        self.pbAMFV100CA.setObjectName(u"pbAMFV100CA")
+        sizePolicy2.setHeightForWidth(self.pbAMFV100CA.sizePolicy().hasHeightForWidth())
+        self.pbAMFV100CA.setSizePolicy(sizePolicy2)
+        self.pbAMFV100CA.setMinimumSize(QSize(30, 30))
+        self.pbAMFV100CA.setStyleSheet(u"#pbAMFV100CA {\n"
+"    background-color: #c0c0c0; /* Uma cor de fundo neutra */\n"
+"    border-width: 2px;\n"
+"    border-style: solid;\n"
+"    border-color: #ffffff #888888 #888888 #ffffff; /* Bordas: cima, direita, baixo, esquerda */\n"
+"    border-radius: 4px; /* Bordas arredondadas (opcional) */\n"
+"    padding: 4px; /* Espa\u00e7amento interno (opcional) */\n"
+"}")
+        self.pbAMFV100CA.setCheckable(True)
+
+        self.verticalLayout_14.addWidget(self.pbAMFV100CA)
+
+
+        self.horizontalLayout_12.addLayout(self.verticalLayout_14)
+
+        self.horizontalSpacer_10 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_12.addItem(self.horizontalSpacer_10)
+
+
+        self.verticalLayout_13.addLayout(self.horizontalLayout_12)
+
+        self.widgetSliderFV100CA = QWidget(self.widgetFV100CA)
+        self.widgetSliderFV100CA.setObjectName(u"widgetSliderFV100CA")
+        sizePolicy1.setHeightForWidth(self.widgetSliderFV100CA.sizePolicy().hasHeightForWidth())
+        self.widgetSliderFV100CA.setSizePolicy(sizePolicy1)
+        self.widgetSliderFV100CA.setMinimumSize(QSize(201, 31))
+        self.widgetSliderFV100CA.setStyleSheet(u"#widgetSliderFV100CA {\n"
+"    background-color: #c0c0c0; /* Uma cor de fundo neutra */\n"
+"    border-width: 2px;\n"
+"    border-style: solid;\n"
+"    border-color: #ffffff #888888 #888888 #ffffff; /* Bordas: cima, direita, baixo, esquerda */\n"
+"    border-radius: 4px; /* Bordas arredondadas (opcional) */\n"
+"    padding: 4px; /* Espa\u00e7amento interno (opcional) */\n"
+"}")
+        self.verticalSliderFV100CA = QSlider(self.widgetSliderFV100CA)
+        self.verticalSliderFV100CA.setObjectName(u"verticalSliderFV100CA")
+        self.verticalSliderFV100CA.setGeometry(QRect(4, 7, 201, 20))
+        self.verticalSliderFV100CA.setOrientation(Qt.Orientation.Horizontal)
+
+        self.verticalLayout_13.addWidget(self.widgetSliderFV100CA)
+
+        self.widgetPI100A = QWidget(self.processTab1)
+        self.widgetPI100A.setObjectName(u"widgetPI100A")
+        self.widgetPI100A.setGeometry(QRect(250, 340, 223, 128))
+        self.verticalLayout_15 = QVBoxLayout(self.widgetPI100A)
+        self.verticalLayout_15.setObjectName(u"verticalLayout_15")
+        self.horizontalLayout_13 = QHBoxLayout()
+        self.horizontalLayout_13.setObjectName(u"horizontalLayout_13")
+        self.horizontalSpacer_11 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_13.addItem(self.horizontalSpacer_11)
+
+        self.widgetCtrlPI100A = QWidget(self.widgetPI100A)
+        self.widgetCtrlPI100A.setObjectName(u"widgetCtrlPI100A")
+        self.widgetCtrlPI100A.setMinimumSize(QSize(131, 71))
+        self.widgetCtrlPI100A.setAutoFillBackground(False)
+        self.widgetCtrlPI100A.setStyleSheet(u"#widgetCtrlPI100A{\n"
+"    background-color: #c0c0c0; /* Uma cor de fundo neutra */\n"
+"    border-width: 2px;\n"
+"    border-style: solid;\n"
+"    border-color: #ffffff #888888 #888888 #ffffff; /* Bordas: cima, direita, baixo, esquerda */\n"
+"    border-radius: 4px; /* Bordas arredondadas (opcional) */\n"
+"    padding: 4px; /* Espa\u00e7amento interno (opcional) */\n"
+"}")
+        self.label_38 = QLabel(self.widgetCtrlPI100A)
+        self.label_38.setObjectName(u"label_38")
+        self.label_38.setGeometry(QRect(17, 10, 71, 22))
+        sizePolicy1.setHeightForWidth(self.label_38.sizePolicy().hasHeightForWidth())
+        self.label_38.setSizePolicy(sizePolicy1)
+        self.label_38.setFont(font)
+        self.label_38.setAlignment(Qt.AlignmentFlag.AlignBottom|Qt.AlignmentFlag.AlignHCenter)
+        self.lcdPI100A = QLCDNumber(self.widgetCtrlPI100A)
+        self.lcdPI100A.setObjectName(u"lcdPI100A")
+        self.lcdPI100A.setGeometry(QRect(10, 32, 81, 31))
+        sizePolicy2.setHeightForWidth(self.lcdPI100A.sizePolicy().hasHeightForWidth())
+        self.lcdPI100A.setSizePolicy(sizePolicy2)
+        self.lcdPI100A.setStyleSheet(u"#lcdPI100A {\n"
+"        color: red;\n"
+"        background-color: black;\n"
+"        border: 2px solid gray;\n"
+"        border-radius: 5px;\n"
+"    }")
+        self.lcdPI100A.setSmallDecimalPoint(True)
+        self.lcdPI100A.setDigitCount(6)
+        self.label_39 = QLabel(self.widgetCtrlPI100A)
+        self.label_39.setObjectName(u"label_39")
+        self.label_39.setGeometry(QRect(96, 40, 31, 16))
+
+        self.horizontalLayout_13.addWidget(self.widgetCtrlPI100A)
+
+        self.verticalLayout_16 = QVBoxLayout()
+        self.verticalLayout_16.setObjectName(u"verticalLayout_16")
+        self.verticalSpacer_8 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+
+        self.verticalLayout_16.addItem(self.verticalSpacer_8)
+
+        self.pbAMPI100A = QPushButton(self.widgetPI100A)
+        self.pbAMPI100A.setObjectName(u"pbAMPI100A")
+        sizePolicy2.setHeightForWidth(self.pbAMPI100A.sizePolicy().hasHeightForWidth())
+        self.pbAMPI100A.setSizePolicy(sizePolicy2)
+        self.pbAMPI100A.setMinimumSize(QSize(30, 30))
+        self.pbAMPI100A.setStyleSheet(u"#pbAMPI100A {\n"
+"    background-color: #c0c0c0; /* Uma cor de fundo neutra */\n"
+"    border-width: 2px;\n"
+"    border-style: solid;\n"
+"    border-color: #ffffff #888888 #888888 #ffffff; /* Bordas: cima, direita, baixo, esquerda */\n"
+"    border-radius: 4px; /* Bordas arredondadas (opcional) */\n"
+"    padding: 4px; /* Espa\u00e7amento interno (opcional) */\n"
+"}")
+        self.pbAMPI100A.setCheckable(True)
+
+        self.verticalLayout_16.addWidget(self.pbAMPI100A)
+
+
+        self.horizontalLayout_13.addLayout(self.verticalLayout_16)
+
+        self.horizontalSpacer_12 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_13.addItem(self.horizontalSpacer_12)
+
+
+        self.verticalLayout_15.addLayout(self.horizontalLayout_13)
+
+        self.widgetSliderPI100A = QWidget(self.widgetPI100A)
+        self.widgetSliderPI100A.setObjectName(u"widgetSliderPI100A")
+        sizePolicy1.setHeightForWidth(self.widgetSliderPI100A.sizePolicy().hasHeightForWidth())
+        self.widgetSliderPI100A.setSizePolicy(sizePolicy1)
+        self.widgetSliderPI100A.setMinimumSize(QSize(201, 31))
+        self.widgetSliderPI100A.setStyleSheet(u"#widgetSliderPI100A {\n"
+"    background-color: #c0c0c0; /* Uma cor de fundo neutra */\n"
+"    border-width: 2px;\n"
+"    border-style: solid;\n"
+"    border-color: #ffffff #888888 #888888 #ffffff; /* Bordas: cima, direita, baixo, esquerda */\n"
+"    border-radius: 4px; /* Bordas arredondadas (opcional) */\n"
+"    padding: 4px; /* Espa\u00e7amento interno (opcional) */\n"
+"}")
+        self.verticalSliderFI100V_2 = QSlider(self.widgetSliderPI100A)
+        self.verticalSliderFI100V_2.setObjectName(u"verticalSliderFI100V_2")
+        self.verticalSliderFI100V_2.setGeometry(QRect(4, 7, 201, 20))
+        self.verticalSliderFI100V_2.setOrientation(Qt.Orientation.Horizontal)
+
+        self.verticalLayout_15.addWidget(self.widgetSliderPI100A)
+
+        self.widgetFV100A = QWidget(self.processTab1)
+        self.widgetFV100A.setObjectName(u"widgetFV100A")
+        self.widgetFV100A.setGeometry(QRect(240, 170, 223, 128))
+        sizePolicy2.setHeightForWidth(self.widgetFV100A.sizePolicy().hasHeightForWidth())
+        self.widgetFV100A.setSizePolicy(sizePolicy2)
+        self.widgetFV100A.setMinimumSize(QSize(223, 128))
+        self.verticalLayout_17 = QVBoxLayout(self.widgetFV100A)
+        self.verticalLayout_17.setObjectName(u"verticalLayout_17")
+        self.horizontalLayout_14 = QHBoxLayout()
+        self.horizontalLayout_14.setObjectName(u"horizontalLayout_14")
+        self.horizontalSpacer_13 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_14.addItem(self.horizontalSpacer_13)
+
+        self.widgetCtrlFV100A = QWidget(self.widgetFV100A)
+        self.widgetCtrlFV100A.setObjectName(u"widgetCtrlFV100A")
+        self.widgetCtrlFV100A.setMinimumSize(QSize(111, 71))
+        self.widgetCtrlFV100A.setAutoFillBackground(False)
+        self.widgetCtrlFV100A.setStyleSheet(u"#widgetCtrlFV100A {\n"
+"    background-color: #c0c0c0; /* Uma cor de fundo neutra */\n"
+"    border-width: 2px;\n"
+"    border-style: solid;\n"
+"    border-color: #ffffff #888888 #888888 #ffffff; /* Bordas: cima, direita, baixo, esquerda */\n"
+"    border-radius: 4px; /* Bordas arredondadas (opcional) */\n"
+"    padding: 4px; /* Espa\u00e7amento interno (opcional) */\n"
+"}")
+        self.label_40 = QLabel(self.widgetCtrlFV100A)
+        self.label_40.setObjectName(u"label_40")
+        self.label_40.setGeometry(QRect(20, 10, 71, 22))
+        sizePolicy1.setHeightForWidth(self.label_40.sizePolicy().hasHeightForWidth())
+        self.label_40.setSizePolicy(sizePolicy1)
+        self.label_40.setFont(font)
+        self.label_40.setAlignment(Qt.AlignmentFlag.AlignBottom|Qt.AlignmentFlag.AlignHCenter)
+        self.lcdFV100A = QLCDNumber(self.widgetCtrlFV100A)
+        self.lcdFV100A.setObjectName(u"lcdFV100A")
+        self.lcdFV100A.setGeometry(QRect(10, 32, 81, 31))
+        sizePolicy2.setHeightForWidth(self.lcdFV100A.sizePolicy().hasHeightForWidth())
+        self.lcdFV100A.setSizePolicy(sizePolicy2)
+        self.lcdFV100A.setStyleSheet(u"#lcdFV100A {\n"
+"        color: red;\n"
+"        background-color: black;\n"
+"        border: 2px solid gray;\n"
+"        border-radius: 5px;\n"
+"    }")
+        self.lcdFV100A.setSmallDecimalPoint(True)
+        self.lcdFV100A.setDigitCount(6)
+        self.label_41 = QLabel(self.widgetCtrlFV100A)
+        self.label_41.setObjectName(u"label_41")
+        self.label_41.setGeometry(QRect(96, 40, 16, 16))
+
+        self.horizontalLayout_14.addWidget(self.widgetCtrlFV100A)
+
+        self.verticalLayout_18 = QVBoxLayout()
+        self.verticalLayout_18.setObjectName(u"verticalLayout_18")
+        self.verticalSpacer_5 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+
+        self.verticalLayout_18.addItem(self.verticalSpacer_5)
+
+        self.pbAMFV100A = QPushButton(self.widgetFV100A)
+        self.pbAMFV100A.setObjectName(u"pbAMFV100A")
+        sizePolicy2.setHeightForWidth(self.pbAMFV100A.sizePolicy().hasHeightForWidth())
+        self.pbAMFV100A.setSizePolicy(sizePolicy2)
+        self.pbAMFV100A.setMinimumSize(QSize(30, 30))
+        self.pbAMFV100A.setStyleSheet(u"#pbAMVI100AR {\n"
+"    background-color: #c0c0c0; /* Uma cor de fundo neutra */\n"
+"    border-width: 2px;\n"
+"    border-style: solid;\n"
+"    border-color: #ffffff #888888 #888888 #ffffff; /* Bordas: cima, direita, baixo, esquerda */\n"
+"    border-radius: 4px; /* Bordas arredondadas (opcional) */\n"
+"    padding: 4px; /* Espa\u00e7amento interno (opcional) */\n"
+"}")
+        self.pbAMFV100A.setCheckable(True)
+
+        self.verticalLayout_18.addWidget(self.pbAMFV100A)
+
+
+        self.horizontalLayout_14.addLayout(self.verticalLayout_18)
+
+        self.horizontalSpacer_14 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_14.addItem(self.horizontalSpacer_14)
+
+
+        self.verticalLayout_17.addLayout(self.horizontalLayout_14)
+
+        self.widgetSliderFV100A = QWidget(self.widgetFV100A)
+        self.widgetSliderFV100A.setObjectName(u"widgetSliderFV100A")
+        sizePolicy1.setHeightForWidth(self.widgetSliderFV100A.sizePolicy().hasHeightForWidth())
+        self.widgetSliderFV100A.setSizePolicy(sizePolicy1)
+        self.widgetSliderFV100A.setMinimumSize(QSize(201, 31))
+        self.widgetSliderFV100A.setStyleSheet(u"#widgetSliderFV100A {\n"
+"    background-color: #c0c0c0; /* Uma cor de fundo neutra */\n"
+"    border-width: 2px;\n"
+"    border-style: solid;\n"
+"    border-color: #ffffff #888888 #888888 #ffffff; /* Bordas: cima, direita, baixo, esquerda */\n"
+"    border-radius: 4px; /* Bordas arredondadas (opcional) */\n"
+"    padding: 4px; /* Espa\u00e7amento interno (opcional) */\n"
+"}")
+        self.verticalSliderFV100A = QSlider(self.widgetSliderFV100A)
+        self.verticalSliderFV100A.setObjectName(u"verticalSliderFV100A")
+        self.verticalSliderFV100A.setGeometry(QRect(4, 7, 201, 20))
+        self.verticalSliderFV100A.setOrientation(Qt.Orientation.Horizontal)
+
+        self.verticalLayout_17.addWidget(self.widgetSliderFV100A)
+
+        self.widgetFI100CA = QWidget(self.processTab1)
+        self.widgetFI100CA.setObjectName(u"widgetFI100CA")
+        self.widgetFI100CA.setGeometry(QRect(300, 20, 111, 71))
+        self.widgetFI100CA.setMinimumSize(QSize(111, 71))
+        self.widgetFI100CA.setAutoFillBackground(False)
+        self.widgetFI100CA.setStyleSheet(u"#widgetFI100CA {\n"
+"    background-color: #c0c0c0; /* Uma cor de fundo neutra */\n"
+"    border-width: 2px;\n"
+"    border-style: solid;\n"
+"    border-color: #ffffff #888888 #888888 #ffffff; /* Bordas: cima, direita, baixo, esquerda */\n"
+"    border-radius: 4px; /* Bordas arredondadas (opcional) */\n"
+"    padding: 4px; /* Espa\u00e7amento interno (opcional) */\n"
+"}")
+        self.label_4 = QLabel(self.widgetFI100CA)
+        self.label_4.setObjectName(u"label_4")
+        self.label_4.setGeometry(QRect(17, 10, 71, 22))
+        sizePolicy1.setHeightForWidth(self.label_4.sizePolicy().hasHeightForWidth())
+        self.label_4.setSizePolicy(sizePolicy1)
+        self.label_4.setFont(font)
+        self.label_4.setAlignment(Qt.AlignmentFlag.AlignBottom|Qt.AlignmentFlag.AlignHCenter)
+        self.label_28 = QLabel(self.widgetFI100CA)
+        self.label_28.setObjectName(u"label_28")
+        self.label_28.setGeometry(QRect(95, 40, 21, 16))
+        self.lcdFI100CA = QLCDNumber(self.widgetFI100CA)
+        self.lcdFI100CA.setObjectName(u"lcdFI100CA")
+        self.lcdFI100CA.setGeometry(QRect(10, 32, 81, 31))
+        sizePolicy2.setHeightForWidth(self.lcdFI100CA.sizePolicy().hasHeightForWidth())
+        self.lcdFI100CA.setSizePolicy(sizePolicy2)
+        self.lcdFI100CA.setStyleSheet(u"#lcdFI100CA {\n"
+"        color: red;\n"
+"        background-color: black;\n"
+"        border: 2px solid gray;\n"
+"        border-radius: 5px;\n"
+"    }")
+        self.lcdFI100CA.setSmallDecimalPoint(True)
+        self.lcdFI100CA.setDigitCount(6)
+        self.widgetFI100AR = QWidget(self.processTab1)
+        self.widgetFI100AR.setObjectName(u"widgetFI100AR")
+        self.widgetFI100AR.setGeometry(QRect(450, 20, 111, 71))
+        self.widgetFI100AR.setMinimumSize(QSize(111, 71))
+        self.widgetFI100AR.setAutoFillBackground(False)
+        self.widgetFI100AR.setStyleSheet(u"#widgetFI100AR {\n"
+"    background-color: #c0c0c0; /* Uma cor de fundo neutra */\n"
+"    border-width: 2px;\n"
+"    border-style: solid;\n"
+"    border-color: #ffffff #888888 #888888 #ffffff; /* Bordas: cima, direita, baixo, esquerda */\n"
+"    border-radius: 4px; /* Bordas arredondadas (opcional) */\n"
+"    padding: 4px; /* Espa\u00e7amento interno (opcional) */\n"
+"}")
+        self.label_5 = QLabel(self.widgetFI100AR)
+        self.label_5.setObjectName(u"label_5")
+        self.label_5.setGeometry(QRect(17, 10, 71, 22))
+        sizePolicy1.setHeightForWidth(self.label_5.sizePolicy().hasHeightForWidth())
+        self.label_5.setSizePolicy(sizePolicy1)
+        self.label_5.setFont(font)
+        self.label_5.setAlignment(Qt.AlignmentFlag.AlignBottom|Qt.AlignmentFlag.AlignHCenter)
+        self.label_29 = QLabel(self.widgetFI100AR)
+        self.label_29.setObjectName(u"label_29")
+        self.label_29.setGeometry(QRect(95, 40, 21, 16))
+        self.lcdFI100AR = QLCDNumber(self.widgetFI100AR)
+        self.lcdFI100AR.setObjectName(u"lcdFI100AR")
+        self.lcdFI100AR.setGeometry(QRect(10, 32, 81, 31))
+        sizePolicy2.setHeightForWidth(self.lcdFI100AR.sizePolicy().hasHeightForWidth())
+        self.lcdFI100AR.setSizePolicy(sizePolicy2)
+        self.lcdFI100AR.setStyleSheet(u"#lcdFI100AR {\n"
+"        color: red;\n"
+"        background-color: black;\n"
+"        border: 2px solid gray;\n"
+"        border-radius: 5px;\n"
+"    }")
+        self.lcdFI100AR.setSmallDecimalPoint(True)
+        self.lcdFI100AR.setDigitCount(6)
         self.mainTab.addTab(self.processTab1, "")
 
         self.verticalLayout.addWidget(self.mainTab)
@@ -727,41 +1006,7 @@ class Ui_MainWindow(object):
         self.label_9.setText(QCoreApplication.translate("MainWindow", u"TI100", None))
         self.label_27.setText(QCoreApplication.translate("MainWindow", u"\u00baC", None))
 #if QT_CONFIG(tooltip)
-        self.widgetFI100V.setToolTip(QCoreApplication.translate("MainWindow", u"Seletor de demanda de Vapor", None))
-#endif // QT_CONFIG(tooltip)
-#if QT_CONFIG(tooltip)
-        self.widgetFI100V_2.setToolTip(QCoreApplication.translate("MainWindow", u"Seletor de demanda de Vapor", None))
-#endif // QT_CONFIG(tooltip)
-#if QT_CONFIG(tooltip)
-        self.verticalSliderFI100V.setToolTip(QCoreApplication.translate("MainWindow", u"Seletor de demanda de Vapor", None))
-#endif // QT_CONFIG(tooltip)
-#if QT_CONFIG(tooltip)
-        self.widgetFI100V_1.setToolTip(QCoreApplication.translate("MainWindow", u"Indicador de Vaz\u00e3o de Vapor", None))
-#endif // QT_CONFIG(tooltip)
-#if QT_CONFIG(accessibility)
-        self.widgetFI100V_1.setAccessibleDescription("")
-#endif // QT_CONFIG(accessibility)
-        self.label_7.setText(QCoreApplication.translate("MainWindow", u"FI100V", None))
-        self.label.setText(QCoreApplication.translate("MainWindow", u"Nm3/h", None))
-#if QT_CONFIG(tooltip)
-        self.widgetFV100A.setToolTip(QCoreApplication.translate("MainWindow", u"Posicionador da V\u00e1lvula de Vaz\u00e3o de \u00c1gua", None))
-#endif // QT_CONFIG(tooltip)
-#if QT_CONFIG(tooltip)
-        self.widgetCtrlFV100A.setToolTip(QCoreApplication.translate("MainWindow", u"Posicionador da V\u00e1lvula de Vaz\u00e3o de \u00c1gua", None))
-#endif // QT_CONFIG(tooltip)
-#if QT_CONFIG(accessibility)
-        self.widgetCtrlFV100A.setAccessibleDescription("")
-#endif // QT_CONFIG(accessibility)
-        self.label_12.setText(QCoreApplication.translate("MainWindow", u"FV100A", None))
-        self.label_23.setText(QCoreApplication.translate("MainWindow", u"%", None))
-#if QT_CONFIG(tooltip)
-        self.widgetSliderFV100A.setToolTip(QCoreApplication.translate("MainWindow", u"Posicionador da V\u00e1lvula de Vaz\u00e3o de \u00c1gua", None))
-#endif // QT_CONFIG(tooltip)
-#if QT_CONFIG(tooltip)
-        self.verticalSliderFV100A_1.setToolTip(QCoreApplication.translate("MainWindow", u"<html><head/><body><p>Posicionador da V\u00e1lvula de Vaz\u00e3o de \u00c1gua</p></body></html>", None))
-#endif // QT_CONFIG(tooltip)
-#if QT_CONFIG(tooltip)
-        self.widgetVI100AR.setToolTip(QCoreApplication.translate("MainWindow", u"Velocidade do Ventilador de AR", None))
+        self.widgetVI100AR.setToolTip(QCoreApplication.translate("MainWindow", u"Abertura do damper de AR", None))
 #endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(tooltip)
         self.widgetCtrlVI100AR.setToolTip("")
@@ -769,8 +1014,9 @@ class Ui_MainWindow(object):
 #if QT_CONFIG(accessibility)
         self.widgetCtrlVI100AR.setAccessibleDescription("")
 #endif // QT_CONFIG(accessibility)
-        self.label_32.setText(QCoreApplication.translate("MainWindow", u"VI100AR", None))
+        self.label_32.setText(QCoreApplication.translate("MainWindow", u"FV100AR", None))
         self.label_33.setText(QCoreApplication.translate("MainWindow", u"%", None))
+        self.pbAMVI100AR.setText(QCoreApplication.translate("MainWindow", u"M", None))
 #if QT_CONFIG(tooltip)
         self.widgetSliderVI100AR.setToolTip("")
 #endif // QT_CONFIG(tooltip)
@@ -778,26 +1024,97 @@ class Ui_MainWindow(object):
         self.verticalSliderVI100AR.setToolTip("")
 #endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(tooltip)
-        self.widgetVI100CA.setToolTip(QCoreApplication.translate("MainWindow", u"Velocidade das Esteiras de Cavaco", None))
+        self.widgetFI100V.setToolTip(QCoreApplication.translate("MainWindow", u"Velocidade das Esteiras de Cavaco", None))
 #endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(tooltip)
-        self.widgetCtrlVI100CA.setToolTip("")
+        self.widgetCtrlFI100V.setToolTip("")
 #endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(accessibility)
-        self.widgetCtrlVI100CA.setAccessibleDescription("")
+        self.widgetCtrlFI100V.setAccessibleDescription("")
 #endif // QT_CONFIG(accessibility)
-        self.label_34.setText(QCoreApplication.translate("MainWindow", u"VI100CA", None))
-        self.label_35.setText(QCoreApplication.translate("MainWindow", u"%", None))
+        self.label_34.setText(QCoreApplication.translate("MainWindow", u"FI100V", None))
+        self.label_35.setText(QCoreApplication.translate("MainWindow", u"kg/s", None))
+        self.pbAMFI100V.setText(QCoreApplication.translate("MainWindow", u"M", None))
 #if QT_CONFIG(tooltip)
-        self.widgetSliderVI100CA.setToolTip("")
+        self.widgetSliderFI100V.setToolTip("")
 #endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(tooltip)
-        self.verticalSliderVI100CA.setToolTip("")
+        self.verticalSliderFI100V.setToolTip("")
 #endif // QT_CONFIG(tooltip)
         self.groupBoxSimul.setTitle(QCoreApplication.translate("MainWindow", u"Simula\u00e7\u00e3o", None))
         self.pushButtonStart.setText(QCoreApplication.translate("MainWindow", u"Start", None))
         self.pushButtonStop.setText(QCoreApplication.translate("MainWindow", u"Stop", None))
         self.pushButtonReset.setText(QCoreApplication.translate("MainWindow", u"reset", None))
+#if QT_CONFIG(tooltip)
+        self.widgetFV100CA.setToolTip(QCoreApplication.translate("MainWindow", u"Abertura da v\u00e1lvula de combustivel", None))
+#endif // QT_CONFIG(tooltip)
+#if QT_CONFIG(tooltip)
+        self.widgetCtrlFV100CA.setToolTip("")
+#endif // QT_CONFIG(tooltip)
+#if QT_CONFIG(accessibility)
+        self.widgetCtrlFV100CA.setAccessibleDescription("")
+#endif // QT_CONFIG(accessibility)
+        self.label_36.setText(QCoreApplication.translate("MainWindow", u"FV100CA", None))
+        self.label_37.setText(QCoreApplication.translate("MainWindow", u"%", None))
+        self.pbAMFV100CA.setText(QCoreApplication.translate("MainWindow", u"M", None))
+#if QT_CONFIG(tooltip)
+        self.widgetSliderFV100CA.setToolTip("")
+#endif // QT_CONFIG(tooltip)
+#if QT_CONFIG(tooltip)
+        self.verticalSliderFV100CA.setToolTip("")
+#endif // QT_CONFIG(tooltip)
+#if QT_CONFIG(tooltip)
+        self.widgetPI100A.setToolTip(QCoreApplication.translate("MainWindow", u"Velocidade da bomba de \u00e1gua", None))
+#endif // QT_CONFIG(tooltip)
+#if QT_CONFIG(tooltip)
+        self.widgetCtrlPI100A.setToolTip("")
+#endif // QT_CONFIG(tooltip)
+#if QT_CONFIG(accessibility)
+        self.widgetCtrlPI100A.setAccessibleDescription("")
+#endif // QT_CONFIG(accessibility)
+        self.label_38.setText(QCoreApplication.translate("MainWindow", u"PI100A", None))
+        self.label_39.setText(QCoreApplication.translate("MainWindow", u"kPa", None))
+        self.pbAMPI100A.setText(QCoreApplication.translate("MainWindow", u"M", None))
+#if QT_CONFIG(tooltip)
+        self.widgetSliderPI100A.setToolTip("")
+#endif // QT_CONFIG(tooltip)
+#if QT_CONFIG(tooltip)
+        self.verticalSliderFI100V_2.setToolTip("")
+#endif // QT_CONFIG(tooltip)
+#if QT_CONFIG(tooltip)
+        self.widgetFV100A.setToolTip(QCoreApplication.translate("MainWindow", u"Abertura do damper de AR", None))
+#endif // QT_CONFIG(tooltip)
+#if QT_CONFIG(tooltip)
+        self.widgetCtrlFV100A.setToolTip("")
+#endif // QT_CONFIG(tooltip)
+#if QT_CONFIG(accessibility)
+        self.widgetCtrlFV100A.setAccessibleDescription("")
+#endif // QT_CONFIG(accessibility)
+        self.label_40.setText(QCoreApplication.translate("MainWindow", u"FV100A", None))
+        self.label_41.setText(QCoreApplication.translate("MainWindow", u"%", None))
+        self.pbAMFV100A.setText(QCoreApplication.translate("MainWindow", u"M", None))
+#if QT_CONFIG(tooltip)
+        self.widgetSliderFV100A.setToolTip("")
+#endif // QT_CONFIG(tooltip)
+#if QT_CONFIG(tooltip)
+        self.verticalSliderFV100A.setToolTip("")
+#endif // QT_CONFIG(tooltip)
+#if QT_CONFIG(tooltip)
+        self.widgetFI100CA.setToolTip(QCoreApplication.translate("MainWindow", u"N\u00edvel do Tubul\u00e3o Superior", None))
+#endif // QT_CONFIG(tooltip)
+#if QT_CONFIG(accessibility)
+        self.widgetFI100CA.setAccessibleDescription("")
+#endif // QT_CONFIG(accessibility)
+        self.label_4.setText(QCoreApplication.translate("MainWindow", u"FI100CA", None))
+        self.label_28.setText(QCoreApplication.translate("MainWindow", u"%", None))
+#if QT_CONFIG(tooltip)
+        self.widgetFI100AR.setToolTip(QCoreApplication.translate("MainWindow", u"N\u00edvel do Tubul\u00e3o Superior", None))
+#endif // QT_CONFIG(tooltip)
+#if QT_CONFIG(accessibility)
+        self.widgetFI100AR.setAccessibleDescription("")
+#endif // QT_CONFIG(accessibility)
+        self.label_5.setText(QCoreApplication.translate("MainWindow", u"FI100AR", None))
+        self.label_29.setText(QCoreApplication.translate("MainWindow", u"%", None))
         self.mainTab.setTabText(self.mainTab.indexOf(self.processTab1), QCoreApplication.translate("MainWindow", u"Process", None))
     # retranslateUi
 
