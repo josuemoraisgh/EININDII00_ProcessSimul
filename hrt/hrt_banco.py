@@ -40,11 +40,11 @@ hrt_banco: Dict[str, Tuple[Union[int, float], str, str]] = {
     'PROCESS_VARIABLE': (
         4,
         'FLOAT',
-        '@(percent_of_range / 100) * (upper_range_value - lower_range_value) + lower_range_value'
+        '@(HART.LI100.percent_of_range / 100) * (HART.LI100.upper_range_value - HART.LI100.lower_range_value) + HART.LI100.lower_range_value'
     ),  # 50
     'percent_of_range': (4, 'FLOAT', '$[1.0],[0.07 0.0000000001],0.0000000001'),
     'loop_current_mode': (1, 'ENUM00', '00'),
-    'loop_current': (4, 'FLOAT', '@(percent_of_range * 0.16) + 4'),
+    'loop_current': (4, 'FLOAT', '@(HART.LI100.percent_of_range * 0.16) + 4'),
     'write_protect': (1, 'ENUM00', '00'),
     'private_label_distributor': (1, 'ENUM00', '00'),
     'final_assembly_number': (3, 'UNSIGNED', '00FBC6'),

@@ -23,7 +23,7 @@ class MBStorage(DBStorage):
             conn.close()
         except Exception as e:                
             # Colunas adicionais
-            extra_columns = ['LI100', 'FI100V', 'FI100A', 'FV100A', 'PI100', 'TI100']
+            extra_columns = ['LI100', 'FI100V', 'FI100A', 'FV100A', 'PI100V', 'TI100']
             # Converter o dicionário em DataFrame com colunas repetidas
             rows = []
             for key, val in hrt_banco.items():
@@ -31,24 +31,11 @@ class MBStorage(DBStorage):
                 rows.append(row)
             columns = ['NAME', 'BYTE_SIZE', 'TYPE'] + extra_columns
             self.df = pd.DataFrame(rows, columns=columns)
-            self.saveAllData()
+            with sqlite3.connect(self.db_name) as conn:
+                self.df.to_sql(self.table_name, conn, if_exists='replace', index=False)
             print(f'Banco de dados não encontrado. Erro: {e}') 
         self._createTfDict() 
-        self.createAutoCompleteList()   
-        
-    def createAutoCompleteList(self):
-        lista = {chave: {} for chave in self.df.index}
-        self.autoCompleteList = {chave: lista for chave in self.df.columns}              
-    
-    def _createTfDict(self):
-        mask = np.char.startswith(self.df.values.astype(str), "$")
-        # Obtendo os índices das células que satisfazem a condição
-        rows, cols = np.where(mask)
-        # Mapeando para os nomes reais de linhas e colunas
-        self.rowTfNames = self.df.index[rows].tolist()
-        self.colTfNames = self.df.columns[cols].tolist()
-        # Inicializando o dicionario com os resultados das tf
-        self.tf_dict = {(row, col): 0.01 for row in self.rowTfNames for col in self.colTfNames}
+        self.createAutoCompleteList()     
     
     def saveAllData(self):
         with sqlite3.connect(self.db_name) as conn:

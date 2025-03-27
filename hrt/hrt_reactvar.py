@@ -79,7 +79,7 @@ class HrtReactiveVariable(DBReactiveVariable):
         value = self.storage.getStrData(rowName,colName)
         return self.model(value)
     
-    def getVariable(self, rowName: str, colName: str, state: DBState = DBState.machineValue):
+    def getVariable(self, source: str, rowName: str, colName: str, state: DBState = DBState.machineValue):
         if rowName == colName or colName == 'NAME':
             return rowName
         else: 
@@ -113,8 +113,8 @@ class HrtReactiveVariable(DBReactiveVariable):
             self.expressionToken.emit(tokens, True) # self.bind_to(self.df.loc(token, colName))        
         for token in tokens:
             # Fazer no futuro: Checar se todas as variaves são do mesmo tipo ?
-            col, row = token.split(".")
-            var_val = self.getVariable(row, col, DBState.humanValue)
+            source, col, row = token.split(".")
+            var_val = self.getVariable(source, row, col, DBState.humanValue)
             if var_val is not None:
                 evaluator.symtable[token.replace(".","_")] = var_val
             evaluator.symtable["math"] = math

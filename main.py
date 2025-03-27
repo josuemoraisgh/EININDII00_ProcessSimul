@@ -20,7 +20,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # self.radioButtonHex.clicked["bool"].connect(self.oldDBTableWidget.changeType) 
         servidor_thread = ModbusServerThread(num_slaves=3, port=5020)
         servidor_thread.start()            
-        self.reactDataBase = ReactDataBase()
+        self.reactDataBase = ReactDataBase({"HART", "MODBUS"})
         self.hrtDBTableWidget.setBaseData(self.reactDataBase,"HART")
         self.mbDBTableWidget.setBaseData(self.reactDataBase,"HART")        
         self.simulTf = SimulTf(self.reactDataBase, 1000)

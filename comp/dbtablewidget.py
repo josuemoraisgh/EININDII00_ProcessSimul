@@ -31,7 +31,7 @@ class DBTableWidget(QTableWidget):
     def setBaseData(self, dbDataFrame: ReactDataBase, source: str):
         self.source = source
         self.dbDataFrame = dbDataFrame
-        self.df = dbDataFrame.dfhrt if source == "HART" else dbDataFrame.dfmb
+        self.df = dbDataFrame.df[source]
         horizontalHeader_font = QFont("Arial", 12, QFont.Bold)  # Fonte maior e em negrito
         self.horizontalHeader().setFont(horizontalHeader_font)
         verticalHeader_font = QFont("Arial", 10, QFont.Bold)  # Fonte maior e em negrito

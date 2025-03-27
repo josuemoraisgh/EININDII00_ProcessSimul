@@ -28,7 +28,7 @@ class SimulTf:
             num = ast.literal_eval(num_str[1:].replace(" ",","))  # Converte string de lista para lista real
             den = ast.literal_eval(den_str.replace(" ",","))
             if re.search(r'([A-Z0-9]\w+)\.([A-Za-z_0-9]\w+)', input_str):
-                input_value = self.reactDataBase.dfhrt.iloc[rowTfName,colTfName].evaluate_expression(self, input_str)  # Converte para número real
+                input_value = input_str
             else:
                 input_value = float(input_str)
                 
@@ -51,7 +51,7 @@ class SimulTf:
             num = ast.literal_eval(num_str[1:].replace(" ",","))  # Converte string de lista para lista real
             den = ast.literal_eval(den_str.replace(" ",","))
             if re.search(r'([A-Z0-9]\w+)\.([A-Za-z_0-9]\w+)', input_str):
-                input_value = self.reactDataBase.dfmb.iloc[rowTfName,colTfName].evaluate_expression(self, input_str)  # Converte para número real
+                input_value = input_str
             else:
                 input_value = float(input_str)
                 
@@ -88,26 +88,21 @@ class SimulTf:
 
     def changeInputValues(self, source, rowTfName, colTfName, input_str):
         """Define os valores de entrada de controle. input_dict deve ter o formato {'tf_name': valor}."""
-        if source == "HART":
-            self.inputs["HART"][rowTfName, colTfName] = self.reactDataBase.dfhrt.loc(input_str,colTfName,DBState.humanValue)  # Converte para número real
-        else: 
-            self.inputs["MODBUS"][rowTfName, colTfName] = self.reactDataBase.dfmb.loc(input_str,colTfName,DBState.humanValue)  # Converte para número real            
+        if not re.search(r'([A-Z0-9]\w+)\.([A-Za-z_0-9]\w+)', input_str):
+            input_str = float(input_str)
+        self.inputs[source][rowTfName, colTfName] = input_str
             
     def _simulation_step(self):
         """Calcula o próximo passo para todas as funções de transferência."""
-        for key, system in self.systems["HART"].items():
-            # Calcula o próximo estado: x[k+1] = A * x[k] + B * u[k]
-            next_state = system["A"].dot(self.states["HART"][key]) + system["B"] * self.inputs["HART"][key]
-            # Calcula a saída: y[k] = C * x[k+1] + D * u[k]
-            output = system["C"].dot(next_state) + system["D"] * self.inputs["HART"][key]
-            self.states["HART"][key] = next_state
-            self.reactDataBase.hrt_storage.tf_dict[key] = float(output)  # Armazena a saída da função de transferência 
-            self.reactDataBase.dfhrt.loc[key].valueChanged.emit() # Atualiza as variáveis de saída (reaja conforme necessário) 
-        for key, system in self.systems["MODBUS"].items():
-            # Calcula o próximo estado: x[k+1] = A * x[k] + B * u[k]
-            next_state = system["A"].dot(self.states["MODBUS"][key]) + system["B"] * self.inputs["MODBUS"][key]
-            # Calcula a saída: y[k] = C * x[k+1] + D * u[k]
-            output = system["C"].dot(next_state) + system["D"] * self.inputs["MODBUS"][key]
-            self.states[key] = next_state
-            self.reactDataBase.mb_storage.tf_dict[key] = float(output)  # Armazena a saída da função de transferência 
-            self.reactDataBase.dfmb.loc[key].valueChanged.emit() # Atualiza as variáveis de saída (reaja conforme necessário)            
+        for source in self.systems:
+            for key, system in self.systems[source].items():
+                input_Value = self.inputs[source][key]
+                if isinstance(input_Value, str):
+                    input_Value = self.reactDataBase.dfmb.iloc[key].evaluate_expression(self, input_Value)  # Converte para número real            
+                # Calcula o próximo estado: x[k+1] = A * x[k] + B * u[k]
+                next_state = system["A"].dot(self.states[source][key]) + system["B"] * input_Value
+                # Calcula a saída: y[k] = C * x[k+1] + D * u[k]
+                output = system["C"].dot(next_state) + system["D"] * input_Value
+                self.states[source][key] = next_state
+                self.reactDataBase.storage[source].tf_dict[key] = float(output)  # Armazena a saída da função de transferência 
+                self.reactDataBase.df[source].loc[key].valueChanged.emit() # Atualiza as variáveis de saída (reaja conforme necessário) 

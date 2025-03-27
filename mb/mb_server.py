@@ -16,7 +16,21 @@ class InvalidDataBlock(BaseModbusDataBlock):
     def setValues(self, address, values):
         raise NotImplementedError("Tipo de dado inválido.")
 
-class DynamicDataBlock(BaseModbusDataBlock):
+class DynamicDataBlockHR(BaseModbusDataBlock):
+    def __init__(self, slave_id):
+        super().__init__()
+        self.slave_id = slave_id
+
+    def validate(self, address, count=1):
+        return True
+
+    def getValues(self, address, count=1):
+        return [random.randint(1000, 9999) + (self.slave_id * 10000) for _ in range(count)]
+
+    def setValues(self, address, values):
+        print(f"Slave {self.slave_id} escreveu valores {values} no endereço {address}")
+
+class DynamicDataBlockIR(BaseModbusDataBlock):
     def __init__(self, slave_id):
         super().__init__()
         self.slave_id = slave_id
@@ -45,8 +59,8 @@ class ModbusServerThread(QThread):
             slaves[slave_id] = ModbusSlaveContext(
                 di=InvalidDataBlock(),
                 co=InvalidDataBlock(),
-                hr=DynamicDataBlock(slave_id),
-                ir=DynamicDataBlock(slave_id)
+                hr=DynamicDataBlockHR(slave_id), # MV
+                ir=DynamicDataBlockIR(slave_id) # PV
             )
 
         context = ModbusServerContext(slaves=slaves, single=False)
