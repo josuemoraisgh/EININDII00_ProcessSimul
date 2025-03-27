@@ -37,8 +37,8 @@ class ReactDB(QObject):
         # Obtendo os índices das células que satisfazem a condição
         rows, cols = np.where(mask)
         # Mapeando para os nomes reais de linhas e colunas
-        self.rowTfNames = [v for i, v in enumerate(self.storage[tableName].rowKeys()) if i in rows]  
-        self.colTfNames = [v for i, v in enumerate(self.storage[tableName].colKeys()) if i in cols]
+        self.rowTfNames = [self.storage[tableName].rowKeys()[i] for i in rows]  
+        self.colTfNames = [self.storage[tableName].colKeys()[i] for i in cols]
         # Inicializando o dicionario com os resultados das tf
         self.tf_ref.value[tableName] = {(row, col): 0.01 for row in self.rowTfNames for col in self.colTfNames}
 

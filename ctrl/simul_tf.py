@@ -40,14 +40,14 @@ class SimulTf:
                 sys_ss = ctrl.tf2ss(sys_tf)
                 sysd = ctrl.c2d(sys_ss, stepTime, method='tustin')
 
-                self.systems[tableName][rowTfName, colTfName] = {
+                self.systems[tableName][(rowTfName, colTfName)] = {
                     "A": np.array(sysd.A),
                     "B": np.array(sysd.B),
                     "C": np.array(sysd.C),
                     "D": np.array(sysd.D)
                 }
-                self.states[tableName][rowTfName, colTfName] = np.zeros((sysd.A.shape[0], 1))  # Estado inicial zerado
-                self.inputs[tableName][rowTfName, colTfName] = input_value
+                self.states[tableName][(rowTfName, colTfName)] = np.zeros((sysd.A.shape[0], 1))  # Estado inicial zerado
+                self.inputs[tableName][(rowTfName, colTfName)] = input_value
                 
         # Inicializa a função repetida para rodar a simulação de forma contínua
         self._repeated_function = RepeatFunction(self._simulation_step, stepTime)
@@ -60,13 +60,12 @@ class SimulTf:
         else:
             self._repeated_function.stop()
    
-    def reset(self, state:bool):
-        """Finaliza a execução e reseta os estados."""
-        if state:        
-            self.stop() 
-            for tableName in self.reactDataBase.tableNames:                   
-                for key in self.states[tableName]:
-                    self.states[tableName][key] = np.zeros_like(self.states[tableName][key])
+    def reset(self):
+        """Finaliza a execução e reseta os estados."""      
+        self._repeated_function.stop() 
+        for tableName in self.reactDataBase.tableNames:                   
+            for key in self.states[tableName]:
+                self.states[tableName][key] = np.zeros_like(self.states[tableName][key])
 
     def changeInputValues(self, tableName, rowTfName, colTfName, input_str):
         """Define os valores de entrada de controle. input_dict deve ter o formato {'tf_name': valor}."""

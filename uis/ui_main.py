@@ -100,16 +100,16 @@ class Ui_MainWindow(object):
         self.horizontalLayout_9 = QHBoxLayout()
         self.horizontalLayout_9.setObjectName(u"horizontalLayout_9")
         self.radioButtonHex = QRadioButton(self.hartTab)
-        self.buttonGroup = QButtonGroup(MainWindow)
-        self.buttonGroup.setObjectName(u"buttonGroup")
-        self.buttonGroup.addButton(self.radioButtonHex)
+        self.buttonGroupState = QButtonGroup(MainWindow)
+        self.buttonGroupState.setObjectName(u"buttonGroupState")
+        self.buttonGroupState.addButton(self.radioButtonHex)
         self.radioButtonHex.setObjectName(u"radioButtonHex")
         self.radioButtonHex.setChecked(False)
 
         self.horizontalLayout_9.addWidget(self.radioButtonHex)
 
         self.radioButtonHrt = QRadioButton(self.hartTab)
-        self.buttonGroup.addButton(self.radioButtonHrt)
+        self.buttonGroupState.addButton(self.radioButtonHrt)
         self.radioButtonHrt.setObjectName(u"radioButtonHrt")
         self.radioButtonHrt.setChecked(True)
 
@@ -623,13 +623,13 @@ class Ui_MainWindow(object):
 
         self.groupBoxSimul = QGroupBox(self.processTab1)
         self.groupBoxSimul.setObjectName(u"groupBoxSimul")
-        self.groupBoxSimul.setGeometry(QRect(810, 380, 161, 151))
+        self.groupBoxSimul.setGeometry(QRect(740, 230, 161, 151))
         self.verticalLayout_5 = QVBoxLayout(self.groupBoxSimul)
         self.verticalLayout_5.setObjectName(u"verticalLayout_5")
         self.pushButtonStart = QPushButton(self.groupBoxSimul)
-        self.buttonGroup_2 = QButtonGroup(MainWindow)
-        self.buttonGroup_2.setObjectName(u"buttonGroup_2")
-        self.buttonGroup_2.addButton(self.pushButtonStart)
+        self.buttonGroupSimul = QButtonGroup(MainWindow)
+        self.buttonGroupSimul.setObjectName(u"buttonGroupSimul")
+        self.buttonGroupSimul.addButton(self.pushButtonStart)
         self.pushButtonStart.setObjectName(u"pushButtonStart")
         self.pushButtonStart.setStyleSheet(u"#pushButtonStart {\n"
 "    background-color: none;  /* Cor padr\u00e3o quando solto */\n"
@@ -643,7 +643,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_5.addWidget(self.pushButtonStart)
 
         self.pushButtonStop = QPushButton(self.groupBoxSimul)
-        self.buttonGroup_2.addButton(self.pushButtonStop)
+        self.buttonGroupSimul.addButton(self.pushButtonStop)
         self.pushButtonStop.setObjectName(u"pushButtonStop")
         self.pushButtonStop.setStyleSheet(u"#pushButtonStop {\n"
 "    background-color: none;  /* Cor padr\u00e3o (normal) do sistema quando solto */\n"

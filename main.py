@@ -23,7 +23,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.mbDBTableWidget.setBaseData(self.ReactDB,"HART")        
         self.simulTf = SimulTf(self.ReactDB, 1000)
         self.pushButtonStart.toggled.connect(self.simulTf.start)
-        self.pushButtonReset.toggled.connect(self.simulTf.reset)
+        def resetTf():                    
+            self.buttonGroupSimul.exclusive = False   # Desliga exclusividade temporariamente
+            self.pushButtonStart.setChecked(False)   # marca o botão como "despressionado"
+            self.pushButtonStop.setChecked(True)     # marca o botão como "pressionado"
+            self.buttonGroupSimul.exclusive = True    # Religa a exclusividade                         
+            self.simulTf.reset()            
+        self.pushButtonReset.clicked.connect(resetTf)
         # image_path = os.path.abspath("img/caldeira.jpg")
         self.processTab1.setBackgroundImageFromBase64(imagem_base64)
         self.connectLCDs()
