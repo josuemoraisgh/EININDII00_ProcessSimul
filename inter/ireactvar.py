@@ -1,5 +1,4 @@
 from inter.qobjectabcmeta import QObjectABCMeta
-from inter.istorage import DBStorage
 from PySide6.QtCore import QObject, Signal, Slot
 from abc import ABC, abstractmethod
 

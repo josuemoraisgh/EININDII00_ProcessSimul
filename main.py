@@ -1,9 +1,7 @@
 from PySide6.QtWidgets import QApplication, QMainWindow
-from PySide6.QtCore import Signal
 from uis.ui_main import Ui_MainWindow  # Interface do Qt Designer
-from react.reactDB import ReactDataBase
-from inter.ireactvar import DBReactiveVariable
-from inter.istate import DBState
+from react.react_db import ReactDB
+from db.db_state import DBState
 from ctrl.simul_tf import SimulTf
 from functools import partial
 from img.imgCaldeira import imagem_base64
@@ -20,10 +18,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # self.radioButtonHex.clicked["bool"].connect(self.oldDBTableWidget.changeType) 
         servidor_thread = ModbusServerThread(num_slaves=3, port=5020)
         servidor_thread.start()            
-        self.reactDataBase = ReactDataBase({"HART", "MODBUS"})
-        self.hrtDBTableWidget.setBaseData(self.reactDataBase,"HART")
-        self.mbDBTableWidget.setBaseData(self.reactDataBase,"HART")        
-        self.simulTf = SimulTf(self.reactDataBase, 1000)
+        self.ReactDB = ReactDB({"HART", "MODBUS"})
+        self.hrtDBTableWidget.setBaseData(self.ReactDB,"HART")
+        self.mbDBTableWidget.setBaseData(self.ReactDB,"HART")        
+        self.simulTf = SimulTf(self.ReactDB, 1000)
         self.pushButtonStart.toggled.connect(self.simulTf.start)
         self.pushButtonReset.toggled.connect(self.simulTf.reset)
         # image_path = os.path.abspath("img/caldeira.jpg")
@@ -50,7 +48,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             lcd_widget.display(var.value(DBState.humanValue))
         for lcd_name, (row, col) in zip(lcd_names, db_indices):
             lcd_widget = getattr(self, lcd_name)
-            var: DBReactiveVariable = self.reactDataBase.dfhrt.loc[row, col]
+            var: ReactDB = self.ReactDB.df["HART"].loc[row, col]
             var.valueChanged.connect(
                 partial(atualizaDisplay,lcd_widget,var)
             )   

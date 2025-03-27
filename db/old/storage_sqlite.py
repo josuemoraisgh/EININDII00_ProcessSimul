@@ -1,5 +1,5 @@
 from PySide6.QtCore import Signal, QObject
-from hrt.hrt_banco import hrt_banco
+from db.old.hrt_banco import hrt_banco
 from functools import reduce
 import numpy as np
 import pandas as pd

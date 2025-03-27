@@ -1,14 +1,14 @@
 from PySide6.QtWidgets import QTableWidget, QLineEdit, QComboBox, QMenu, QDialog
 from PySide6.QtGui import QAction, QFont
-from inter.istate import DBState
+from db.db_state import DBState
 import qtawesome as qta
 from PySide6.QtCore import Qt
 from uis.ui_dialog_value import Ui_Dialog_Value
 from uis.ui_dialog_func import Ui_Dialog_Func 
 from uis.ui_dialog_tfunc import Ui_Dialog_Tfunc 
 from functools import partial
-from react.reactDB import ReactDataBase
-from inter.ireactvar import DBReactiveVariable
+from react.react_db import ReactDB
+from react.react_var import ReactVar
 from hrt.hrt_enum import hrt_enum
 from hrt.hrt_bitenum import hrt_bitEnum
 
@@ -28,7 +28,7 @@ class DBTableWidget(QTableWidget):
     def sertAutoCompleteList(self, data:list):
         self.autoCompleteList = data
         
-    def setBaseData(self, dbDataFrame: ReactDataBase, source: str):
+    def setBaseData(self, dbDataFrame: ReactDB, source: str):
         self.source = source
         self.dbDataFrame = dbDataFrame
         self.df = dbDataFrame.df[source]
@@ -58,7 +58,7 @@ class DBTableWidget(QTableWidget):
       
         for rowName in rowKeys: 
             for colName in colKeys: 
-                data: DBReactiveVariable = self.df.loc[rowName, colName]
+                data: ReactVar = self.df.loc[rowName, colName]
                 value = data.value(self.state)
                 cellValue = format_number(value) if self.state == DBState.humanValue and isinstance(value, float) else str(value)
                 typeValue = data.type()
@@ -74,10 +74,10 @@ class DBTableWidget(QTableWidget):
                         dados = list(hrt_bitEnum[int(typeValue[8:])].values()) if self.source == "HART" else {}
                     comboBox.addItems(dados)
                     comboBox.setCurrentText(cellValue)
-                    def setDataBaseCombBox(data: DBReactiveVariable, widget:QComboBox, state: DBState, _):
+                    def setDataBaseCombBox(data: ReactVar, widget:QComboBox, state: DBState, _):
                         data.setValue(widget.currentText(),state)
                     comboBox.currentIndexChanged.connect(partial(setDataBaseCombBox, data,comboBox,self.state))
-                    def setTextCombBox(data: DBReactiveVariable, widget:QLineEdit, state: DBState):
+                    def setTextCombBox(data: ReactVar, widget:QLineEdit, state: DBState):
                         value = data.value(state)
                         cellValue = str(value)
                         widget.setCurrentText(cellValue)
@@ -88,13 +88,13 @@ class DBTableWidget(QTableWidget):
                     lineEdit = QLineEdit()
                     if(self.state or (colName in ["BYTE_SIZE","TYPE"]) or any(typeValue.find(x)!=-1 for x in ["PACKED", "UNSIGNED", "FLOAT", "INTEGER", "DATE", "TIME"])) and not (dataModel in ["Func", "tFunc"]):
                         lineEdit.setStyleSheet("#QLineEdit{background-color: white;}")
-                        def setDataBaseLineEdit(data: DBReactiveVariable, widget:QLineEdit, state: DBState):
+                        def setDataBaseLineEdit(data: ReactVar, widget:QLineEdit, state: DBState):
                             data.setValue(format_number(float(widget.text())),state)
                         lineEdit.editingFinished.connect(partial(setDataBaseLineEdit,data,lineEdit,self.state))
                     else:
                         lineEdit.setReadOnly(True)
                         lineEdit.setStyleSheet("background-color: #D3D3D3;")
-                    def setTextLineEdit(data: DBReactiveVariable, widget:QLineEdit, state: DBState):
+                    def setTextLineEdit(data: ReactVar, widget:QLineEdit, state: DBState):
                         value = data.value(state)
                         cellValue = format_number(value) if state == DBState.humanValue and isinstance(value, float) else str(value)
                         widget.setText(cellValue)
@@ -115,7 +115,7 @@ class DBTableWidget(QTableWidget):
             menu = QMenu(self)
             
             action_Value = QAction(qta.icon("mdi.numeric"), "Value", self)
-            data : DBReactiveVariable = self.df.loc[rowName,colName]
+            data : ReactVar = self.df.loc[rowName,colName]
             def actionValueSlot():
                 dialog = QDialog(self)
                 dialog_ui = Ui_Dialog_Value()  # Cria a instância do QDialog

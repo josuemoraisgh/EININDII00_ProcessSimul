@@ -1,4 +1,4 @@
-class Referencia:
+class RefVar:
     def __init__(self, valor):
         self._valor = valor
 
