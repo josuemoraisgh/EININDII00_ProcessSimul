@@ -69,15 +69,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.widgetPI100V.move(25, 10)
         self.widgetFI100V.move(-4, 80)
 
-        self.widgetFI100A.move(parent_width -210, 2)
-        self.widgetFV100A.move(parent_width - 248, 65)
-        self.widgetPI100A.move(parent_width * 0.30, parent_height * 0.25)
+        self.widgetPI100A.move(-4, 300)
+        self.widgetFI100A.move(parent_width -210, 10)
+        self.widgetFV100A.move(parent_width - 248, 68)
         
-        self.widgetFI100CA.move(parent_width * 0.48, parent_height * 0.58)
-        self.widgetFV100CA.move(parent_width * 0.28, parent_height * 0.68)
+        self.widgetFI100CA.move(parent_width * 0.20, parent_height * 0.75)
+        self.widgetFV100CA.move(parent_width * 0.30, parent_height * 0.68)
         
-        self.widgetFI100AR.move(parent_width * 0.54, parent_height * 0.68)
-        self.widgetFV100AR.move(parent_width * 0.54, parent_height * 0.68)
+        self.widgetFI100AR.move(parent_width * 0.54, parent_height * 0.75)
+        self.widgetFV100AR.move(parent_width * 0.64, parent_height * 0.68)
         
         self.groupBoxSimul.move(parent_width - 190, parent_height - 220)        
         # self.resizeEventSignal.emit(event)
