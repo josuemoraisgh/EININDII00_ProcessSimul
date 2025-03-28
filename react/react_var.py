@@ -2,6 +2,7 @@ from hrt.hrt_type import hrt_type_hex_to, hrt_type_hex_from  # Assuming hrt_type
 from PySide6.QtCore import QObject, Signal, Slot
 from react.referencia import RefVar
 from db.db_state import DBState
+from db.db_storage import DBStorage
 from asteval import Interpreter
 import math
 import random
@@ -11,7 +12,7 @@ class ReactVar(QObject):
     valueChanged = Signal()  # Sinal emitido quando o valor muda
     expressionToken = Signal(list,bool)
 
-    def __init__(self, tableName: str, rowName: str, colName: str, storage: dict, tf_ref: RefVar):
+    def __init__(self, tableName: str, rowName: str, colName: str, storage: DBStorage, tf_ref: RefVar):
         super().__init__()
         self._tableName = tableName
         self._rowName = rowName
@@ -37,7 +38,7 @@ class ReactVar(QObject):
 
     def setValue(self, value, state : DBState = DBState.originValue):
         if self._rowName == self._colName or self._colName == 'NAME':
-            self.storage[self._tableName].df.loc[self._rowName,0] = value
+            self.storage.dataFrame(self._tableName).loc[self._rowName,0] = value
         else:
             modelAntes = self.getDataModel(self._tableName, self._rowName, self._colName) == "Func" # Se antes era Func
             modelAgora = self.model(value) == "Func" != -1 # Se agora é Func
@@ -50,10 +51,10 @@ class ReactVar(QObject):
             if modelAntes and not modelAgora: # Se antes era tF e agora não é 
                 self.tf_ref.value[self._tableName].pop((self._rowName, self._colName), None)
             if state == DBState.humanValue and self.getDataModel(self._tableName, self._rowName, self._colName).find("Func") == -1:
-                value = hrt_type_hex_from(value, self.storage[self._tableName].getData(self._rowName, "TYPE"), int(self.storage[self._tableName].getData(self._rowName, "BYTE_SIZE")))
-                self.storage[self._tableName].setData(self._rowName, self._colName, value)
+                value = hrt_type_hex_from(value, self.storage.getData(self._tableName, self._rowName, "TYPE"), int(self.storage.getData(self._tableName, self._rowName, "BYTE_SIZE")))
+                self.storage.setData(self._tableName, self._rowName, self._colName, value)
             else:
-                self.storage[self._tableName].setData(self._rowName, self._colName, str(value))
+                self.storage.setData(self._tableName, self._rowName, self._colName, str(value))
         self.valueChanged.emit()
         
     def bind_to(self, signalOtherVar: Signal, isConnect: bool):  
@@ -68,7 +69,7 @@ class ReactVar(QObject):
     
     def model(self, value: str = "") -> str:
         if value == "":
-            value = self.storage[self._tableName].getData(self._rowName,self._colName)
+            value = self.storage.getData(self._tableName, self._rowName,self._colName)
         if value.startswith('@'):
             return "Func"
         elif value.startswith('$'):
@@ -77,32 +78,32 @@ class ReactVar(QObject):
             return "Value"
                
     def getDataModel(self, tableName: str, rowName: str, colName: str) -> str:
-        value = self.storage[tableName].getData(rowName,colName)
+        value = self.storage.getData(tableName, rowName, colName)
         return self.model(value)
     
     def getVariable(self, tableName: str, rowName: str, colName: str, state: DBState = DBState.machineValue):
         if rowName == colName or colName == 'NAME':
             return rowName
         else: 
-            value = self.storage[tableName].getData(rowName, colName)
-            dataModel = self.getDataModel(tableName, rowName, colName)
+            value = self.storage.getData(tableName, rowName, colName)
+            dataModel = self.model(value)
             if not colName in ["NAME", "TYPE", "BYTE_SIZE"]:
                 if dataModel == "Func":
                     if state == DBState.originValue:
                         return value
                     result = self.evaluate_expression(value)
                     if state == DBState.machineValue:
-                        return hrt_type_hex_from(result, self.storage[tableName].getData(rowName, "TYPE"), int(self.storage[tableName].getData(rowName, "BYTE_SIZE")))
+                        return hrt_type_hex_from(result, self.storage.getData(tableName, rowName, "TYPE"), int(self.storage.getData(tableName, rowName, "BYTE_SIZE")))
                     else:
                         return result
                 elif dataModel == "tFunc": 
                     if state == DBState.humanValue:
                         return self.tf_ref.value[tableName][rowName, colName]
                     elif state == DBState.machineValue:
-                        resp = hrt_type_hex_from(self.tf_ref.value[tableName][rowName, colName], self.storage[tableName].getData(rowName, "TYPE"), int(self.storage[tableName].getData(rowName, "BYTE_SIZE")))
+                        resp = hrt_type_hex_from(self.tf_ref.value[tableName][rowName, colName], self.storage.getData(tableName, rowName, "TYPE"), int(self.storage.getData(tableName, rowName, "BYTE_SIZE")))
                         return resp
                 elif state == DBState.humanValue:
-                    return hrt_type_hex_to(self.storage[tableName].getData(rowName, colName), self.storage[tableName].getData(rowName, "TYPE"))
+                    return hrt_type_hex_to(self.storage.getData(tableName, rowName, colName), self.storage.getData(tableName, rowName, "TYPE"))
             return value
     
     def evaluate_expression(self, func: str):

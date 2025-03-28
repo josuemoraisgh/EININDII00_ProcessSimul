@@ -23,15 +23,15 @@ class DBTableWidget(QTableWidget):
     def __init__(self, parent: None):
         # super().__init__() 
         super().__init__(parent=parent)
-        self.state = DBState.humanValue
 
     def sertAutoCompleteList(self, data:list):
         self.autoCompleteList = data
         
-    def setBaseData(self, dbDataFrame: ReactDB, source: str):
-        self.source = source
+    def setBaseData(self, dbDataFrame: ReactDB, tableName: str):
+        self.tableName = tableName
+        self.state = DBState.humanValue if tableName.find("HART") != -1 else DBState.originValue
         self.dbDataFrame = dbDataFrame
-        self.df = dbDataFrame.df[source]
+        self.df = dbDataFrame.df[tableName]
         horizontalHeader_font = QFont("Arial", 12, QFont.Bold)  # Fonte maior e em negrito
         self.horizontalHeader().setFont(horizontalHeader_font)
         verticalHeader_font = QFont("Arial", 10, QFont.Bold)  # Fonte maior e em negrito
@@ -69,9 +69,9 @@ class DBTableWidget(QTableWidget):
                 if  self.state != DBState.machineValue and any(typeValue.find(x)!=-1 for x in ["ENUM", "BIT_ENUM"]) and not (dataModel in ["Func", "tFunc"]) and not(colName in ["BYTE_SIZE","TYPE"]):
                     comboBox = QComboBox()
                     if typeValue.find("BIT_") == -1:
-                        dados = list(hrt_enum[int(typeValue[4:])].values()) if self.source == "HART" else {}
+                        dados = list(hrt_enum[int(typeValue[4:])].values()) if self.tableName == "HART" else {}
                     else:
-                        dados = list(hrt_bitEnum[int(typeValue[8:])].values()) if self.source == "HART" else {}
+                        dados = list(hrt_bitEnum[int(typeValue[8:])].values()) if self.tableName == "HART" else {}
                     comboBox.addItems(dados)
                     comboBox.setCurrentText(cellValue)
                     def setDataBaseCombBox(data: ReactVar, widget:QComboBox, state: DBState, _):
@@ -105,9 +105,11 @@ class DBTableWidget(QTableWidget):
                     self.setCellWidget(rowID, colID, lineEdit)
                                       
                 self.setColumnWidth(colID, 150)
+                # self.resizeColumnToContents(colID)
 
         self.blockSignals(False)  # Libera sinais após a configuração da tabela
         self.viewport().update()  # Atualiza a interface
+        # self.resizeColumnsToContents()        
     
     def show_custom_context_menu(self, line_edit, rowName, colName, event):
         """Mostra o menu de contexto quando o botão direito é pressionado"""

@@ -42,46 +42,6 @@ class Ui_MainWindow(object):
         self.modbusTab.setObjectName(u"modbusTab")
         self.verticalLayout_10 = QVBoxLayout(self.modbusTab)
         self.verticalLayout_10.setObjectName(u"verticalLayout_10")
-        self.horizontalLayout_10 = QHBoxLayout()
-        self.horizontalLayout_10.setObjectName(u"horizontalLayout_10")
-        self.radioButtonHex_2 = QRadioButton(self.modbusTab)
-        self.radioButtonHex_2.setObjectName(u"radioButtonHex_2")
-        self.radioButtonHex_2.setChecked(False)
-
-        self.horizontalLayout_10.addWidget(self.radioButtonHex_2)
-
-        self.radioButtonHrt_2 = QRadioButton(self.modbusTab)
-        self.radioButtonHrt_2.setObjectName(u"radioButtonHrt_2")
-        self.radioButtonHrt_2.setChecked(True)
-
-        self.horizontalLayout_10.addWidget(self.radioButtonHrt_2)
-
-        self.verticalLayout_9 = QVBoxLayout()
-        self.verticalLayout_9.setObjectName(u"verticalLayout_9")
-        self.horizontalLayout_11 = QHBoxLayout()
-        self.horizontalLayout_11.setObjectName(u"horizontalLayout_11")
-        self.horizontalSpacer_3 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-
-        self.horizontalLayout_11.addItem(self.horizontalSpacer_3)
-
-
-        self.verticalLayout_9.addLayout(self.horizontalLayout_11)
-
-        self.horizontalLayout_7 = QHBoxLayout()
-        self.horizontalLayout_7.setObjectName(u"horizontalLayout_7")
-        self.horizontalSpacer_5 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-
-        self.horizontalLayout_7.addItem(self.horizontalSpacer_5)
-
-
-        self.verticalLayout_9.addLayout(self.horizontalLayout_7)
-
-
-        self.horizontalLayout_10.addLayout(self.verticalLayout_9)
-
-
-        self.verticalLayout_10.addLayout(self.horizontalLayout_10)
-
         self.mbDBTableWidget = DBTableWidget(self.modbusTab)
         self.mbDBTableWidget.setObjectName(u"mbDBTableWidget")
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Expanding)
@@ -967,14 +927,12 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
         self.mainTab.setTabText(self.mainTab.indexOf(self.configTab), QCoreApplication.translate("MainWindow", u"Config", None))
-        self.radioButtonHex_2.setText(QCoreApplication.translate("MainWindow", u"Machine Value", None))
-        self.radioButtonHrt_2.setText(QCoreApplication.translate("MainWindow", u"Human Value", None))
         self.mainTab.setTabText(self.mainTab.indexOf(self.modbusTab), QCoreApplication.translate("MainWindow", u"ModBus", None))
         self.radioButtonHex.setText(QCoreApplication.translate("MainWindow", u"Machine Value", None))
         self.radioButtonHrt.setText(QCoreApplication.translate("MainWindow", u"Human Value", None))
         self.mainTab.setTabText(self.mainTab.indexOf(self.hartTab), QCoreApplication.translate("MainWindow", u"Hart", None))
 #if QT_CONFIG(tooltip)
-        self.widgetLI100.setToolTip(QCoreApplication.translate("MainWindow", u"N\u00edvel do Tubul\u00e3o Superior", None))
+        self.widgetLI100.setToolTip(QCoreApplication.translate("MainWindow", u"Indicador de N\u00edvel do Tubul\u00e3o Superior", None))
 #endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(accessibility)
         self.widgetLI100.setAccessibleDescription("")
@@ -982,7 +940,7 @@ class Ui_MainWindow(object):
         self.label_3.setText(QCoreApplication.translate("MainWindow", u"LI100", None))
         self.label_24.setText(QCoreApplication.translate("MainWindow", u"%", None))
 #if QT_CONFIG(tooltip)
-        self.widgetPI100V.setToolTip(QCoreApplication.translate("MainWindow", u"Press\u00e3o de Vapor", None))
+        self.widgetPI100V.setToolTip(QCoreApplication.translate("MainWindow", u"Indicador de Press\u00e3o de Vapor", None))
 #endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(accessibility)
         self.widgetPI100V.setAccessibleDescription("")
@@ -998,7 +956,7 @@ class Ui_MainWindow(object):
         self.label_8.setText(QCoreApplication.translate("MainWindow", u"FI100A", None))
         self.label_25.setText(QCoreApplication.translate("MainWindow", u"Nm3/h", None))
 #if QT_CONFIG(tooltip)
-        self.widgetTI100.setToolTip(QCoreApplication.translate("MainWindow", u"Temperatura da Fornalha", None))
+        self.widgetTI100.setToolTip(QCoreApplication.translate("MainWindow", u"Indicador da Temperatura da Fornalha", None))
 #endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(accessibility)
         self.widgetTI100.setAccessibleDescription("")
@@ -1006,7 +964,7 @@ class Ui_MainWindow(object):
         self.label_9.setText(QCoreApplication.translate("MainWindow", u"TI100", None))
         self.label_27.setText(QCoreApplication.translate("MainWindow", u"\u00baC", None))
 #if QT_CONFIG(tooltip)
-        self.widgetFV100AR.setToolTip(QCoreApplication.translate("MainWindow", u"Abertura do damper de AR", None))
+        self.widgetFV100AR.setToolTip(QCoreApplication.translate("MainWindow", u"Abertura do damper de Ar", None))
 #endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(tooltip)
         self.widgetCtrlFV100AR.setToolTip("")
@@ -1024,7 +982,7 @@ class Ui_MainWindow(object):
         self.verticalSliderFV100AR.setToolTip("")
 #endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(tooltip)
-        self.widgetFI100V.setToolTip(QCoreApplication.translate("MainWindow", u"Vaz\u00e3o de vapor", None))
+        self.widgetFI100V.setToolTip(QCoreApplication.translate("MainWindow", u"Indicador de Vaz\u00e3o de Vapor", None))
 #endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(tooltip)
         self.widgetCtrlFI100V.setToolTip("")
@@ -1064,7 +1022,7 @@ class Ui_MainWindow(object):
         self.verticalSliderFV100CA.setToolTip("")
 #endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(tooltip)
-        self.widgetPI100A.setToolTip(QCoreApplication.translate("MainWindow", u"Velocidade da bomba de \u00e1gua", None))
+        self.widgetPI100A.setToolTip(QCoreApplication.translate("MainWindow", u"Press\u00e3o da Bomba de \u00c1gua", None))
 #endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(tooltip)
         self.widgetCtrlPI100A.setToolTip("")
@@ -1082,7 +1040,7 @@ class Ui_MainWindow(object):
         self.verticalSliderFI100V_2.setToolTip("")
 #endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(tooltip)
-        self.widgetFV100A.setToolTip(QCoreApplication.translate("MainWindow", u"Abertura do damper de AR", None))
+        self.widgetFV100A.setToolTip(QCoreApplication.translate("MainWindow", u"Abertura da V\u00e1lvula de \u00c1gua", None))
 #endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(tooltip)
         self.widgetCtrlFV100A.setToolTip("")
@@ -1100,7 +1058,7 @@ class Ui_MainWindow(object):
         self.verticalSliderFV100A.setToolTip("")
 #endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(tooltip)
-        self.widgetFI100CA.setToolTip(QCoreApplication.translate("MainWindow", u"N\u00edvel do Tubul\u00e3o Superior", None))
+        self.widgetFI100CA.setToolTip(QCoreApplication.translate("MainWindow", u"Indicador de Vaz\u00e3o de Combust\u00edvel", None))
 #endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(accessibility)
         self.widgetFI100CA.setAccessibleDescription("")
@@ -1108,7 +1066,7 @@ class Ui_MainWindow(object):
         self.label_4.setText(QCoreApplication.translate("MainWindow", u"FI100CA", None))
         self.label_28.setText(QCoreApplication.translate("MainWindow", u"%", None))
 #if QT_CONFIG(tooltip)
-        self.widgetFI100AR.setToolTip(QCoreApplication.translate("MainWindow", u"N\u00edvel do Tubul\u00e3o Superior", None))
+        self.widgetFI100AR.setToolTip(QCoreApplication.translate("MainWindow", u"Indicador da Vaz\u00e3o de Ar", None))
 #endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(accessibility)
         self.widgetFI100AR.setAccessibleDescription("")

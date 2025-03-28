@@ -27,8 +27,8 @@ class SimulTf:
             self.systems[tableName] = {}  # Armazena os sistemas no espaço de estado
             self.states[tableName] = {}   # Armazena os estados de cada sistema
             self.inputs[tableName] = {}   # Armazena os inputs de cada sistema            
-            for rowTfName, colTfName in zip(self.reactDataBase.rowTfNames, self.reactDataBase.colTfNames):
-                num_str, den_str, input_str = self.reactDataBase.storage[tableName].getData(rowTfName,colTfName).split(",")  # Divide
+            for rowTfName, colTfName in zip(self.reactDataBase.rowTfNames[tableName], self.reactDataBase.colTfNames[tableName]):
+                num_str, den_str, input_str = self.reactDataBase.storage.getData(tableName, rowTfName,colTfName).split(",")  # Divide
                 num = ast.literal_eval(num_str[1:].replace(" ",","))  # Converte string de lista para lista real
                 den = ast.literal_eval(den_str.replace(" ",","))
                 if re.search(r'[A-Z]\w+\.[A-Z0-9]\w+\.[A-Za-z_0-9]\w+', input_str):
