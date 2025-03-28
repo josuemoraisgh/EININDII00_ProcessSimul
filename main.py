@@ -15,9 +15,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         super().__init__()
         self.resize(800, 500)  # Defina o tamanho desejado
         self.setupUi(self)  # Configura a interface do Qt Designer  
-        # self.radioButtonHex.clicked["bool"].connect(self.oldDBTableWidget.changeType) 
-        # servidor_thread = ModbusServerThread(num_slaves=3, port=5020)
-        # servidor_thread.start()            
+        self.radioButtonHex.clicked["bool"].connect(self.hrtDBTableWidget.changeType) 
+        servidor_thread = ModbusServerThread(num_slaves=3, port=5020)
+        servidor_thread.start()            
         self.ReactDB = ReactDB({"HART", "MODBUS"})
         self.hrtDBTableWidget.setBaseData(self.ReactDB,"HART")
         self.mbDBTableWidget.setBaseData(self.ReactDB,"HART")        
