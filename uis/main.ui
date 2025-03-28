@@ -212,7 +212,7 @@
          </size>
         </property>
         <property name="toolTip">
-         <string>Nível do Tubulão Superior</string>
+         <string>Indicador de Nível do Tubulão Superior</string>
         </property>
         <property name="accessibleDescription">
          <string/>
@@ -323,7 +323,7 @@
          <enum>Qt::FocusPolicy::NoFocus</enum>
         </property>
         <property name="toolTip">
-         <string>Pressão de Vapor</string>
+         <string>Indicador de Pressão de Vapor</string>
         </property>
         <property name="accessibleDescription">
          <string/>
@@ -532,7 +532,7 @@
          </size>
         </property>
         <property name="toolTip">
-         <string>Temperatura da Fornalha</string>
+         <string>Indicador da Temperatura da Fornalha</string>
         </property>
         <property name="accessibleDescription">
          <string/>
@@ -621,7 +621,7 @@
          </property>
         </widget>
        </widget>
-       <widget class="QWidget" name="widgetVI100AR" native="true">
+       <widget class="QWidget" name="widgetFV100AR" native="true">
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -643,7 +643,7 @@
          </size>
         </property>
         <property name="toolTip">
-         <string>Abertura do damper de AR</string>
+         <string>Abertura do damper de Ar</string>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_7">
          <item>
@@ -662,7 +662,7 @@
             </spacer>
            </item>
            <item>
-            <widget class="QWidget" name="widgetCtrlVI100AR" native="true">
+            <widget class="QWidget" name="widgetCtrlFV100AR" native="true">
              <property name="minimumSize">
               <size>
                <width>111</width>
@@ -679,7 +679,7 @@
               <bool>false</bool>
              </property>
              <property name="styleSheet">
-              <string notr="true">#widgetCtrlVI100AR {
+              <string notr="true">#widgetCtrlFV100AR {
     background-color: #c0c0c0; /* Uma cor de fundo neutra */
     border-width: 2px;
     border-style: solid;
@@ -715,7 +715,7 @@
                <set>Qt::AlignmentFlag::AlignBottom|Qt::AlignmentFlag::AlignHCenter</set>
               </property>
              </widget>
-             <widget class="QLCDNumber" name="lcdVI100AR">
+             <widget class="QLCDNumber" name="lcdFV100AR">
               <property name="geometry">
                <rect>
                 <x>10</x>
@@ -731,7 +731,7 @@
                </sizepolicy>
               </property>
               <property name="styleSheet">
-               <string notr="true">#lcdVI100AR {
+               <string notr="true">#lcdFV100AR {
         color: red;
         background-color: black;
         border: 2px solid gray;
@@ -776,7 +776,7 @@
               </spacer>
              </item>
              <item>
-              <widget class="QPushButton" name="pbAMVI100AR">
+              <widget class="QPushButton" name="pbAMFV100AR">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
                  <horstretch>0</horstretch>
@@ -790,7 +790,7 @@
                 </size>
                </property>
                <property name="styleSheet">
-                <string notr="true">#pbAMVI100AR {
+                <string notr="true">#pbAMFV100AR {
     background-color: #c0c0c0; /* Uma cor de fundo neutra */
     border-width: 2px;
     border-style: solid;
@@ -825,7 +825,7 @@
           </layout>
          </item>
          <item>
-          <widget class="QWidget" name="widgetSliderVI100AR" native="true">
+          <widget class="QWidget" name="widgetSliderFV100AR" native="true">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
              <horstretch>0</horstretch>
@@ -842,7 +842,7 @@
             <string/>
            </property>
            <property name="styleSheet">
-            <string notr="true">#widgetSliderVI100AR {
+            <string notr="true">#widgetSliderFV100AR {
     background-color: #c0c0c0; /* Uma cor de fundo neutra */
     border-width: 2px;
     border-style: solid;
@@ -851,7 +851,7 @@
     padding: 4px; /* Espaçamento interno (opcional) */
 }</string>
            </property>
-           <widget class="QSlider" name="verticalSliderVI100AR">
+           <widget class="QSlider" name="verticalSliderFV100AR">
             <property name="geometry">
              <rect>
               <x>4</x>
@@ -881,7 +881,7 @@
          </rect>
         </property>
         <property name="toolTip">
-         <string>Velocidade das Esteiras de Cavaco</string>
+         <string>Indicador de Vazão de Vapor</string>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_8">
          <item>
@@ -1435,7 +1435,7 @@
          </rect>
         </property>
         <property name="toolTip">
-         <string>Velocidade da bomba de água</string>
+         <string>Pressão da Bomba de Água</string>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_15">
          <item>
@@ -1685,7 +1685,7 @@
          </size>
         </property>
         <property name="toolTip">
-         <string>Abertura do damper de AR</string>
+         <string>Abertura da Válvula de Água</string>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_17">
          <item>
@@ -1929,7 +1929,7 @@
          </size>
         </property>
         <property name="toolTip">
-         <string>Nível do Tubulão Superior</string>
+         <string>Indicador de Vazão de Combustível</string>
         </property>
         <property name="accessibleDescription">
          <string/>
@@ -2034,7 +2034,7 @@
          </size>
         </property>
         <property name="toolTip">
-         <string>Nível do Tubulão Superior</string>
+         <string>Indicador da Vazão de Ar</string>
         </property>
         <property name="accessibleDescription">
          <string/>
@@ -2167,7 +2167,7 @@
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="buttonGroupSimul"/>
   <buttongroup name="buttonGroupState"/>
+  <buttongroup name="buttonGroupSimul"/>
  </buttongroups>
 </ui>
