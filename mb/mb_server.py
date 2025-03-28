@@ -3,9 +3,10 @@ from pymodbus.server import StartTcpServer
 from pymodbus.datastore import ModbusSlaveContext, ModbusServerContext
 from pymodbus.datastore.store import BaseModbusDataBlock
 from pymodbus.device import ModbusDeviceIdentification
+from pymodbus.payload import BinaryPayloadBuilder, BinaryPayloadDecoder
+from pymodbus.constants import Endian
 import random
 
-# --- Seus DataBlocks personalizados ---
 class InvalidDataBlock(BaseModbusDataBlock):
     def validate(self, address, count=1):
         return False
@@ -25,10 +26,33 @@ class DynamicDataBlockHR(BaseModbusDataBlock):
         return True
 
     def getValues(self, address, count=1):
-        return [random.randint(1000, 9999) + (self.slave_id * 10000) for _ in range(count)]
+        builder = BinaryPayloadBuilder(byteorder=Endian.Big, wordorder=Endian.Big)
+        data_Value = 0.0
+        data_type = "REAL"       
+        if data_type == "REAL":
+            builder.add_32bit_float(data_Value)
+            return builder.to_registers()
+        elif data_type == "INTEGER":
+            builder.add_32bit_int(data_Value)
+            return builder.to_registers()
+        elif data_type == "STRING":
+            builder.add_string(data_Value.encode("ascii"))
+            return builder.to_registers()
+        else: # UNSIGNED
+            return data_Value
 
-    def setValues(self, address, values):
-        print(f"Slave {self.slave_id} escreveu valores {values} no endereço {address}")
+    def setValues(self, address, data_Value):
+        data_type = "REAL" 
+        decoder = BinaryPayloadDecoder.fromRegisters(data_Value, byteorder=Endian.Big, wordorder=Endian.Big)
+        if data_type == "REAL" and len(data_Value) >= 2:
+            valor_float = decoder.decode_32bit_float()
+            # self.values[0] = valor_float
+        elif data_type == "INTEGER" and len(data_Value) >= 2:
+            valor_int = decoder.decode_32bit_int()
+            # self.values[10] = valor_int
+        elif data_type == "STRING" and len(data_Value) >= 4:
+            valor_str = decoder.decode_string(8).decode('ascii')
+            # self.values[20] = valor_str
 
 class DynamicDataBlockIR(BaseModbusDataBlock):
     def __init__(self, slave_id):
