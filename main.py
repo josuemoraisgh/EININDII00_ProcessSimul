@@ -16,8 +16,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.resize(800, 500)  # Defina o tamanho desejado
         self.setupUi(self)  # Configura a interface do Qt Designer  
         # self.radioButtonHex.clicked["bool"].connect(self.oldDBTableWidget.changeType) 
-        servidor_thread = ModbusServerThread(num_slaves=3, port=5020)
-        servidor_thread.start()            
+        # servidor_thread = ModbusServerThread(num_slaves=3, port=5020)
+        # servidor_thread.start()            
         self.ReactDB = ReactDB({"HART", "MODBUS"})
         self.hrtDBTableWidget.setBaseData(self.ReactDB,"HART")
         self.mbDBTableWidget.setBaseData(self.ReactDB,"HART")        
@@ -64,13 +64,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         parent_height = event.size().height()
         # meu_botao = self.findChild(QWidget, "widgetCtrlLIC100")
         self.widgetLI100.move(parent_width * 0.58,parent_height * 0.02)
-        self.widgetFI100V.move(parent_width * 0.02, parent_height * 0.02)
-        self.widgetFI100A.move(parent_width * 0.48, parent_height * 0.58)
-        self.widgetFV100A.move(parent_width * 0.78, parent_height * 0.02)
-        self.widgetFI100CA.move(parent_width * 0.28, parent_height * 0.68)
-        self.widgetFI100AR.move(parent_width * 0.54, parent_height * 0.68)
-        self.widgetPI100V.move(parent_width * 0.30, parent_height * 0.25)
         self.widgetTI100.move(parent_width * 0.35, parent_height * 0.40)
+        
+        self.widgetPI100V.move(25, 10)
+        self.widgetFI100V.move(-4, 80)
+
+        self.widgetFI100A.move(parent_width -210, 2)
+        self.widgetFV100A.move(parent_width - 248, 65)
+        self.widgetPI100A.move(parent_width * 0.30, parent_height * 0.25)
+        
+        self.widgetFI100CA.move(parent_width * 0.48, parent_height * 0.58)
+        self.widgetFV100CA.move(parent_width * 0.28, parent_height * 0.68)
+        
+        self.widgetFI100AR.move(parent_width * 0.54, parent_height * 0.68)
+        self.widgetFV100AR.move(parent_width * 0.54, parent_height * 0.68)
+        
         self.groupBoxSimul.move(parent_width - 190, parent_height - 220)        
         # self.resizeEventSignal.emit(event)
         super().resizeEvent(event)
