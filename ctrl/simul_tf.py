@@ -13,10 +13,10 @@ class SimulTf:
             - valor: string no formato "num, den, input", onde:
                 * num e den são listas representadas como strings.
                 * input é um número como string.
-        stepTime: tempo de integração em segundos.
+        stepTime: tempo de integração em milisegundos.
         """
         self.reactDataBase = reactDataBase
-        self.stepTime = stepTime  # em segundos
+        self.stepTime = stepTime  # em milisegundos
             
         self.systems = {}  # Armazena os sistemas no espaço de estado
         self.states = {}   # Armazena os estados de cada sistema

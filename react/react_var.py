@@ -85,10 +85,10 @@ class ReactVar(QObject):
         if rowName == colName or colName == 'NAME':
             return rowName
         else: 
-            value = self.storage.getData(tableName, rowName, colName)
             dataModel = self.model(value)
             if not colName in ['NAME', 'TYPE', 'BYTE_SIZE', 'MB_POINT', 'ADDRESS']:
                 if dataModel == "Func":
+                    value = self.storage.getData(tableName, rowName, colName)
                     if state == DBState.originValue:
                         return value
                     result = self.evaluate_expression(value)

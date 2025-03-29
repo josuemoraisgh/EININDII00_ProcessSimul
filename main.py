@@ -55,6 +55,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         for device in devices:
             lcd_widget = getattr(self, f'lcd{device}')
             var: ReactDB = self.ReactDB.df["MODBUS"].loc[device, col]
+            atualizaDisplay(lcd_widget,var)
             var.valueChanged.connect(
                 partial(atualizaDisplay,lcd_widget,var)
             )   
