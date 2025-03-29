@@ -48,13 +48,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.move(janela_geometry.topLeft())
     
     def connectLCDs(self):
-        lcd_names = ["lcdLI100", "lcdFI100V", "lcdFI100A", "lcdFV100A","lcdPI100V","lcdTI100"] #,"lcdVI100CA","lcdVI100AR"]
-        db_indices = [("percent_of_range", "LI100"), ("percent_of_range", "FI100V"), ("percent_of_range", "FI100A"),("percent_of_range", "FV100A"), ("percent_of_range", "PI100V"),("percent_of_range", "TI100")] #, ("idx4", "VI100CA"), ("idx4", "VI100AR")]
+        devices = ['FV100CA', 'FI100CA', 'FV100AR', 'FI100AR', 'TI100', 'FI100V', 'PI100V', 'LI100', 'PI100A', 'FV100A', 'FI100A']
+        col = "CLP100"
         def atualizaDisplay(lcd_widget,var):
             lcd_widget.display(var.value(DBState.humanValue))
-        for lcd_name, (row, col) in zip(lcd_names, db_indices):
-            lcd_widget = getattr(self, lcd_name)
-            var: ReactDB = self.ReactDB.df["HART"].loc[row, col]
+        for device in devices:
+            lcd_widget = getattr(self, f'lcd{device}')
+            var: ReactDB = self.ReactDB.df["MODBUS"].loc[device, col]
             var.valueChanged.connect(
                 partial(atualizaDisplay,lcd_widget,var)
             )   
