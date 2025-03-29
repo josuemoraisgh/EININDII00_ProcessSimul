@@ -1,16 +1,14 @@
+from PySide6.QtCore import Signal, QObject
 from functools import reduce
-from db.db_state import DBState
-from PySide6.QtCore import Signal
 import pandas as pd
 import operator
 import sqlite3
 
-class DBStorage:
+class DBStorage(QObject):
     data_updated = Signal()  # Sinal emitido ao atualizar dados
         
     def __init__(self, db_name: str):
         super().__init__()
-        # self._state = DBState.humanValue
         self.db_name = db_name
 
     def rowKeys(self, tableName: str) -> list:

@@ -50,7 +50,7 @@ class ReactVar(QObject):
                 self.tf_ref.value[self._tableName][self._rowName, self._colName] = 0
             if modelAntes and not modelAgora: # Se antes era tF e agora não é 
                 self.tf_ref.value[self._tableName].pop((self._rowName, self._colName), None)
-            if state == DBState.humanValue and self.getDataModel(self._tableName, self._rowName, self._colName).find("Func") == -1:
+            if state == DBState.humanValue and not modelAntes:
                 value = hrt_type_hex_from(value, self.storage.getData(self._tableName, self._rowName, "TYPE"), int(self.storage.getData(self._tableName, self._rowName, "BYTE_SIZE")))
                 self.storage.setData(self._tableName, self._rowName, self._colName, value)
             else:
