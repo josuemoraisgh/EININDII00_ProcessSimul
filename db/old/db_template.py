@@ -2,25 +2,25 @@ import sqlite3
 import pandas as pd
 from typing import Dict, Tuple, Union
 
-# ['NAME', 'TYPE', 'MB_POINT', 'ADDRESS', 'CLP100']
+# ['NAME', 'BYTE_SIZE', 'TYPE', 'MB_POINT', 'ADDRESS', 'CLP100']
 # MB_POINT = di, co, hr, ir
 mb_banco: Dict[str, Tuple[str, str, str, str]] = {
-    'FV100CA': ('UNSIGNED', 'hr', '01', '50'),    
-    'FI100CA': ('REAL', 'ir', '03', '$[5.0],[10.0 1.0], MODBUS.CLP100.FV100CA/100'),
-    'qCA'    : ('REAL', 'ir', '05', '$[1.1E7],[20.0 1.0], MODBUS.CLP100.FI100CA/100'),    
-    'FV100AR': ('UNSIGNED', 'hr', '07', '50'),    
-    'FI100AR': ('REAL', 'ir', '09', '$[0.15],[5.0 1.0], MODBUS.CLP100.FV100AR/100'), 
-    'qAR'    : ('REAL', 'ir', '11', '$[4.4E6],[20.0 1.0], MODBUS.CLP100.FI100AR/100'),        
-    'TI100'  : ('REAL', 'ir', '21', '$[5.0],[10.0 1.0], MODBUS.CLP100.qCA + MODBUS.CLP100.qAR'),    
-    'FI100V' : ('REAL', 'ir', '13', '0.33'),
-    'PI100V' : ('REAL', 'ir', '15', '$[1.0],[1000 0.0000000001], (MODBUS.CLP100.qCA + MODBUS.CLP100.qAR) - 2770 * MODBUS.CLP100.FI100V'),
-    'LI100'  : ('REAL', 'ir', '19', '$[1.0],[1.1 0.0000000001], MODBUS.CLP100.FI100A - MODBUS.CLP100.FI100V'),    
-    'PI100A' : ('REAL', 'ir', '20', '400.0'),    
-    'FV100A' : ('UNSIGNED', 'hr', '19', '50'),    
-    'FI100A' : ('REAL', 'ir', '17', '$[0.3],[2.0 1.0], math.sqrt(MODBUS.CLP100.PI100A/400)*MODBUS.CLP100.FV100A'),
+    'FV100CA': (2, 'UNSIGNED', 'hr', '01', '0032'),    
+    'FI100CA': (4, 'REAL', 'ir', '03', '$[5.0],[10.0 1.0], MODBUS.CLP100.FV100CA/100'),
+    'qCA'    : (4, 'REAL', 'ir', '05', '$[1.1E7],[20.0 1.0], MODBUS.CLP100.FI100CA/100'),    
+    'FV100AR': (2, 'UNSIGNED', 'hr', '07', '0032'),    
+    'FI100AR': (4, 'REAL', 'ir', '09', '$[0.15],[5.0 1.0], MODBUS.CLP100.FV100AR/100'), 
+    'qAR'    : (4, 'REAL', 'ir', '11', '$[4.4E6],[20.0 1.0], MODBUS.CLP100.FI100AR/100'),        
+    'TI100'  : (4, 'REAL', 'ir', '21', '$[5.0],[10.0 1.0], MODBUS.CLP100.qCA + MODBUS.CLP100.qAR'),    
+    'FI100V' : (4, 'REAL', 'ir', '13', '0100'),
+    'PI100V' : (4, 'REAL', 'ir', '15', '$[1.0],[1000 0.0000000001], (MODBUS.CLP100.qCA + MODBUS.CLP100.qAR) - 2770 * MODBUS.CLP100.FI100V'),
+    'LI100'  : (4, 'REAL', 'ir', '19', '$[1.0],[1.1 0.0000000001], MODBUS.CLP100.FI100A - MODBUS.CLP100.FI100V'),    
+    'PI100A' : (4, 'REAL', 'ir', '20', '0100'),    
+    'FV100A' : (2, 'UNSIGNED', 'hr', '19', '0032'),    
+    'FI100A' : (4, 'REAL', 'ir', '17', '$[0.3],[2.0 1.0], math.sqrt(MODBUS.CLP100.PI100A/400)*MODBUS.CLP100.FV100A'),
 
 }
-
+# ['NAME', 'BYTE_SIZE', 'TYPE', 'FV100CA', 'FI100CA', 'FV100AR', 'FI100AR', 'TI100', 'FI100V', 'PI100V', 'LI100', 'PI100A', 'FV100A', 'FI100A']
 hrt_banco: Dict[str, Tuple[Union[int, float], str, str]] = {
     'frame_type': (1, 'UNSIGNED', '06'),
     'address_type': (1, 'UNSIGNED', '00'),

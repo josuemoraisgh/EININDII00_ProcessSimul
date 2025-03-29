@@ -23,13 +23,13 @@ class DBTableWidget(QTableWidget):
     def __init__(self, parent: None):
         # super().__init__() 
         super().__init__(parent=parent)
+        self.state = DBState.humanValue
 
     def sertAutoCompleteList(self, data:list):
         self.autoCompleteList = data
         
     def setBaseData(self, dbDataFrame: ReactDB, tableName: str):
         self.tableName = tableName
-        self.state = DBState.humanValue if tableName.find("HART") != -1 else DBState.originValue
         self.dbDataFrame = dbDataFrame
         self.df = dbDataFrame.df[tableName]
         horizontalHeader_font = QFont("Arial", 12, QFont.Bold)  # Fonte maior e em negrito

@@ -1,4 +1,4 @@
-from template_db import hrt_banco, mb_banco
+from db.old.db_template import hrt_banco, mb_banco
 import pandas as pd
 import sqlite3
 
