@@ -108,7 +108,8 @@ class ReactVar(QObject):
     
     def evaluate_expression(self, func: str):
         evaluator = Interpreter()
-        func = func[1:]  # Remove o caractere '@' inicial
+        if func[0] == '@':
+            func = func[1:]  # Remove o caractere '@' inicial
         tokens: list = re.findall(r'[A-Z]\w+\.[A-Z0-9]\w+\.[A-Za-z_0-9]\w+', func)
         if self._tokens != tokens:
             self._tokens = tokens
@@ -122,7 +123,7 @@ class ReactVar(QObject):
             evaluator.symtable["math"] = math
             evaluator.symtable["random"] = random
         try:
-            result = evaluator(re.sub(r'([A-Z]\w+)\.([A-Z0-9]\w+)\.([A-Za-z_0-9]\w+)', r'\1_\2', func))   
+            result = evaluator(re.sub(r'([A-Z]\w+)\.([A-Z0-9]\w+)\.([A-Za-z_0-9]\w+)', r'\1_\2_\3', func.replace(' ','')))   
             return result
         except Exception as e:
             print("Erro ao avaliar expressão:", e)

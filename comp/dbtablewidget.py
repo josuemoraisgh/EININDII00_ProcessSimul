@@ -11,13 +11,7 @@ from react.react_db import ReactDB
 from react.react_var import ReactVar
 from hrt.hrt_enum import hrt_enum
 from hrt.hrt_bitenum import hrt_bitEnum
-
-def format_number(num):
-    if abs(num) >= 0.001:  # Se for maior ou igual a 0.001, formata normal
-        return f"{num:.3f}"
-    else:  # Se for menor que 0.001, usa notação científica
-        return f"{num:.2e}"
-
+from hrt.hrt_type import str2type, type2str
 class DBTableWidget(QTableWidget):
     # def __init__(self):
     def __init__(self, parent: None):
@@ -60,7 +54,7 @@ class DBTableWidget(QTableWidget):
             for colName in colKeys: 
                 data: ReactVar = self.df.loc[rowName, colName]
                 value = data.value(self.state)
-                cellValue = format_number(value) if self.state == DBState.humanValue and isinstance(value, float) else str(value)
+                cellValue = type2str(value,data.type()) if self.state == DBState.humanValue and not isinstance(value,str) else value
                 typeValue = data.type()
                 dataModel = data.model()
                 rowID = rowKeys.get_loc(rowName)
@@ -89,14 +83,14 @@ class DBTableWidget(QTableWidget):
                     if(self.state or (colName in ["BYTE_SIZE","TYPE"]) or any(typeValue.find(x)!=-1 for x in ["PACKED", "UNSIGNED", "FLOAT", "INTEGER", "DATE", "TIME"])) and not (dataModel in ["Func", "tFunc"]):
                         lineEdit.setStyleSheet("#QLineEdit{background-color: white;}")
                         def setDataBaseLineEdit(data: ReactVar, widget:QLineEdit, state: DBState):
-                            data.setValue(format_number(float(widget.text())),state)
+                            data.setValue(str(str2type(widget.text(),data.type())),state)
                         lineEdit.editingFinished.connect(partial(setDataBaseLineEdit,data,lineEdit,self.state))
                     else:
                         lineEdit.setReadOnly(True)
                         lineEdit.setStyleSheet("background-color: #D3D3D3;")
                     def setTextLineEdit(data: ReactVar, widget:QLineEdit, state: DBState):
                         value = data.value(state)
-                        cellValue = format_number(value) if state == DBState.humanValue and isinstance(value, float) else str(value)
+                        cellValue = type2str(value,data.type()) if state == DBState.humanValue and not isinstance(value,str) else value
                         widget.setText(cellValue)
                     data.valueChanged.connect(partial(setTextLineEdit,data,lineEdit,self.state))
                     lineEdit.setContextMenuPolicy(Qt.CustomContextMenu)

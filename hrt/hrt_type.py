@@ -4,6 +4,36 @@ from hrt.hrt_bitenum import hrt_bitEnum
 from typing import Union
 import unittest
 import math
+
+def format_number(num):
+    if abs(num) >= 0.0001:  # Se for maior ou igual a 0.0001, formata normal
+        return f"{num:.4f}"
+    else:  # Se for menor que 0.0001, usa notação científica
+        return f"{num:.2e}"
+    
+def str2type(value: str, type: str):
+    if value != None and (type.find('UNSIGNED') != -1 or type.find('INTEGER') != -1):
+        return int(value)
+    elif value != None and type.find('FLOAT') != -1:
+        return float(value)
+    elif value != None and type.find('DATE') != -1:
+        return value
+    elif value != None and type.find('TIME') != -1:
+        return value
+    else:
+        return None
+    
+def type2str(value: str, type: str):
+    if value != None and (type.find('UNSIGNED') != -1 or type.find('INTEGER') != -1):
+        return str(value)
+    elif value != None and type.find('FLOAT') != -1:
+        return format_number(value)
+    elif value != None and type.find('DATE') != -1:
+        return value
+    elif value != None and type.find('TIME') != -1:
+        return value
+    else:
+        return None
 ###################################################################################
 ###################################################################################
 # Funções auxiliares para manipulação de bits

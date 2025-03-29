@@ -79,7 +79,7 @@ class SimulTf:
             for key, system in self.systems[tableName].items():
                 input_Value = self.inputs[tableName][key]
                 if isinstance(input_Value, str):
-                    input_Value = self.reactDataBase.df[tableName].iloc[key].evaluate_expression(self, input_Value)  # Converte para número real            
+                    input_Value = self.reactDataBase.df[tableName].loc[key].evaluate_expression(input_Value)  # Converte para número real            
                 # Calcula o próximo estado: x[k+1] = A * x[k] + B * u[k]
                 next_state = system["A"].dot(self.states[tableName][key]) + system["B"] * input_Value
                 # Calcula a saída: y[k] = C * x[k+1] + D * u[k]
