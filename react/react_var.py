@@ -87,7 +87,7 @@ class ReactVar(QObject):
         else: 
             value = self.storage.getData(tableName, rowName, colName)
             dataModel = self.model(value)
-            if not colName in ["NAME", "TYPE", "BYTE_SIZE"]:
+            if not colName in ['NAME', 'TYPE', 'BYTE_SIZE', 'MB_POINT', 'ADDRESS']:
                 if dataModel == "Func":
                     if state == DBState.originValue:
                         return value

@@ -1,4 +1,4 @@
-from db.old.db_template import hrt_banco, mb_banco
+from db_template import hrt_banco, mb_banco
 import pandas as pd
 import sqlite3
 
@@ -19,9 +19,9 @@ def hrt_crateDB(db_name: str,table_name: str):
 def mb_crateDB(db_name: str,table_name: str):
     rows = []    
     for key, val in mb_banco.items():
-        row = [key, val[0], val[1], val[2], val[3]]
+        row = [key, val[0], val[1], val[2], val[3], val[4]]
         rows.append(row)        
-    columns = ['NAME', 'TYPE', 'MB_POINT', 'ADDRESS', 'CLP100']
+    columns = ['NAME', 'BYTE_SIZE', 'TYPE', 'MB_POINT', 'ADDRESS', 'CLP100']
     df = pd.DataFrame(rows, columns=columns)
     with sqlite3.connect(db_name) as conn:
         df.to_sql(table_name, conn, if_exists='replace', index=False)
