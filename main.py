@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import QApplication, QMainWindow
 from uis.ui_main import Ui_MainWindow  # Interface do Qt Designer
 from react.react_db import ReactDB
-from db.db_state import DBState
+from db.db_types import DBState
 from ctrl.simul_tf import SimulTf
 from functools import partial
 from img.imgCaldeira import imagem_base64
@@ -21,7 +21,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.ReactDB = ReactDB({"HART", "MODBUS"})
         self.hrtDBTableWidget.setBaseData(self.ReactDB,"HART")
         self.mbDBTableWidget.setBaseData(self.ReactDB,"MODBUS")        
-        self.simulTf = SimulTf(self.ReactDB, 1000)
+        self.simulTf = SimulTf(self.ReactDB, 10000)
         self.pushButtonStart.toggled.connect(self.simulTf.start)
         def resetTf():                    
             self.buttonGroupSimul.exclusive = False   # Desliga exclusividade temporariamente

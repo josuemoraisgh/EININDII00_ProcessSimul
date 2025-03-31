@@ -1,6 +1,6 @@
 from react.repeatFunction import RepeatFunction
 from react.react_db import ReactDB
-from db.db_state import DBState
+from db.db_types import DBState
 import control as ctrl
 import numpy as np
 import ast  # Para converter strings de listas em listas reais

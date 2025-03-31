@@ -1,0 +1,84 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,graphicx}
+\usepackage{siunitx}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+
+\title{Modelagem Din\^amica de Caldeira: Combust\'ivel, Ar e Temperatura da Fornalha}
+\author{Josu\'e Morais}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section*{1. Introdu\c{c}\~ao}
+Este documento apresenta a modelagem din\^amica de uma caldeira considerando as entradas:
+\begin{itemize}
+    \item Abertura da v\'alvula de combust\'ivel l\'iquido (0 a 100\%)
+    \item Abertura do damper de ar (0 a 100\%)
+\end{itemize}
+E como sa\'idas:
+\begin{itemize}
+    \item Vaz\~ao de combust\'ivel (kg/s)
+    \item Vaz\~ao de ar (kg/s)
+    \item Calor gerado na fornalha (W)
+    \item Temperatura da fornalha (\si{\celsius})
+\end{itemize}
+
+\section*{2. Valores T\'ipicos da Caldeira}
+\begin{itemize}
+    \item Vaz\~ao de combust\'ivel: \SI{0}{kg/s} a \SI{0.0227}{kg/s}
+    \item Vaz\~ao de ar: \SI{0}{kg/s} a \SI{0.15}{kg/s}
+    \item Poder calor\'ifico inferior (LCV): \SI{42}{MJ/kg}
+    \item Efici\^encia t\'ermica ideal (\(\eta_{\text{max}}\)): 0,85
+    \item Calor espec\'ifico do ar (\(C_p\)): \SI{1000}{J/(kg\cdot\celsius)}
+    \item Raz\~ao estequiom\'etrica ideal (\(\lambda_{\text{ideal}}\)): 15
+    \item Tempo de acomoda\c{c}\~ao da fornalha: \SI{5}{s}
+\end{itemize}
+
+\section*{3. Fun\c{c}\~oes de Transfer\^encia}
+\subsection*{3.1 Vaz\~ao de Combust\'ivel}
+\begin{equation}
+\dot{m}_f(s) = \frac{0.0227}{2.5s + 1} \cdot u_f(s)
+\end{equation}
+
+\subsection*{3.2 Vaz\~ao de Ar}
+\begin{equation}
+\dot{m}_{ar}(s) = \frac{0.15}{1.25s + 1} \cdot u_a(s)
+\end{equation}
+
+\subsection*{3.3 Calor Gerado (com mistura estequiom\'etrica)}
+\begin{equation}
+q_{calor}(t) = \eta(\lambda(t)) \cdot \dot{m}_f(t) \cdot LCV
+\end{equation}
+
+\begin{equation}
+\eta(\lambda) = \eta_{max} \cdot e^{-k(\lambda - \lambda_{ideal})^2}, \quad k = 0.05
+\end{equation}
+
+\subsection*{3.4 Din\^amica T\'ermica da Fornalha (1\textordfeminine ordem)}
+\begin{equation}
+q_{calor}(s) = \frac{1}{5s + 1} \cdot \left[ \eta(\lambda(s)) \cdot \dot{m}_f(s) \cdot LCV \right]
+\end{equation}
+
+\subsection*{3.5 Temperatura da Fornalha}
+\begin{equation}
+T(t) = \frac{q_{calor}(t)}{\dot{m}_{ar}(t) \cdot C_p}
+\end{equation}
+
+\section*{4. Limites Esperados}
+\begin{itemize}
+    \item Temperatura m\'axima: \SI{900}{\celsius} (mistura ideal)
+    \item Temperatura m\'inima: \SI{25}{\celsius} (sem combust\'ivel ou ar)
+    \item Calor m\'aximo: \SI{810390}{W}
+    \item Calor m\'inimo: \SI{0}{W}
+\end{itemize}
+
+\section*{5. Observa\c{c}\~oes}
+\begin{itemize}
+    \item A din\^amica do calor e temperatura \'e essencial para representar o atraso f\'isico da queima e aquecimento.
+    \item A efici\^encia depende fortemente da raz\~ao ar/combust\'ivel \(\lambda\), que deve se manter pr\'oxima de 15.
+\end{itemize}
+
+\end{document}

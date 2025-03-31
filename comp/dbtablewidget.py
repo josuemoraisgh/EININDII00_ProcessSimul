@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QTableWidget, QLineEdit, QComboBox, QMenu, QDialog
 from PySide6.QtGui import QAction, QFont
-from db.db_state import DBState
+from db.db_types import DBState
 import qtawesome as qta
 from PySide6.QtCore import Qt
 from uis.ui_dialog_value import Ui_Dialog_Value
@@ -56,7 +56,7 @@ class DBTableWidget(QTableWidget):
                 value = data.value(self.state)
                 cellValue = type2str(value,data.type()) if self.state == DBState.humanValue and not isinstance(value,str) else value
                 typeValue = data.type()
-                dataModel = data.model()
+                dataModel = data.model
                 rowID = rowKeys.get_loc(rowName)
                 colID = colKeys.get_loc(colName)
 
@@ -145,14 +145,18 @@ class DBTableWidget(QTableWidget):
                 dialog_ui.lineEditInput.suggestions = self.dbDataFrame.autoCompleteList
                 dialog_ui.lineEditInput.adjust_height_by_lines(1)                
                 try:
-                    num_str, den_str, input_str = map(str.strip, data.value(DBState.originValue).split(","))
+                    num_str, den_str, input_str, v_max, v_min = map(str.strip, data.value(DBState.originValue).split(","))
                     dialog_ui.lineEditNum.setText(num_str[2:-1])
                     dialog_ui.lineEditDen.setText(den_str[1:-1])
                     dialog_ui.lineEditInput.setText(input_str)
+                    dialog_ui.lineEditVMax.setText(v_max)
+                    dialog_ui.lineEditVMin.setText(v_min)
                 except Exception as e:
                     dialog_ui.lineEditNum.setText("")
                     dialog_ui.lineEditDen.setText("")
                     dialog_ui.lineEditInput.setText("")
+                    dialog_ui.lineEditVMax.setText("")
+                    dialog_ui.lineEditVMin.setText("")
                 dialog_ui.buttonBox.accepted.connect(lambda: 
                     data.setValue(f'$[{dialog_ui.lineEditNum.text()}],[{dialog_ui.lineEditDen.text()}],{dialog_ui.lineEditInput.toPlainText()}',self.state)
                 )
