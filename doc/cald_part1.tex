@@ -17,22 +17,30 @@ Este documento apresenta a modelagem din\^amica de uma caldeira considerando as 
 \begin{itemize}
     \item Abertura da v\'alvula de combust\'ivel l\'iquido (0 a 100\%)
     \item Abertura do damper de ar (0 a 100\%)
+    \item Abertura da v\'alvula de \'agua (0 a 100\%)
+    \item Press\~ao da bomba de \'agua (Pa)
 \end{itemize}
 E como sa\'idas:
 \begin{itemize}
     \item Vaz\~ao de combust\'ivel (kg/s)
     \item Vaz\~ao de ar (kg/s)
+    \item Vaz\~ao de \'agua (kg/s)
     \item Calor gerado na fornalha (W)
     \item Temperatura da fornalha (\si{\celsius})
+    \item Press\~ao de vapor (Pa)
+    \item N\'ivel da caldeira (m)
 \end{itemize}
 
 \section*{2. Valores T\'ipicos da Caldeira}
 \begin{itemize}
     \item Vaz\~ao de combust\'ivel: \SI{0}{kg/s} a \SI{0.0227}{kg/s}
     \item Vaz\~ao de ar: \SI{0}{kg/s} a \SI{0.15}{kg/s}
+    \item Vaz\~ao de vapor: \SI{0}{kg/s} a \SI{0.35}{kg/s}
+    \item Vaz\~ao de \'agua: \SI{0.15}{kg/s} a \SI{0.55}{kg/s}
     \item Poder calor\'ifico inferior (LCV): \SI{42}{MJ/kg}
     \item Efici\^encia t\'ermica ideal (\(\eta_{\text{max}}\)): 0,85
     \item Calor espec\'ifico do ar (\(C_p\)): \SI{1000}{J/(kg\cdot\celsius)}
+    \item Entalpia do vapor (\(h_v\)): \SI{2770}{kJ/kg}
     \item Raz\~ao estequiom\'etrica ideal (\(\lambda_{\text{ideal}}\)): 15
     \item Tempo de acomoda\c{c}\~ao da fornalha: \SI{5}{s}
 \end{itemize}
@@ -48,7 +56,25 @@ E como sa\'idas:
 \dot{m}_{ar}(s) = \frac{0.15}{1.25s + 1} \cdot u_a(s)
 \end{equation}
 
-\subsection*{3.3 Calor Gerado (com mistura estequiom\'etrica)}
+\subsection*{3.3 Vaz\~ao de \'Agua}
+\begin{equation}
+\dot{m}_{agua}(s) = \frac{K_b}{\tau_b s + 1} \cdot u_w(s)
+\end{equation}
+
+Onde:
+\begin{itemize}
+    \item \( u_w(s) \): abertura da v\'alvula de \'agua
+    \item \( K_b \): ganho proporcional \`a press\~ao da bomba (ex: \( K_b = 0.55 \) para press\~ao m\'axima)
+    \item \( \tau_b \): constante de tempo do sistema hidr\'aulico
+\end{itemize}
+
+\textbf{Limites esperados:}
+\begin{itemize}
+    \item Vaz\~ao m\'axima de \'agua: \SI{0.55}{kg/s}
+    \item Vaz\~ao m\'inima de \'agua: \SI{0.15}{kg/s}
+\end{itemize}
+
+\subsection*{3.4 Calor Gerado (com mistura estequiom\'etrica)}
 \begin{equation}
 q_{calor}(t) = \eta(\lambda(t)) \cdot \dot{m}_f(t) \cdot LCV
 \end{equation}
@@ -57,14 +83,24 @@ q_{calor}(t) = \eta(\lambda(t)) \cdot \dot{m}_f(t) \cdot LCV
 \eta(\lambda) = \eta_{max} \cdot e^{-k(\lambda - \lambda_{ideal})^2}, \quad k = 0.05
 \end{equation}
 
-\subsection*{3.4 Din\^amica T\'ermica da Fornalha (1\textordfeminine ordem)}
+\subsection*{3.5 Din\^amica T\'ermica da Fornalha (1\textordfeminine ordem)}
 \begin{equation}
 q_{calor}(s) = \frac{1}{5s + 1} \cdot \left[ \eta(\lambda(s)) \cdot \dot{m}_f(s) \cdot LCV \right]
 \end{equation}
 
-\subsection*{3.5 Temperatura da Fornalha}
+\subsection*{3.6 Temperatura da Fornalha}
 \begin{equation}
 T(t) = \frac{q_{calor}(t)}{\dot{m}_{ar}(t) \cdot C_p}
+\end{equation}
+
+\subsection*{3.7 N\'ivel da Caldeira}
+\begin{equation}
+\frac{dH}{dt} = \frac{1}{A} (\dot{m}_{agua} - \dot{m}_{vapor})
+\end{equation}
+
+No dom\'inio de Laplace:
+\begin{equation}
+H(s) = \frac{1}{A s} (\dot{m}_{agua}(s) - \dot{m}_{vapor}(s))
 \end{equation}
 
 \section*{4. Limites Esperados}
@@ -73,12 +109,51 @@ T(t) = \frac{q_{calor}(t)}{\dot{m}_{ar}(t) \cdot C_p}
     \item Temperatura m\'inima: \SI{25}{\celsius} (sem combust\'ivel ou ar)
     \item Calor m\'aximo: \SI{810390}{W}
     \item Calor m\'inimo: \SI{0}{W}
+    \item Press\~ao de vapor m\'axima: \SI{1e6}{Pa} (10 bar)
+    \item Press\~ao de vapor m\'inima: \SI{1e5}{Pa} (1 bar)
 \end{itemize}
 
 \section*{5. Observa\c{c}\~oes}
 \begin{itemize}
     \item A din\^amica do calor e temperatura \'e essencial para representar o atraso f\'isico da queima e aquecimento.
     \item A efici\^encia depende fortemente da raz\~ao ar/combust\'ivel \(\lambda\), que deve se manter pr\'oxima de 15.
+\end{itemize}
+
+\section*{6. Press\~ao de Vapor em Fun\c{c}\~ao do Calor e da Vaz\~ao de Vapor}
+
+A equa\c{c}\~ao diferencial que relaciona a varia\c{c}\~ao da press\~ao com o calor fornecido e a vaz\~ao de vapor \'e dada por:
+
+\[
+\frac{dP}{dt} = \frac{1}{C_p} \left( q_{\text{calor}} - \dot{m}_{\text{vapor}} \cdot h_v \right)
+\]
+
+No dom\'inio de Laplace, essa equa\c{c}\~ao se torna:
+
+\[
+P(s) = \frac{1}{C_p \cdot s} \left( q_{\text{calor}}(s) - h_v \cdot \dot{m}_{\text{vapor}}(s) \right)
+\]
+
+Substituindo as fun\c{c}\~oes de transfer\^encia para \( q_{\text{calor}}(s) \) e \( \dot{m}_{\text{vapor}}(s) \):
+
+\[
+q_{\text{calor}}(s) = \frac{810390}{5s + 1} \cdot u_f(s)
+\]
+
+\[
+\dot{m}_{\text{vapor}}(s) = \frac{0.35}{2s + 1} \cdot u_v(s)
+\]
+
+Com isso, a fun\c{c}\~ao de transfer\^encia da press\~ao de vapor torna-se:
+
+\[
+P(s) = \frac{1}{10^6 \cdot s} \left( \frac{810390}{5s + 1} \cdot u_f(s) - \frac{969500}{2s + 1} \cdot u_v(s) \right)
+\]
+
+Onde:
+\begin{itemize}
+    \item \( C_p = 1.0 \times 10^6 \, \text{J/K} \)
+    \item \( h_v = 2.77 \times 10^6 \, \text{J/kg} \)
+    \item \( 0.35 \, \text{kg/s} \) \'e a m\'axima vaz\~ao de vapor
 \end{itemize}
 
 \end{document}

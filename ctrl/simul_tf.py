@@ -21,21 +21,26 @@ class SimulTf:
         self.systems = {}  # Armazena os sistemas no espaço de estado
         self.states = {}   # Armazena os estados de cada sistema
         self.inputs = {}   # Armazena os inputs de cada sistema
+        self.v_max = {}
+        self.v_min = {}  
             
         # Converte todas as funções de transferência do dicionário
         for tableName in self.reactDataBase.tableNames:
             self.systems[tableName] = {}  # Armazena os sistemas no espaço de estado
             self.states[tableName] = {}   # Armazena os estados de cada sistema
-            self.inputs[tableName] = {}   # Armazena os inputs de cada sistema            
+            self.inputs[tableName] = {}   # Armazena os inputs de cada sistema
+            self.v_max[tableName] = {}
+            self.v_min[tableName] = {}    
+            
             for rowTfName, colTfName in zip(self.reactDataBase.rowTfNames[tableName], self.reactDataBase.colTfNames[tableName]):
-                num_str, den_str, input_str = self.reactDataBase.storage.getData(tableName, rowTfName,colTfName).split(",")  # Divide
+                num_str, den_str, input_str, self.v_max[tableName][(rowTfName, colTfName)], self.v_min[tableName][(rowTfName, colTfName)] = self.reactDataBase.storage.getData(tableName, rowTfName,colTfName).split(",")  # Divide
                 num = ast.literal_eval(num_str[1:].replace(" ",","))  # Converte string de lista para lista real
                 den = ast.literal_eval(den_str.replace(" ",","))
                 if re.search(r'[A-Z]\w+\.[A-Z0-9]\w+\.[A-Za-z_0-9]\w+', input_str):
-                    input_value = input_str
+                    self.inputs[tableName][(rowTfName, colTfName)] = input_str
                 else:
-                    input_value = float(input_str)
-                    
+                    self.inputs[tableName][(rowTfName, colTfName)] = float(input_str)
+
                 sys_tf = ctrl.TransferFunction(num, den)
                 sys_ss = ctrl.tf2ss(sys_tf)
                 sysd = ctrl.c2d(sys_ss, stepTime, method='tustin')
@@ -47,7 +52,6 @@ class SimulTf:
                     "D": np.array(sysd.D)
                 }
                 self.states[tableName][(rowTfName, colTfName)] = np.zeros((sysd.A.shape[0], 1))  # Estado inicial zerado
-                self.inputs[tableName][(rowTfName, colTfName)] = input_value
                 
         # Inicializa a função repetida para rodar a simulação de forma contínua
         self._repeated_function = RepeatFunction(self._simulation_step, stepTime)
@@ -85,5 +89,5 @@ class SimulTf:
                 # Calcula a saída: y[k] = C * x[k+1] + D * u[k]
                 output = system["C"].dot(next_state) + system["D"] * input_Value
                 self.states[tableName][key] = next_state
-                self.reactDataBase.tf_ref.value[tableName][key] = float(output)  # Armazena a saída da função de transferência 
+                self.reactDataBase.tf_ref.value[tableName][key] = float(min(max(output, self.v_min[tableName][key]), self.v_max[tableName][key]))  # Armazena a saída da função de transferência 
                 self.reactDataBase.df[tableName].loc[key].valueChanged.emit() # Atualiza as variáveis de saída (reaja conforme necessário) 
