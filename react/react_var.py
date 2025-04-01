@@ -4,6 +4,7 @@ from react.referencia import RefVar
 from db.db_types import DBState, DBModel
 from db.db_storage import DBStorage
 from asteval import Interpreter
+import numpy as np
 import math
 import random
 import re
@@ -116,23 +117,38 @@ class ReactVar(QObject):
     
     def evaluate_expression(self, func: str):
         evaluator = Interpreter()
-        if func[0] == '@' or func[0] == " ":
-            func = func[1:]  # Remove o caractere '@' inicial
-        tokens: list = re.findall(r'[A-Z]\w+\.[A-Z0-9]\w+\.[A-Za-z_0-9]\w+', func)
+        
+        if func.startswith('@') or func.startswith(' '):
+            func = func[1:]
+
+        # Usa cache se os tokens não mudaram (evita chamadas repetidas de parsing)
+        tokens = re.findall(r'[A-Z]\w+\.[A-Z0-9]\w+\.[A-Za-z_0-9]\w+', func)
+        
         if self._tokens != tokens:
             self._tokens = tokens
-            self.expressionToken.emit(tokens, True) # self.bind_to(self.df.loc(token, colName))        
+            self.expressionToken.emit(tokens, True)
+
+        # Inicializa apenas uma vez os módulos comuns
+        evaluator.symtable.update({
+            "math": math,
+            "np": np,
+            "random": random
+        })
+
         for token in tokens:
-            # Fazer no futuro: Checar se todas as variaves são do mesmo tipo ?
-            tableName, col, row = token.split(".")
-            var_val = self.getVariable(tableName, row, col, DBState.humanValue)
-            if var_val is not None:
-                evaluator.symtable[token.replace(".","_")] = var_val
-            evaluator.symtable["math"] = math
-            evaluator.symtable["random"] = random
+            try:
+                tableName, col, row = token.split(".")
+                var_val = self.getVariable(tableName, row, col, DBState.humanValue)
+                if var_val is not None:
+                    evaluator.symtable[token.replace(".", "_")] = var_val
+            except Exception as e:
+                print(f"Erro ao acessar variável {token}: {e}")
+                continue
+
         try:
-            result = evaluator(re.sub(r'([A-Z]\w+)\.([A-Z0-9]\w+)\.([A-Za-z_0-9]\w+)', r'\1_\2_\3', func))   
-            return result
+            expression_sanitized = re.sub(r'([A-Z]\w+)\.([A-Z0-9]\w+)\.([A-Za-z_0-9]\w+)', r'\1_\2_\3', func)
+            result = evaluator(expression_sanitized)
+            return float(result) if isinstance(result, (int, float)) else 0.0
         except Exception as e:
             print("Erro ao avaliar expressão:", e)
             return 0.0

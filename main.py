@@ -8,6 +8,7 @@ from img.imgCaldeira import imagem_base64
 from mb.mb_server import ModbusServerThread
 import sys
 
+
 class MainWindow(QMainWindow, Ui_MainWindow):
     # resizeEventSignal = Signal()  # 🔥 Declarando o sinal corretamente
     
@@ -21,7 +22,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.ReactDB = ReactDB({"HART", "MODBUS"})
         self.hrtDBTableWidget.setBaseData(self.ReactDB,"HART")
         self.mbDBTableWidget.setBaseData(self.ReactDB,"MODBUS")        
-        self.simulTf = SimulTf(self.ReactDB, 10000)
+        self.simulTf = SimulTf(self.ReactDB, 1000)
         self.pushButtonStart.toggled.connect(self.simulTf.start)
         def resetTf():                    
             self.buttonGroupSimul.exclusive = False   # Desliga exclusividade temporariamente
