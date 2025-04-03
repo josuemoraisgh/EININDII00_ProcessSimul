@@ -179,6 +179,8 @@ def _hrt_type_int2_hex(i_val: int, byte_size: int) -> str:
 
 def _hrt_type_sreal2_hex(valor_float: float, byte_size: int) -> str:
     bits_array = 0
+    if valor_float == 0.0:
+        return '0'.zfill(2*byte_size)
     if valor_float < 0:
         bits_array = set_bits(bits_array, 31, 1, 1)
         valor_float = -valor_float

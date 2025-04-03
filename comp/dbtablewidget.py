@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QTableWidget, QLineEdit, QComboBox, QMenu, QDialog
 from PySide6.QtGui import QAction, QFont
-from db.db_types import DBState
+from db.db_types import DBState, DBModel
 import qtawesome as qta
 from PySide6.QtCore import Qt
 from uis.ui_dialog_value import Ui_Dialog_Value
@@ -53,14 +53,14 @@ class DBTableWidget(QTableWidget):
         for rowName in rowKeys: 
             for colName in colKeys: 
                 data: ReactVar = self.df.loc[rowName, colName]
-                value = data.value(self.state)
+                value = data.getValue(self.state)
                 cellValue = type2str(value,data.type()) if self.state == DBState.humanValue and not isinstance(value,str) else value
                 typeValue = data.type()
                 dataModel = data.model
                 rowID = rowKeys.get_loc(rowName)
                 colID = colKeys.get_loc(colName)
 
-                if  self.state != DBState.machineValue and any(typeValue.find(x)!=-1 for x in ["ENUM", "BIT_ENUM"]) and not (dataModel in ["Func", "tFunc"]) and not(colName in ["BYTE_SIZE","TYPE"]):
+                if  self.state != DBState.machineValue and any(typeValue.find(x)!=-1 for x in ["ENUM", "BIT_ENUM"]) and not (dataModel in [DBModel.Func, DBModel.tFunc]) and not(colName in ["BYTE_SIZE","TYPE"]):
                     comboBox = QComboBox()
                     if typeValue.find("BIT_") == -1:
                         dados = list(hrt_enum[int(typeValue[4:])].values()) if self.tableName == "HART" else {}
@@ -71,28 +71,28 @@ class DBTableWidget(QTableWidget):
                     def setDataBaseCombBox(data: ReactVar, widget:QComboBox, state: DBState, _):
                         data.setValue(widget.currentText(),state)
                     comboBox.currentIndexChanged.connect(partial(setDataBaseCombBox, data,comboBox,self.state))
-                    def setTextCombBox(data: ReactVar, widget:QLineEdit, state: DBState):
-                        value = data.value(state)
+                    def setTextCombBox(widget:QLineEdit, state: DBState, data: ReactVar):
+                        value = data.getValue(state)
                         cellValue = str(value)
                         widget.setCurrentText(cellValue)
-                    data.valueChanged.connect(partial(setTextCombBox,data,lineEdit,self.state))
+                    data.valueChangedSignal.connect(partial(setTextCombBox,lineEdit,self.state))
                     self.setCellWidget(rowID, colID, comboBox)
                 
                 else:
                     lineEdit = QLineEdit()
-                    if(self.state or (colName in ["BYTE_SIZE","TYPE"]) or any(typeValue.find(x)!=-1 for x in ["PACKED", "UNSIGNED", "FLOAT", "INTEGER", "DATE", "TIME"])) and not (dataModel in ["Func", "tFunc"]):
+                    if(self.state or (colName in ["BYTE_SIZE","TYPE"]) or any(typeValue.find(x)!=-1 for x in ["PACKED", "UNSIGNED", "FLOAT", "INTEGER", "DATE", "TIME"])) and not (dataModel in [DBModel.Func, DBModel.tFunc]):
                         lineEdit.setStyleSheet("#QLineEdit{background-color: white;}")
                         def setDataBaseLineEdit(data: ReactVar, widget:QLineEdit, state: DBState):
-                            data.setValue(str(str2type(widget.text(),data.type())),state)
+                            data.setValue(str2type(widget.text(),data.type()),state)
                         lineEdit.editingFinished.connect(partial(setDataBaseLineEdit,data,lineEdit,self.state))
                     else:
                         lineEdit.setReadOnly(True)
                         lineEdit.setStyleSheet("background-color: #D3D3D3;")
-                    def setTextLineEdit(data: ReactVar, widget:QLineEdit, state: DBState):
-                        value = data.value(state)
+                    def setTextLineEdit(widget:QLineEdit, state: DBState, data: ReactVar):
+                        value = data.getValue(state)
                         cellValue = type2str(value,data.type()) if state == DBState.humanValue and not isinstance(value,str) else value
                         widget.setText(cellValue)
-                    data.valueChanged.connect(partial(setTextLineEdit,data,lineEdit,self.state))
+                    data.valueChangedSignal.connect(partial(setTextLineEdit,lineEdit,self.state))
                     lineEdit.setContextMenuPolicy(Qt.CustomContextMenu)
                     lineEdit.customContextMenuRequested.connect(partial(self.show_custom_context_menu, lineEdit, rowName, colName))
                     lineEdit.setText(cellValue)
@@ -116,7 +116,7 @@ class DBTableWidget(QTableWidget):
                 dialog = QDialog(self)
                 dialog_ui = Ui_Dialog_Value()  # Cria a instância do QDialog
                 dialog_ui.setupUi(dialog)  # Configura a interface do QDialog
-                dialog_ui.lineEdit.setText(str(data.value(self.state)))
+                dialog_ui.lineEdit.setText(str(data.getValue(self.state)))
                 dialog_ui.buttonBox.accepted.connect(lambda: data.setValue(dialog_ui.lineEdit.text(),self.state))
                 # dialog_ui.buttonBox.accepted.connect(self.redrawAll)
                 dialog.exec()
@@ -130,8 +130,8 @@ class DBTableWidget(QTableWidget):
                 dialog_ui.setupUi(dialog)  # Configura a interface do QDialog
                 dialog_ui.lineEdit.suggestions = self.dbDataFrame.autoCompleteList
                 dialog_ui.lineEdit.adjust_height_by_lines(1)
-                dialog_ui.lineEdit.setText(data.value(DBState.originValue)[1:])
-                dialog_ui.buttonBox.accepted.connect(lambda: data.setValue(f'@{dialog_ui.lineEdit.toPlainText()}',self.state))
+                dialog_ui.lineEdit.setText(data.getFunc())
+                dialog_ui.buttonBox.accepted.connect(lambda: data.setFunc(f'{dialog_ui.lineEdit.toPlainText()}'))
                 # dialog_ui.buttonBox.accepted.connect(self.redrawAll)                
                 dialog.exec()
             action_Func.triggered.connect(actionFuncSlot)
@@ -143,23 +143,22 @@ class DBTableWidget(QTableWidget):
                 dialog_ui = Ui_Dialog_Tfunc()
                 dialog_ui.setupUi(dialog)  # Configura a interface do QDialog
                 dialog_ui.lineEditInput.suggestions = self.dbDataFrame.autoCompleteList
-                dialog_ui.lineEditInput.adjust_height_by_lines(1)                
-                try:
-                    num_str, den_str, input_str, v_max, v_min = map(str.strip, data.value(DBState.originValue).split(","))
-                    dialog_ui.lineEditNum.setText(num_str[2:-1])
+                dialog_ui.lineEditInput.adjust_height_by_lines(1)   
+                tfunc = data.getTFunc()                           
+                if tfunc != None:
+                    num_str, den_str, input_str, v_max, v_min = map(str.strip, tfunc.split(","))
+                    dialog_ui.lineEditNum.setText(num_str[1:-1])
                     dialog_ui.lineEditDen.setText(den_str[1:-1])
                     dialog_ui.lineEditInput.setText(input_str)
                     dialog_ui.lineEditVMax.setText(v_max)
                     dialog_ui.lineEditVMin.setText(v_min)
-                except Exception as e:
+                else:
                     dialog_ui.lineEditNum.setText("")
                     dialog_ui.lineEditDen.setText("")
                     dialog_ui.lineEditInput.setText("")
                     dialog_ui.lineEditVMax.setText("")
                     dialog_ui.lineEditVMin.setText("")
-                dialog_ui.buttonBox.accepted.connect(lambda: 
-                    data.setValue(f'$[{dialog_ui.lineEditNum.text()}],[{dialog_ui.lineEditDen.text()}],{dialog_ui.lineEditInput.toPlainText()}',self.state)
-                )
+                dialog_ui.buttonBox.accepted.connect(lambda: data.setTFunc(f'[{dialog_ui.lineEditNum.text()}],[{dialog_ui.lineEditDen.text()}],{dialog_ui.lineEditInput.toPlainText()},{dialog_ui.lineEditVMax},{dialog_ui.lineEditVMin}') )
                 # dialog_ui.buttonBox.accepted.connect(self.redrawAll)                
                 dialog.exec()
             action_Tfunc.triggered.connect(actionTfuncSlot)

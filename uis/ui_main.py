@@ -370,10 +370,10 @@ class Ui_MainWindow(object):
 "    border-radius: 4px; /* Bordas arredondadas (opcional) */\n"
 "    padding: 4px; /* Espa\u00e7amento interno (opcional) */\n"
 "}")
-        self.verticalSliderFV100AR = QSlider(self.widgetSliderFV100AR)
-        self.verticalSliderFV100AR.setObjectName(u"verticalSliderFV100AR")
-        self.verticalSliderFV100AR.setGeometry(QRect(4, 7, 201, 20))
-        self.verticalSliderFV100AR.setOrientation(Qt.Orientation.Horizontal)
+        self.sliderFV100AR = QSlider(self.widgetSliderFV100AR)
+        self.sliderFV100AR.setObjectName(u"sliderFV100AR")
+        self.sliderFV100AR.setGeometry(QRect(4, 7, 201, 20))
+        self.sliderFV100AR.setOrientation(Qt.Orientation.Horizontal)
 
         self.verticalLayout_7.addWidget(self.widgetSliderFV100AR)
 
@@ -472,10 +472,10 @@ class Ui_MainWindow(object):
 "    border-radius: 4px; /* Bordas arredondadas (opcional) */\n"
 "    padding: 4px; /* Espa\u00e7amento interno (opcional) */\n"
 "}")
-        self.verticalSliderFI100V = QSlider(self.widgetSliderFI100V)
-        self.verticalSliderFI100V.setObjectName(u"verticalSliderFI100V")
-        self.verticalSliderFI100V.setGeometry(QRect(4, 7, 201, 20))
-        self.verticalSliderFI100V.setOrientation(Qt.Orientation.Horizontal)
+        self.sliderFI100V = QSlider(self.widgetSliderFI100V)
+        self.sliderFI100V.setObjectName(u"sliderFI100V")
+        self.sliderFI100V.setGeometry(QRect(4, 7, 201, 20))
+        self.sliderFI100V.setOrientation(Qt.Orientation.Horizontal)
 
         self.verticalLayout_8.addWidget(self.widgetSliderFI100V)
 
@@ -620,10 +620,10 @@ class Ui_MainWindow(object):
 "    border-radius: 4px; /* Bordas arredondadas (opcional) */\n"
 "    padding: 4px; /* Espa\u00e7amento interno (opcional) */\n"
 "}")
-        self.verticalSliderFV100CA = QSlider(self.widgetSliderFV100CA)
-        self.verticalSliderFV100CA.setObjectName(u"verticalSliderFV100CA")
-        self.verticalSliderFV100CA.setGeometry(QRect(4, 7, 201, 20))
-        self.verticalSliderFV100CA.setOrientation(Qt.Orientation.Horizontal)
+        self.sliderFV100CA = QSlider(self.widgetSliderFV100CA)
+        self.sliderFV100CA.setObjectName(u"sliderFV100CA")
+        self.sliderFV100CA.setGeometry(QRect(4, 7, 201, 20))
+        self.sliderFV100CA.setOrientation(Qt.Orientation.Horizontal)
 
         self.verticalLayout_13.addWidget(self.widgetSliderFV100CA)
 
@@ -722,10 +722,10 @@ class Ui_MainWindow(object):
 "    border-radius: 4px; /* Bordas arredondadas (opcional) */\n"
 "    padding: 4px; /* Espa\u00e7amento interno (opcional) */\n"
 "}")
-        self.verticalSliderFI100V_2 = QSlider(self.widgetSliderPI100A)
-        self.verticalSliderFI100V_2.setObjectName(u"verticalSliderFI100V_2")
-        self.verticalSliderFI100V_2.setGeometry(QRect(4, 7, 201, 20))
-        self.verticalSliderFI100V_2.setOrientation(Qt.Orientation.Horizontal)
+        self.sliderPI100A = QSlider(self.widgetSliderPI100A)
+        self.sliderPI100A.setObjectName(u"sliderPI100A")
+        self.sliderPI100A.setGeometry(QRect(4, 7, 201, 20))
+        self.sliderPI100A.setOrientation(Qt.Orientation.Horizontal)
 
         self.verticalLayout_15.addWidget(self.widgetSliderPI100A)
 
@@ -827,10 +827,10 @@ class Ui_MainWindow(object):
 "    border-radius: 4px; /* Bordas arredondadas (opcional) */\n"
 "    padding: 4px; /* Espa\u00e7amento interno (opcional) */\n"
 "}")
-        self.verticalSliderFV100A = QSlider(self.widgetSliderFV100A)
-        self.verticalSliderFV100A.setObjectName(u"verticalSliderFV100A")
-        self.verticalSliderFV100A.setGeometry(QRect(4, 7, 201, 20))
-        self.verticalSliderFV100A.setOrientation(Qt.Orientation.Horizontal)
+        self.sliderFV100A = QSlider(self.widgetSliderFV100A)
+        self.sliderFV100A.setObjectName(u"sliderFV100A")
+        self.sliderFV100A.setGeometry(QRect(4, 7, 201, 20))
+        self.sliderFV100A.setOrientation(Qt.Orientation.Horizontal)
 
         self.verticalLayout_17.addWidget(self.widgetSliderFV100A)
 
@@ -979,7 +979,7 @@ class Ui_MainWindow(object):
         self.widgetSliderFV100AR.setToolTip("")
 #endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(tooltip)
-        self.verticalSliderFV100AR.setToolTip("")
+        self.sliderFV100AR.setToolTip("")
 #endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(tooltip)
         self.widgetFI100V.setToolTip(QCoreApplication.translate("MainWindow", u"Indicador de Vaz\u00e3o de Vapor", None))
@@ -997,7 +997,7 @@ class Ui_MainWindow(object):
         self.widgetSliderFI100V.setToolTip("")
 #endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(tooltip)
-        self.verticalSliderFI100V.setToolTip("")
+        self.sliderFI100V.setToolTip("")
 #endif // QT_CONFIG(tooltip)
         self.groupBoxSimul.setTitle(QCoreApplication.translate("MainWindow", u"Simula\u00e7\u00e3o", None))
         self.pushButtonStart.setText(QCoreApplication.translate("MainWindow", u"Start", None))
@@ -1019,7 +1019,7 @@ class Ui_MainWindow(object):
         self.widgetSliderFV100CA.setToolTip("")
 #endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(tooltip)
-        self.verticalSliderFV100CA.setToolTip("")
+        self.sliderFV100CA.setToolTip("")
 #endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(tooltip)
         self.widgetPI100A.setToolTip(QCoreApplication.translate("MainWindow", u"Press\u00e3o da Bomba de \u00c1gua", None))
@@ -1037,7 +1037,7 @@ class Ui_MainWindow(object):
         self.widgetSliderPI100A.setToolTip("")
 #endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(tooltip)
-        self.verticalSliderFI100V_2.setToolTip("")
+        self.sliderPI100A.setToolTip("")
 #endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(tooltip)
         self.widgetFV100A.setToolTip(QCoreApplication.translate("MainWindow", u"Abertura da V\u00e1lvula de \u00c1gua", None))
@@ -1055,7 +1055,7 @@ class Ui_MainWindow(object):
         self.widgetSliderFV100A.setToolTip("")
 #endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(tooltip)
-        self.verticalSliderFV100A.setToolTip("")
+        self.sliderFV100A.setToolTip("")
 #endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(tooltip)
         self.widgetFI100CA.setToolTip(QCoreApplication.translate("MainWindow", u"Indicador de Vaz\u00e3o de Combust\u00edvel", None))

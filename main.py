@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QApplication, QMainWindow
+from PySide6.QtWidgets import QApplication, QMainWindow, QSlider
 from uis.ui_main import Ui_MainWindow  # Interface do Qt Designer
 from react.react_db import ReactDB
 from db.db_types import DBState
@@ -14,16 +14,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     
     def __init__(self):
         super().__init__()
+        self.ReactDB = ReactDB({"HART", "MODBUS"})  
+        self.simulTf = SimulTf(500)
+        self.ReactDB.isTFuncSignal.connect(self.simulTf.tfConnect)
+        
+        servidor_thread = ModbusServerThread(num_slaves=3, port=5020)
+        servidor_thread.start()            
+
         self.resize(800, 500)  # Defina o tamanho desejado
-        self.setupUi(self)  # Configura a interface do Qt Designer  
-        self.radioButtonHex.clicked["bool"].connect(self.hrtDBTableWidget.changeType) 
-        # servidor_thread = ModbusServerThread(num_slaves=3, port=5020)
-        # servidor_thread.start()            
-        self.ReactDB = ReactDB({"HART", "MODBUS"})
+        self.setupUi(self)  # Configura a interface do Qt Designer     
+        self.radioButtonHex.clicked["bool"].connect(self.hrtDBTableWidget.changeType)         
+        self.pushButtonStart.toggled.connect(self.simulTf.start)           
         self.hrtDBTableWidget.setBaseData(self.ReactDB,"HART")
         self.mbDBTableWidget.setBaseData(self.ReactDB,"MODBUS")        
-        self.simulTf = SimulTf(self.ReactDB, 1000)
-        self.pushButtonStart.toggled.connect(self.simulTf.start)
         def resetTf():                    
             self.buttonGroupSimul.exclusive = False   # Desliga exclusividade temporariamente
             self.pushButtonStart.setChecked(False)   # marca o botão como "despressionado"
@@ -52,14 +55,31 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         devices = ['FV100CA', 'FI100CA', 'FV100AR', 'FI100AR', 'TI100', 'FI100V', 'PI100V', 'LI100', 'PI100A', 'FV100A', 'FI100A']
         col = "CLP100"
         def atualizaDisplay(lcd_widget,var):
-            lcd_widget.display(var.value(DBState.humanValue))
+            lcd_widget.display(var.getValue(DBState.humanValue))
         for device in devices:
             lcd_widget = getattr(self, f'lcd{device}')
+            slider_widget: QSlider  = getattr(self, f'slider{device}', None)                
             var: ReactDB = self.ReactDB.df["MODBUS"].loc[device, col]
+            if slider_widget != None:
+                if device == 'FI100V':
+                    slider_widget.setMinimum(0)
+                    slider_widget.setMaximum(100)
+                    slider_widget.setValue(100) 
+                    def vchanded(var,x):
+                        var.setValue(float(x)*0.0035,DBState.humanValue)
+                    slider_widget.valueChanged.connect(partial(vchanded, var))                   
+                elif device == 'PI100A':
+                    slider_widget.setMinimum(0)
+                    slider_widget.setMaximum(600)
+                    slider_widget.setValue(400)
+                    slider_widget.valueChanged.connect(var.setValue)                   
+                else:
+                    slider_widget.setMinimum(0)
+                    slider_widget.setMaximum(100)
+                    slider_widget.setValue(50) 
+                    slider_widget.valueChanged.connect(var.setValue)             
             atualizaDisplay(lcd_widget,var)
-            var.valueChanged.connect(
-                partial(atualizaDisplay,lcd_widget,var)
-            )   
+            var.valueChangedSignal.connect(partial(atualizaDisplay,lcd_widget))   
     
     def resizeEvent(self, event):
         parent_width = event.size().width()

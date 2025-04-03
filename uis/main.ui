@@ -789,7 +789,7 @@
     padding: 4px; /* Espaçamento interno (opcional) */
 }</string>
            </property>
-           <widget class="QSlider" name="verticalSliderFV100AR">
+           <widget class="QSlider" name="sliderFV100AR">
             <property name="geometry">
              <rect>
               <x>4</x>
@@ -1027,7 +1027,7 @@
     padding: 4px; /* Espaçamento interno (opcional) */
 }</string>
            </property>
-           <widget class="QSlider" name="verticalSliderFI100V">
+           <widget class="QSlider" name="sliderFI100V">
             <property name="geometry">
              <rect>
               <x>4</x>
@@ -1343,7 +1343,7 @@
     padding: 4px; /* Espaçamento interno (opcional) */
 }</string>
            </property>
-           <widget class="QSlider" name="verticalSliderFV100CA">
+           <widget class="QSlider" name="sliderFV100CA">
             <property name="geometry">
              <rect>
               <x>4</x>
@@ -1581,7 +1581,7 @@
     padding: 4px; /* Espaçamento interno (opcional) */
 }</string>
            </property>
-           <widget class="QSlider" name="verticalSliderFI100V_2">
+           <widget class="QSlider" name="sliderPI100A">
             <property name="geometry">
              <rect>
               <x>4</x>
@@ -1831,7 +1831,7 @@
     padding: 4px; /* Espaçamento interno (opcional) */
 }</string>
            </property>
-           <widget class="QSlider" name="verticalSliderFV100A">
+           <widget class="QSlider" name="sliderFV100A">
             <property name="geometry">
              <rect>
               <x>4</x>
@@ -2105,7 +2105,7 @@
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="buttonGroupSimul"/>
   <buttongroup name="buttonGroupState"/>
+  <buttongroup name="buttonGroupSimul"/>
  </buttongroups>
 </ui>
