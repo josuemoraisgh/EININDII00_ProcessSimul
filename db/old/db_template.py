@@ -9,7 +9,7 @@ mb_banco: Dict[str, Tuple[str, str, str, str]] = {
     'FI100CA': (4, 'FLOAT', 'ir', '01', '$[0.0227],[2.5 1.0],MODBUS.CLP100.FV100CA/100,0.0227,0'),
     'FV100AR': (4, 'FLOAT', 'hr', '03', '0032'),    
     'FI100AR': (4, 'FLOAT', 'ir', '05', '$[0.15],[1.25 1.0],MODBUS.CLP100.FV100AR/100,0.15,0'), 
-    'qFornalha': (4, 'FLOAT', 'ir', '07', '$[0.85],[5.0 1.0],np.exp(-0.05*((MODBUS.CLP100.FI100AR/MODBUS.CLP100.FI100CA)-15)**2),810.0,0.0'),        
+    'qFornalha': (4, 'FLOAT', 'ir', '07', '$[0.85],[5.0 1.0],exp(-0.05*((MODBUS.CLP100.FI100AR/MODBUS.CLP100.FI100CA)-15)**2),810.0,0.0'),        
     'TI100'  : (4, 'FLOAT', 'ir', '09', '@MODBUS.CLP100.qFornalha/(1000 * MODBUS.CLP100.FI100AR)'),    
     'FI100V' : (4, 'FLOAT', 'hr', '05', '3EB33333'),
     'PI100V' : (4, 'FLOAT', 'ir', '11', '$[1.0],[1000 0.000001],MODBUS.CLP100.qFornalha - 2770 * MODBUS.CLP100.FI100V,100,0'),

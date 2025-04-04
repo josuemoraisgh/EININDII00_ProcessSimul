@@ -23,7 +23,7 @@ from pymodbus.payload import BinaryPayloadBuilder
 from pymodbus.constants import Endian
 from pymodbus.datastore import ModbusSequentialDataBlock as BaseModbusDataBlock
 
-class DynamicDataBlockHR(BaseModbusDataBlock):
+class DynamicDataBlock(BaseModbusDataBlock):
     def __init__(self, slave_id, reactDB):
         super().__init__(0x00, [0]*100)  # inicialização base fictícia
         self.reactDB = reactDB
@@ -96,20 +96,6 @@ class DynamicDataBlockHR(BaseModbusDataBlock):
         except Exception as e:
             print(f"[ERRO] Erro ao definir valor no endereço {address}: {e}")
 
-class DynamicDataBlockIR(BaseModbusDataBlock):
-    def __init__(self, slave_id, reactDB: ReactDB):
-        super().__init__()
-        self.slave_id = slave_id
-
-    def validate(self, address, count=1):
-        return True
-
-    def getValues(self, address, count=1):
-        return [random.randint(1000, 9999) + (self.slave_id * 10000) for _ in range(count)]
-
-    def setValues(self, address, values):
-        print(f"Slave {self.slave_id} escreveu valores {values} no endereço {address}")
-
 # --- Classe para rodar o servidor em thread ---
 class ModbusServerThread(QThread):
     def __init__(self, reactDB: ReactDB, num_slaves=3, address="0.0.0.0", port=5020):
@@ -126,8 +112,8 @@ class ModbusServerThread(QThread):
             slaves[slave_id] = ModbusSlaveContext(
                 di=InvalidDataBlock(),
                 co=InvalidDataBlock(),
-                hr=DynamicDataBlockHR(slave_id, self.reactDB), # MV
-                ir=DynamicDataBlockIR(slave_id, self.reactDB) # PV
+                hr=DynamicDataBlock(slave_id, self.reactDB), # MV
+                ir=DynamicDataBlock(slave_id, self.reactDB) # PV
             )
 
         context = ModbusServerContext(slaves=slaves, single=False)

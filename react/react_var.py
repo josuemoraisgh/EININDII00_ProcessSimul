@@ -2,7 +2,7 @@ from hrt.hrt_type import hrt_type_hex_to, hrt_type_hex_from  # Assuming hrt_type
 from PySide6.QtCore import QObject, Signal, Slot
 from db.db_types import DBState, DBModel
 from asteval import Interpreter
-import numpy as np
+from numpy import exp, log
 import random
 import math
 import re
@@ -131,8 +131,9 @@ class ReactVar(QObject):
             self._evaluator.symtable.clear()
             self._evaluator.symtable.update({
                 "math": math,
-                "np": np,
-                "random": random
+                "exp": exp,
+                "random": random,
+                "log": log
             })                  
             for tokenAtual in tokens:
                 try:

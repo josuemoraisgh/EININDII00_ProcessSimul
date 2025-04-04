@@ -17,14 +17,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.reactDB = ReactDB({"HART", "MODBUS"})  
         self.simulTf = SimulTf(500)
         self.reactDB.isTFuncSignal.connect(self.simulTf.tfConnect)
-        
-        servidor_thread = ModbusServerThread(num_slaves=1, port=5020)
-        servidor_thread.start()            
-
+        servidor_thread = ModbusServerThread(self.reactDB, num_slaves=1, port=5020)            
         self.resize(800, 500)  # Defina o tamanho desejado
         self.setupUi(self)  # Configura a interface do Qt Designer     
         self.radioButtonHex.clicked["bool"].connect(self.hrtDBTableWidget.changeType)         
-        self.pushButtonStart.toggled.connect(self.simulTf.start)           
+        def startSimul(state: bool):
+            if state == True:
+                servidor_thread.start()
+            else:
+                servidor_thread.stop()
+            self.simulTf.start(state)
+        self.pushButtonStart.toggled.connect(startSimul)           
         self.hrtDBTableWidget.setBaseData(self.reactDB,"HART")
         self.mbDBTableWidget.setBaseData(self.reactDB,"MODBUS")        
         def resetTf():                    
