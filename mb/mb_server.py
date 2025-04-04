@@ -1,10 +1,12 @@
-from PySide6.QtCore import QThread
-from pymodbus.server import StartTcpServer
 from pymodbus.datastore import ModbusSlaveContext, ModbusServerContext
+from pymodbus.payload import BinaryPayloadBuilder, BinaryPayloadDecoder
 from pymodbus.datastore.store import BaseModbusDataBlock
 from pymodbus.device import ModbusDeviceIdentification
-from pymodbus.payload import BinaryPayloadBuilder, BinaryPayloadDecoder
+from pymodbus.server import StartTcpServer
 from pymodbus.constants import Endian
+from react.react_var import ReactVar
+from PySide6.QtCore import QThread
+from react.react_db import ReactDB
 import random
 
 class InvalidDataBlock(BaseModbusDataBlock):
@@ -17,8 +19,85 @@ class InvalidDataBlock(BaseModbusDataBlock):
     def setValues(self, address, values):
         raise NotImplementedError("Tipo de dado inválido.")
 
-class DynamicDataBlock(BaseModbusDataBlock):
-    def __init__(self, slave_id):
+from pymodbus.payload import BinaryPayloadBuilder
+from pymodbus.constants import Endian
+from pymodbus.datastore import ModbusSequentialDataBlock as BaseModbusDataBlock
+
+class DynamicDataBlockHR(BaseModbusDataBlock):
+    def __init__(self, slave_id, reactDB):
+        super().__init__(0x00, [0]*100)  # inicialização base fictícia
+        self.reactDB = reactDB
+        self.slave_id = slave_id
+
+    def validate(self, address, count=1):
+        return True
+
+    def getValues(self, address, count=1):
+        builder = BinaryPayloadBuilder(byteorder=Endian.Big, wordorder=Endian.Big)
+        addr = address
+        for i in range(count):
+            try:
+                # Filtra linha correspondente ao endereço atual e ponto "hr"
+                row = self.reactDB.df["MODBUS"].query(f'ADDRESS == "{addr}" and MB_POINT == "hr"')
+                if row.empty:
+                    builder.add_16bit_int(0)  # valor default caso não encontre
+                    continue
+
+                data: ReactVar = row.iloc[0, 5]  # índice 5: coluna com ReactVar
+                data_value = data.getValue()
+                data_type = data.type()
+                addr = addr + (data.byteSize()/2)
+                if data_type == "REAL":
+                    builder.add_32bit_float(data_value)
+                elif data_type == "INTEGER":
+                    builder.add_32bit_int(data_value)
+                elif data_type == "STRING":
+                    builder.add_string(data_value.encode("ascii"))
+                else:  # UNSIGNED ou outros tipos
+                    builder.add_32bit_uint(data_value)
+
+            except Exception as e:
+                print(f"Erro ao processar endereço {addr}: {e}")
+                builder.add_16bit_int(0)
+
+        return builder.to_registers()
+
+    def setValues(self, address, data_Value):
+        decoder = BinaryPayloadDecoder.fromRegisters(data_Value, byteorder=Endian.Big, wordorder=Endian.Big)
+
+        try:
+            row = self.reactDB.df["MODBUS"].query(f'ADDRESS == "{address}" and MB_POINT == "hr"')
+            if row.empty:
+                print(f"[WARN] Endereço {address} não encontrado.")
+                return
+
+            data: ReactVar = row.iloc[0, 5]
+            data_type = data.type()
+
+            if data_type == "REAL" and len(data_Value) >= 2:
+                valor_float = decoder.decode_32bit_float()
+                data.setValue(valor_float)
+
+            elif data_type == "INTEGER" and len(data_Value) >= 2:
+                valor_int = decoder.decode_32bit_int()
+                data.setValue(valor_int)
+
+            elif data_type == "STRING" and len(data_Value) >= 4:
+                valor_str = decoder.decode_string(8).decode('ascii').strip()
+                data.setValue(valor_str)
+
+            elif data_type == "UNSIGNED" and len(data_Value) >= 2:
+                valor_uint = decoder.decode_32bit_uint()
+                data.setValue(valor_uint)
+
+            else:
+                print(f"[WARN] Tipo desconhecido ou dados insuficientes para o endereço {address}.")
+
+        except Exception as e:
+            print(f"[ERRO] Erro ao definir valor no endereço {address}: {e}")
+
+class DynamicDataBlockIR(BaseModbusDataBlock):
+    def __init__(self, slave_id, reactDB: ReactDB):
         super().__init__()
         self.slave_id = slave_id
 
@@ -26,38 +105,16 @@ class DynamicDataBlock(BaseModbusDataBlock):
         return True
 
     def getValues(self, address, count=1):
-        builder = BinaryPayloadBuilder(byteorder=Endian.BIG, wordorder=Endian.BIG)
-        data_Value = 0.0
-        data_type = "REAL"       
-        if data_type == "REAL":
-            builder.add_32bit_float(data_Value)
-            return builder.to_registers()
-        elif data_type == "INTEGER":
-            builder.add_32bit_int(data_Value)
-            return builder.to_registers()
-        elif data_type == "STRING":
-            builder.add_string(data_Value.encode("ascii"))
-            return builder.to_registers()
-        else: # UNSIGNED
-            return data_Value
+        return [random.randint(1000, 9999) + (self.slave_id * 10000) for _ in range(count)]
 
-    def setValues(self, address, data_Value):
-        data_type = "REAL" 
-        decoder = BinaryPayloadDecoder.fromRegisters(data_Value, byteorder=Endian.Big, wordorder=Endian.Big)
-        if data_type == "REAL" and len(data_Value) >= 2:
-            valor_float = decoder.decode_32bit_float()
-            # self.values[0] = valor_float
-        elif data_type == "INTEGER" and len(data_Value) >= 2:
-            valor_int = decoder.decode_32bit_int()
-            # self.values[10] = valor_int
-        elif data_type == "STRING" and len(data_Value) >= 4:
-            valor_str = decoder.decode_string(8).decode('ascii')
-            # self.values[20] = valor_str
+    def setValues(self, address, values):
+        print(f"Slave {self.slave_id} escreveu valores {values} no endereço {address}")
 
 # --- Classe para rodar o servidor em thread ---
 class ModbusServerThread(QThread):
-    def __init__(self, num_slaves=3, address="0.0.0.0", port=5020):
+    def __init__(self, reactDB: ReactDB, num_slaves=3, address="0.0.0.0", port=5020):
         super().__init__()
+        self.reactDB = reactDB
         self.num_slaves = num_slaves
         self.address = address
         self.port = port
@@ -69,8 +126,8 @@ class ModbusServerThread(QThread):
             slaves[slave_id] = ModbusSlaveContext(
                 di=InvalidDataBlock(),
                 co=InvalidDataBlock(),
-                hr=DynamicDataBlock(slave_id), # MV
-                ir=DynamicDataBlock(slave_id) # PV
+                hr=DynamicDataBlockHR(slave_id, self.reactDB), # MV
+                ir=DynamicDataBlockIR(slave_id, self.reactDB) # PV
             )
 
         context = ModbusServerContext(slaves=slaves, single=False)

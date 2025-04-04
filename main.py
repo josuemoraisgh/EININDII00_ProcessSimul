@@ -14,9 +14,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     
     def __init__(self):
         super().__init__()
-        self.ReactDB = ReactDB({"HART", "MODBUS"})  
+        self.reactDB = ReactDB({"HART", "MODBUS"})  
         self.simulTf = SimulTf(500)
-        self.ReactDB.isTFuncSignal.connect(self.simulTf.tfConnect)
+        self.reactDB.isTFuncSignal.connect(self.simulTf.tfConnect)
         
         servidor_thread = ModbusServerThread(num_slaves=1, port=5020)
         servidor_thread.start()            
@@ -25,8 +25,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setupUi(self)  # Configura a interface do Qt Designer     
         self.radioButtonHex.clicked["bool"].connect(self.hrtDBTableWidget.changeType)         
         self.pushButtonStart.toggled.connect(self.simulTf.start)           
-        self.hrtDBTableWidget.setBaseData(self.ReactDB,"HART")
-        self.mbDBTableWidget.setBaseData(self.ReactDB,"MODBUS")        
+        self.hrtDBTableWidget.setBaseData(self.reactDB,"HART")
+        self.mbDBTableWidget.setBaseData(self.reactDB,"MODBUS")        
         def resetTf():                    
             self.buttonGroupSimul.exclusive = False   # Desliga exclusividade temporariamente
             self.pushButtonStart.setChecked(False)   # marca o botão como "despressionado"
@@ -59,7 +59,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         for device in devices:
             lcd_widget = getattr(self, f'lcd{device}')
             slider_widget: QSlider  = getattr(self, f'slider{device}', None)                
-            var: ReactDB = self.ReactDB.df["MODBUS"].loc[device, col]
+            var: ReactDB = self.reactDB.df["MODBUS"].loc[device, col]
             if slider_widget != None:
                 if device == 'FI100V':
                     slider_widget.setMinimum(0)
