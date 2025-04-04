@@ -16,14 +16,14 @@ class ReactVar(QObject):
     _func             = None  # Func que precisa ser resolvida
     _tFunc            = None  # tFunc que precisa ser resolvida
     _tokens           = ""    # Armazena de quais variaveis ele depende
-    _evaluator        = Interpreter()
     
     def __init__(self, tableName: str, rowName: str, colName: str, reactDB: "ReactDB"):
         super().__init__()
-        self.tableName = tableName
-        self.rowName   = rowName
-        self.colName   = colName
-        self.reactDB   = reactDB
+        self._evaluator = Interpreter()
+        self.tableName  = tableName
+        self.rowName    = rowName
+        self.colName    = colName
+        self.reactDB    = reactDB
 
     def type(self, tableName = None, rowName = None):
         if tableName == None or rowName == None:
@@ -141,11 +141,18 @@ class ReactVar(QObject):
                 tableName, col, row = token.split(".")
                 otherData: ReactVar = self.reactDB.df[tableName].loc[row, col]
                 if isconnect == True:
-                    self._update_from_other_slot(otherData)
+                    self._evaluator.symtable[f'{tableName}_{col}_{row}'] = otherData.getValue()
                     otherData.valueChangedSignal.connect(self._update_from_other_slot) 
                 else:
                     otherData.valueChangedSignal.disconnect(self._update_from_other_slot) 
-            self._tokens = tokens 
+            self._tokens = tokens
+            if isconnect == True:
+                result = self._evaluate_expression(self._func)
+                if self.model == DBModel.tFunc: 
+                    self.inputValue = result
+                else:
+                    self._value = result
+                    self.valueChangedSignal.emit(self)
         
     def _evaluate_expression(self, func: str):
         expression_sanitized = re.sub(r'([A-Z]\w+)\.([A-Z0-9]\w+)\.([A-Za-z_0-9]\w+)', r'\1_\2_\3', func)

@@ -25,7 +25,7 @@ from pymodbus.datastore import ModbusSequentialDataBlock as BaseModbusDataBlock
 
 class DynamicDataBlock(BaseModbusDataBlock):
     def __init__(self, slave_id, reactDB):
-        super().__init__(0x00, [0]*100)  # inicialização base fictícia
+        super().__init__(0x00, 0)  # inicialização base fictícia
         self.reactDB = reactDB
         self.slave_id = slave_id
 
@@ -33,17 +33,21 @@ class DynamicDataBlock(BaseModbusDataBlock):
         return True
 
     def getValues(self, address, count=1):
-        builder = BinaryPayloadBuilder(byteorder=Endian.Big, wordorder=Endian.Big)
+        builder = BinaryPayloadBuilder(byteorder=Endian.BIG, wordorder=Endian.BIG)
         addr = address
         for i in range(count):
             try:
                 # Filtra linha correspondente ao endereço atual e ponto "hr"
-                row = self.reactDB.df["MODBUS"].query(f'ADDRESS == "{addr}" and MB_POINT == "hr"')
+                df = self.reactDB.df["MODBUS"]
+                row = df.loc[
+                    (df["ADDRESS"].apply(lambda a: a.getValue() == f"{addr:02}")) &
+                    (df["MB_POINT"].apply(lambda a: a.getValue() == "hr"))
+                ]
                 if row.empty:
                     builder.add_16bit_int(0)  # valor default caso não encontre
                     continue
 
-                data: ReactVar = row.iloc[0, 5]  # índice 5: coluna com ReactVar
+                data: ReactVar = row.iloc[0, 4]  # índice 5: coluna com ReactVar
                 data_value = data.getValue()
                 data_type = data.type()
                 addr = addr + (data.byteSize()/2)
