@@ -68,19 +68,23 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     slider_widget.setMinimum(0)
                     slider_widget.setMaximum(100)
                     slider_widget.setValue(100) 
-                    def vchanded(var,x):
+                    def vchanded1(var,x):
                         var.setValue(float(x)*0.0035,DBState.humanValue)
-                    slider_widget.valueChanged.connect(partial(vchanded, var))                   
+                    slider_widget.valueChanged.connect(partial(vchanded1, var))                   
                 elif device == 'PI100A':
                     slider_widget.setMinimum(0)
                     slider_widget.setMaximum(600)
                     slider_widget.setValue(400)
-                    slider_widget.valueChanged.connect(var.setValue)                   
+                    def vchanded2(var,x):
+                        var.setValue(float(x),DBState.humanValue)
+                    slider_widget.valueChanged.connect(partial(vchanded2, var)) 
                 else:
                     slider_widget.setMinimum(0)
                     slider_widget.setMaximum(100)
                     slider_widget.setValue(50) 
-                    slider_widget.valueChanged.connect(var.setValue)             
+                    def vchanded3(var,x):
+                        var.setValue(float(x),DBState.humanValue)
+                    slider_widget.valueChanged.connect(partial(vchanded3, var)) 
             atualizaDisplay(lcd_widget,var)
             var.valueChangedSignal.connect(partial(atualizaDisplay,lcd_widget))   
     

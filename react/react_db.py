@@ -33,19 +33,11 @@ class ReactDB(QObject):
             for col in self.df[tableName].columns.to_list():
                 data = ReactVar(tableName, row, col, self)
                 self.df[tableName].loc[row, col] = data   
-                data.funcTokenSignal.connect(partial(self._trataTokensSlot, data))
                 data.isTFuncSignal.connect(self._tFDataSlot)                  
 
     def _creatAutoCompleteList(self, tableName:str):
         lista = {chave: {} for chave in self.df[tableName].index}
-        self.autoCompleteList[tableName] = {chave: lista for chave in self.df[tableName].columns}      
-                
-    @Slot()        
-    def _trataTokensSlot(self, data: ReactVar, tokens: list[str], isConnect: bool):
-        for token in tokens:
-            tableName, col, row = token.split(".")
-            otherData: ReactVar = self.df[tableName].loc[row, col]
-            data.bindToSlot(otherData,isConnect)          
+        self.autoCompleteList[tableName] = {chave: lista for chave in self.df[tableName].columns}                 
          
     @Slot()            
     def _tFDataSlot(self, data:ReactVar,  isConnect: bool):      

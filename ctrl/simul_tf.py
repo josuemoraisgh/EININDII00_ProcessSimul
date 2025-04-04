@@ -1,4 +1,3 @@
-
 from react.expression_worker import ExpressionWorker
 from PySide6.QtCore import QObject, Signal, Slot
 from react.repeatFunction import RepeatFunction
@@ -71,11 +70,15 @@ class SimulTf(QObject):
     def _simulation_step(self):
         """Calcula o próximo passo para todas as funções de transferência."""
         for key, system in self.systems.items():
-            input_Value = self.dictDB[key].inputValue            
-            # Calcula o próximo estado: x[k+1] = A * x[k] + B * u[k]
-            next_state = system["A"].dot(self.states[key]) + system["B"] * input_Value
-            # Calcula a saída: y[k] = C * x[k+1] + D * u[k]
-            output = system["C"].dot(next_state) + system["D"] * input_Value
-            self.states[key] = next_state
-            self.dictDB[key]._value = float(output)  # Armazena a saída da função de transferência 
-            self.dictDB[key].valueChangedSignal.emit(self.dictDB[key]) # Atualiza as variáveis de saída (reaja conforme necessário) 
+            input_Value = self.dictDB[key].inputValue
+
+            # Calcula a saída com o estado atual
+            output = system["C"].dot(self.states[key]) + system["D"] * input_Value
+
+            # Atualiza o estado
+            self.states[key] = system["A"].dot(self.states[key]) + system["B"] * input_Value
+
+            # Armazena a saída e emite sinal
+            self.dictDB[key]._value = float(output)
+            self.dictDB[key].valueChangedSignal.emit(self.dictDB[key])
+ 

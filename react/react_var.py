@@ -9,7 +9,6 @@ import re
 
 class ReactVar(QObject):
     valueChangedSignal      = Signal(QObject)  # Sinal emitido quando o valor muda
-    funcTokenSignal         = Signal(list,bool)
     isTFuncSignal           = Signal(QObject,bool)
     _value            = None  # Valor em DBState.humanValue
     inputValue        = None  # Valor em DBState.humanValue   
@@ -68,7 +67,7 @@ class ReactVar(QObject):
         if self.colName in ['NAME', 'TYPE', 'BYTE_SIZE', 'MB_POINT', 'ADDRESS']:
             valueAux = value           
         else:
-            self._checkModel(DBModel.Func)             
+            self._checkModel(DBModel.Value)             
             valueAux = self.translate(value, self.type(), self.byteSize(), DBState.humanValue, stateAtual)  
         self._func = None
         self._tFunc = None
@@ -84,13 +83,11 @@ class ReactVar(QObject):
             
     def setFunc(self, func):
         if self._func != func:
-            self._checkModel(DBModel.Func)         
+            self._checkModel(DBModel.Func) # Ele tem que ser ante do self._tFunc = None         
             self._tFunc = None
-            self.model = DBModel.Func   
-            self.start_tokens(func)
-            self._value = self.evaluate_expression(func)                
-            self._func = func      
-        
+            self.model = DBModel.Func    
+            self._startFunc(func) # Ele tem que ser o ultimo             
+     
     def getTFunc(self):
         if self._tFunc == None:
             self._startDataBase()         
@@ -98,23 +95,18 @@ class ReactVar(QObject):
             
     def setTFunc(self, tFunc):
         if self._tFunc != tFunc:
-            self._checkModel(DBModel.tFunc)     
+            self._checkModel(DBModel.tFunc) # Ele tem que ser ante do self._tFunc = None    
             self.model = DBModel.tFunc
             self._value = 5.877471754111438e-39
             self._tFunc  = tFunc
             _, __, inpValue, ___, ____ = tFunc.split(",")
-            if self.getModel(inpValue) == DBModel.Func:
-                self._func = inpValue[1:]
-                self.start_tokens(self._func)
-                self.inputValue = self.evaluate_expression(self._func)
-            else:
-                self.inputValue = inpValue                          
+            self._startFunc(inpValue[1:]) # Ele tem que ser a penultima ante do sinal                         
             self.isTFuncSignal.emit(self, True)         
 
     def _checkModel(self, newModel):
         OldModel = self.model
         if OldModel != None or (OldModel == DBModel.Func and newModel != DBModel.Func) or (OldModel == DBModel.tFunc and newModel != DBModel.tFunc): # Se antes era e agora não é mais 
-            self.funcTokenSignal.emit(self._tokens, False)
+            self._connectTokens(self._tokens, False)
             if OldModel == DBModel.tFunc and newModel != DBModel.tFunc:
                 self.isTFuncSignal.emit(self, False)        
         
@@ -128,7 +120,8 @@ class ReactVar(QObject):
         elif newModel == DBModel.tFunc: # Se agora é tF
             self.setTFunc(dataBase[1:])
 
-    def start_tokens(self, func: str):  
+    def _startFunc(self, func: str):  
+        self._func = func
         tokens = re.findall(r'[A-Z]\w+\.[A-Z0-9]\w+\.[A-Za-z_0-9]\w+', func)          
         if self._tokens != tokens:   
             # Inicializa apenas uma vez os módulos comuns
@@ -139,39 +132,30 @@ class ReactVar(QObject):
                 "random": random,
                 "log": log
             })                  
-            for tokenAtual in tokens:
-                try:
-                    tableName, col, row = tokenAtual.split(".")
-                    var_val = self.reactDB.df[tableName].loc[row, col].getValue()
-                    if var_val is not None:
-                        self._evaluator.symtable[tokenAtual.replace(".", "_")] = var_val
-                except Exception as e:
-                    print(f"Erro ao acessar variável {tokenAtual}: {e}")
-                    continue
-            self._tokens = tokens              
-            self.funcTokenSignal.emit(self._tokens, True)        
+            self._connectTokens(tokens, True)             
+            self._tokens = tokens                   
         
-    def evaluate_expression(self, func: str):
+    def _connectTokens(self, tokens: list, isconnect = True):          
+        if self._tokens != tokens:                    
+            for token in tokens:
+                tableName, col, row = token.split(".")
+                otherData: ReactVar = self.reactDB.df[tableName].loc[row, col]
+                if isconnect == True:
+                    self._update_from_other_slot(otherData)
+                    otherData.valueChangedSignal.connect(self._update_from_other_slot) 
+                else:
+                    otherData.valueChangedSignal.disconnect(self._update_from_other_slot) 
+            self._tokens = tokens 
+        
+    def _evaluate_expression(self, func: str):
         expression_sanitized = re.sub(r'([A-Z]\w+)\.([A-Z0-9]\w+)\.([A-Za-z_0-9]\w+)', r'\1_\2_\3', func)
         result = self._evaluator(expression_sanitized)
-        return float(result) if isinstance(result, (int, float)) else 0.0
-
-    @Slot()                   
-    def bindToSlot(self, data: "ReactVar", isConnect: bool):  
-        if isConnect == True:      
-            data.valueChangedSignal.connect(self._update_from_other_slot)
-        else:
-            try:
-                data.valueChangedSignal.disconnect(self._update_from_other_slot)
-            except (TypeError, RuntimeError):
-                print("Tentativa de Desconectar Sinal que não estava Conectado")
-                pass  # já estava desconectado; nada a fazer
-        
+        return float(result)
+    
     @Slot()
     def _update_from_other_slot(self, data: "ReactVar"):
-        self._evaluator.symtable[f'{data.tableName}_{data.rowName}_{data.colName}'] = data.getValue()
-        
-        result = self.evaluate_expression(self._func)
+        self._evaluator.symtable[f'{data.tableName}_{data.colName}_{data.rowName}'] = data.getValue()
+        result = self._evaluate_expression(self._func)
         if self.model == DBModel.tFunc: 
             self.inputValue = result
         else:
