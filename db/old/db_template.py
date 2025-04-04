@@ -5,18 +5,18 @@ from typing import Dict, Tuple, Union
 # ['NAME', 'BYTE_SIZE', 'TYPE', 'MB_POINT', 'ADDRESS', 'CLP100']
 # MB_POINT = di, co, hr, ir
 mb_banco: Dict[str, Tuple[str, str, str, str]] = {
-    'FV100CA': (4, 'FLOAT', 'hr', '01', '0032'),    
-    'FI100CA': (4, 'FLOAT', 'ir', '01', '$[0.0227],[2.5 1.0],MODBUS.CLP100.FV100CA/100,0.0227,0'),
-    'FV100AR': (4, 'FLOAT', 'hr', '03', '0032'),    
-    'FI100AR': (4, 'FLOAT', 'ir', '05', '$[0.15],[1.25 1.0],MODBUS.CLP100.FV100AR/100,0.15,0'), 
-    'qFornalha': (4, 'FLOAT', 'ir', '07', '$[0.85],[5.0 1.0],exp(-0.05*((MODBUS.CLP100.FI100AR/MODBUS.CLP100.FI100CA)-15)**2),810.0,0.0'),        
-    'TI100'  : (4, 'FLOAT', 'ir', '09', '@MODBUS.CLP100.qFornalha/(1000 * MODBUS.CLP100.FI100AR)'),    
+    'FV100CA': (4, 'FLOAT', 'hr', '01', '42480000'),    
+    'FI100CA': (4, 'FLOAT', 'ir', '01', '$[0.0227],[2.5 1.0],@MODBUS.CLP100.FV100CA/100.0,0.0227,0.0'),
+    'FV100AR': (4, 'FLOAT', 'hr', '03', '42480000'),    
+    'FI100AR': (4, 'FLOAT', 'ir', '05', '$[0.15],[1.25 1.0],@MODBUS.CLP100.FV100AR/100.0,0.15,0.0'), 
+    'qFor'   : (4, 'FLOAT', 'ir', '07', '$[0.85],[5.0 1.0],@exp(-0.05*((MODBUS.CLP100.FI100AR/MODBUS.CLP100.FI100CA)-15.0)**2.0),810.0,0.0'),        
+    'TI100'  : (4, 'FLOAT', 'ir', '09', '@MODBUS.CLP100.qFor/(1000.0 * MODBUS.CLP100.FI100AR)'),    
     'FI100V' : (4, 'FLOAT', 'hr', '05', '3EB33333'),
-    'PI100V' : (4, 'FLOAT', 'ir', '11', '$[1.0],[1000 0.000001],MODBUS.CLP100.qFornalha - 2770 * MODBUS.CLP100.FI100V,100,0'),
-    'LI100'  : (4, 'FLOAT', 'ir', '13', '$[1.0],[1.1 0.0000000001],MODBUS.CLP100.FI100A - MODBUS.CLP100.FI100V,100,0'),    
+    'PI100V' : (4, 'FLOAT', 'ir', '11', '$[1.0],[1000 0.000001],@MODBUS.CLP100.qFor - 2770.0 * MODBUS.CLP100.FI100V,100.0,0.0'),
+    'LI100'  : (4, 'FLOAT', 'ir', '13', '$[1.0],[1.1 0.0000000001],@MODBUS.CLP100.FI100A - MODBUS.CLP100.FI100V,100.0,0.0'),    
     'PI100A' : (4, 'FLOAT', 'hr', '07', '43C80000'),    
-    'FV100A' : (4, 'FLOAT', 'hr', '09', '0032'),    
-    'FI100A' : (4, 'FLOAT', 'ir', '15', '$[0.5],[1.0 1.0],math.sqrt(MODBUS.CLP100.PI100A/400)*MODBUS.CLP100.FV100A,100,0'),
+    'FV100A' : (4, 'FLOAT', 'hr', '09', '42480000'),    
+    'FI100A' : (4, 'FLOAT', 'ir', '15', '$[0.5],[1.0 1.0],@math.sqrt(MODBUS.CLP100.PI100A/400.0)*MODBUS.CLP100.FV100A,100.0,0.0'),
 
 }
 # ['NAME', 'BYTE_SIZE', 'TYPE', 'FV100CA', 'FI100CA', 'FV100AR', 'FI100AR', 'TI100', 'FI100V', 'PI100V', 'LI100', 'PI100A', 'FV100A', 'FI100A']

@@ -80,7 +80,7 @@ class ReactVar(QObject):
     def getFunc(self):
         if self._func == None:
             self._startDataBase()         
-        return self._func[1:]        
+        return self._func       
             
     def setFunc(self, func):
         if self._func != func:
@@ -100,11 +100,15 @@ class ReactVar(QObject):
         if self._tFunc != tFunc:
             self._checkModel(DBModel.tFunc)     
             self.model = DBModel.tFunc
-            self._value = 0.0
+            self._value = 5.877471754111438e-39
             self._tFunc  = tFunc
-            _, __, self._func, ___, ____ = tFunc.split(",")
-            self.start_tokens(self._func)
-            self.inputValue = self.evaluate_expression(self._func)                            
+            _, __, inpValue, ___, ____ = tFunc.split(",")
+            if self.getModel(inpValue) == DBModel.Func:
+                self._func = inpValue[1:]
+                self.start_tokens(self._func)
+                self.inputValue = self.evaluate_expression(self._func)
+            else:
+                self.inputValue = inpValue                          
             self.isTFuncSignal.emit(self, True)         
 
     def _checkModel(self, newModel):
