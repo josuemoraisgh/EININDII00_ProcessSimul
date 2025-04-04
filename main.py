@@ -18,7 +18,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.simulTf = SimulTf(500)
         self.ReactDB.isTFuncSignal.connect(self.simulTf.tfConnect)
         
-        servidor_thread = ModbusServerThread(num_slaves=3, port=5020)
+        servidor_thread = ModbusServerThread(num_slaves=1, port=5020)
         servidor_thread.start()            
 
         self.resize(800, 500)  # Defina o tamanho desejado

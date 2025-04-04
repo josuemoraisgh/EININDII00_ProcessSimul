@@ -24,7 +24,7 @@ class Ui_Dialog_Value(object):
         if not Dialog_Value.objectName():
             Dialog_Value.setObjectName(u"Dialog_Value")
         Dialog_Value.setWindowModality(Qt.WindowModality.ApplicationModal)
-        Dialog_Value.resize(268, 82)
+        Dialog_Value.resize(329, 82)
         self.verticalLayout = QVBoxLayout(Dialog_Value)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.horizontalLayout = QHBoxLayout()

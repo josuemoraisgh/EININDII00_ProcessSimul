@@ -26,7 +26,7 @@ class Ui_Dialog_Tfunc(object):
         if not Dialog_Tfunc.objectName():
             Dialog_Tfunc.setObjectName(u"Dialog_Tfunc")
         Dialog_Tfunc.setWindowModality(Qt.WindowModality.ApplicationModal)
-        Dialog_Tfunc.resize(370, 192)
+        Dialog_Tfunc.resize(585, 196)
         self.verticalLayout = QVBoxLayout(Dialog_Tfunc)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.horizontalLayout = QHBoxLayout()

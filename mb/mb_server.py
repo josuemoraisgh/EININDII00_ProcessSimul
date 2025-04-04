@@ -17,7 +17,7 @@ class InvalidDataBlock(BaseModbusDataBlock):
     def setValues(self, address, values):
         raise NotImplementedError("Tipo de dado inválido.")
 
-class DynamicDataBlockHR(BaseModbusDataBlock):
+class DynamicDataBlock(BaseModbusDataBlock):
     def __init__(self, slave_id):
         super().__init__()
         self.slave_id = slave_id
@@ -26,7 +26,7 @@ class DynamicDataBlockHR(BaseModbusDataBlock):
         return True
 
     def getValues(self, address, count=1):
-        builder = BinaryPayloadBuilder(byteorder=Endian.Big, wordorder=Endian.Big)
+        builder = BinaryPayloadBuilder(byteorder=Endian.BIG, wordorder=Endian.BIG)
         data_Value = 0.0
         data_type = "REAL"       
         if data_type == "REAL":
@@ -54,20 +54,6 @@ class DynamicDataBlockHR(BaseModbusDataBlock):
             valor_str = decoder.decode_string(8).decode('ascii')
             # self.values[20] = valor_str
 
-class DynamicDataBlockIR(BaseModbusDataBlock):
-    def __init__(self, slave_id):
-        super().__init__()
-        self.slave_id = slave_id
-
-    def validate(self, address, count=1):
-        return True
-
-    def getValues(self, address, count=1):
-        return [random.randint(1000, 9999) + (self.slave_id * 10000) for _ in range(count)]
-
-    def setValues(self, address, values):
-        print(f"Slave {self.slave_id} escreveu valores {values} no endereço {address}")
-
 # --- Classe para rodar o servidor em thread ---
 class ModbusServerThread(QThread):
     def __init__(self, num_slaves=3, address="0.0.0.0", port=5020):
@@ -83,8 +69,8 @@ class ModbusServerThread(QThread):
             slaves[slave_id] = ModbusSlaveContext(
                 di=InvalidDataBlock(),
                 co=InvalidDataBlock(),
-                hr=DynamicDataBlockHR(slave_id), # MV
-                ir=DynamicDataBlockIR(slave_id) # PV
+                hr=DynamicDataBlock(slave_id), # MV
+                ir=DynamicDataBlock(slave_id) # PV
             )
 
         context = ModbusServerContext(slaves=slaves, single=False)
