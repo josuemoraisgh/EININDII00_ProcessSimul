@@ -33,15 +33,16 @@ class SimulTf(QObject):
             den = ast.literal_eval(den_str.replace(" ", ","))
 
             self.delay[(data.tableName, data.rowName, data.colName)] = float(delay)
-
             G = ctrl.TransferFunction(num, den)
-            # Aproximação de Padé para o atraso de self.delay segundos (ordem 1)
-            num_delay, den_delay = ctrl.pade(self.delay, 1)  # atraso = 2s, ordem = 1
-            # Função de transferência do atraso
-            delay_tf = ctrl.TransferFunction(num_delay, den_delay)
-            # Sistema completo com atraso
-            sys_tf = G * delay_tf
-            
+            if self.delay[(data.tableName, data.rowName, data.colName)] != 0.0:
+                # Aproximação de Padé para o atraso de self.delay segundos (ordem 1)
+                num_delay, den_delay = ctrl.pade(self.delay, 1)  # atraso = 2s, ordem = 1
+                # Função de transferência do atraso
+                delay_tf = ctrl.TransferFunction(num_delay, den_delay)
+                # Sistema completo com atraso
+                sys_tf = G * delay_tf
+            else:
+                sys_tf = G
             sys_ss = ctrl.tf2ss(sys_tf)
             sysd = ctrl.c2d(sys_ss, self.stepTime / 1000.0, method='tustin')
 
