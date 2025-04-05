@@ -1,4 +1,3 @@
-from PySide6.QtCore import Signal, QObject
 from functools import reduce
 import pandas as pd
 import operator
@@ -35,11 +34,11 @@ def get_persistent_db_path(relative_path="db/banco.db", app_name="SimulApp"):
 
     return target_db_path
 
-class DBStorage(QObject):
+class DBStorage():
     # data_updated = Signal()  # Sinal emitido ao atualizar dados
         
     def __init__(self, db_name: str):
-        super().__init__()
+        # super().__init__()
         self.db_name = get_persistent_db_path(db_name)
 
     def rowKeys(self, tableName: str) -> list:

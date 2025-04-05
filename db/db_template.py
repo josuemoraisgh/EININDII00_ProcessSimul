@@ -6,63 +6,84 @@ from typing import Dict, Tuple, Union
 # MB_POINT = di, co, hr, ir
 mb_banco: Dict[str, Tuple[str, str, str, str]] = {
     'FV100CA': (4, 'FLOAT', 'hr', '01', '42480000'),    
-    'FI100CA': (4, 'FLOAT', 'ir', '01', '$[0.0227],[2.5 1.0],@MODBUS.CLP100.FV100CA/100.0,0.0227,0.0'),
+    'FIT100CA': (4, 'FLOAT', 'ir', '01', '$[0.0227],[2.5 1.0],@MODBUS.CLP100.FV100CA/100.0,0.0227,0.0'),
     'FV100AR': (4, 'FLOAT', 'hr', '03', '42480000'),    
-    'FI100AR': (4, 'FLOAT', 'ir', '03', '$[0.15],[1.25 1.0],@MODBUS.CLP100.FV100AR/100.0,0.15,0.0'), 
-    'qFor'   : (4, 'FLOAT', 'ir', '05', '$[0.85],[5.0 1.0],@exp(-0.05*((MODBUS.CLP100.FI100AR/MODBUS.CLP100.FI100CA)-15.0)**2.0),810.0,0.0'),        
-    'TI100'  : (4, 'FLOAT', 'ir', '07', '@MODBUS.CLP100.qFor/(1000.0 * MODBUS.CLP100.FI100AR)'),    
-    'FI100V' : (4, 'FLOAT', 'hr', '05', '3EB33333'),
-    'PI100V' : (4, 'FLOAT', 'ir', '09', '$[1.0],[1000 0.000001],@MODBUS.CLP100.qFor - 2770.0 * MODBUS.CLP100.FI100V,100.0,0.0'),
-    'LI100'  : (4, 'FLOAT', 'ir', '11', '$[1.0],[1.1 0.0000000001],@MODBUS.CLP100.FI100A - MODBUS.CLP100.FI100V,100.0,0.0'),    
-    'PI100A' : (4, 'FLOAT', 'hr', '07', '43C80000'),    
+    'FIT100AR': (4, 'FLOAT', 'ir', '03', '$[0.15],[1.25 1.0],@MODBUS.CLP100.FV100AR/100.0,0.15,0.0'), 
+    'qFor'   : (4, 'FLOAT', 'ir', '05', '$[0.85],[5.0 1.0],@exp(-0.05*((MODBUS.CLP100.FIT100AR/MODBUS.CLP100.FIT100CA)-15.0)**2.0),810.0,0.0'),        
+    'TIT100'  : (4, 'FLOAT', 'ir', '07', '@MODBUS.CLP100.qFor/(1000.0 * MODBUS.CLP100.FIT100AR)'),    
+    'FIT100V' : (4, 'FLOAT', 'hr', '05', '3EB33333'),
+    'PIT100V' : (4, 'FLOAT', 'ir', '09', '$[1.0],[1000 0.000001],@MODBUS.CLP100.qFor - 2770.0 * MODBUS.CLP100.FIT100V,100.0,0.0'),
+    'LIT100'  : (4, 'FLOAT', 'ir', '11', '$[1.0],[1.1 0.0000000001],@MODBUS.CLP100.FIT100A - MODBUS.CLP100.FIT100V,100.0,0.0'),    
+    'PIT100A' : (4, 'FLOAT', 'hr', '07', '43C80000'),    
     'FV100A' : (4, 'FLOAT', 'hr', '09', '42480000'),    
-    'FI100A' : (4, 'FLOAT', 'ir', '13', '$[0.5],[1.0 1.0],@math.sqrt(MODBUS.CLP100.PI100A/400.0)*MODBUS.CLP100.FV100A,100.0,0.0'),
+    'FIT100A' : (4, 'FLOAT', 'ir', '13', '$[0.5],[1.0 1.0],@math.sqrt(MODBUS.CLP100.PIT100A/400.0)*MODBUS.CLP100.FV100A,100.0,0.0'),
 
 }
-# ['NAME', 'BYTE_SIZE', 'TYPE', 'FV100CA', 'FI100CA', 'FV100AR', 'FI100AR', 'TI100', 'FI100V', 'PI100V', 'LI100', 'PI100A', 'FV100A', 'FI100A']
+# ['NAME', 'BYTE_SIZE', 'TYPE', 'FV100CA', 'FIT100CA', 'FV100AR', 'FIT100AR', 'TIT100', 'FIT100V', 'PIT100V', 'LIT100', 'PIT100A', 'FV100A', 'FIT100A']
 hrt_banco: Dict[str, Tuple[Union[int, float], str, str]] = {
-    'frame_type': (1, 'UNSIGNED', '06'),
-    'address_type': (1, 'UNSIGNED', '00'),
-    'error_code': (2, 'ENUM00', '0000'),
-    'response_code': (1, 'ENUM27', '30'),
-    'device_status': (1, 'BIT_ENUM02', '00'),
-    'comm_status': (1, 'BIT_ENUM03', '00'),
-    'master_address': (1, 'BIT_ENUM01', '80'),
-    'manufacturer_id': (1, 'ENUM08', '3E'),
-    'device_type': (1, 'ENUM01', '02'),
-    'request_preambles': (1, 'UNSIGNED', '05'),
-    'hart_revision': (1, 'UNSIGNED', '05'),
-    'transmitter_revision': (1, 'UNSIGNED', '30'),
-    'software_revision': (1, 'UNSIGNED', '04'),
-    'hardware_revision': (1, 'UNSIGNED', '01'),
-    'device_flags': (1, 'BIT_ENUM04', '00'),
-    'device_id': (5, 'UNSIGNED', '1F00000010'),
-    'polling_address': (1, 'UNSIGNED', '80'),
-    'tag': (
-        8,
-        'PACKED_ASCII',
-        '514CF0C60820',
-    ),  # TT301
-    'message': (
-        32,
-        'PACKED_ASCII',
-        '34510910F4A010581414D405481515481820820820820820',
-    ),  # MEDIDOR DE TEMPERATURA
-    'descriptor': (
-        16,
-        'PACKED_ASCII',
-        '505350152054552060820820'),  # TEMPERATURA
-    'date': (3, 'DATE', '130879'),  # 19/08/2021
-    'upper_range_value': (4, 'FLOAT', '44548000'),  # 850
-    'lower_range_value': (4, 'FLOAT', 'C3480000'),  # -200
-    'PROCESS_VARIABLE': (
-        4,
-        'FLOAT',
-        '@(HART.LI100.percent_of_range / 100) * (HART.LI100.upper_range_value - HART.LI100.lower_range_value) + HART.LI100.lower_range_value'
+    'frame_type': (1, 'UNSIGNED', '06', '06', '06', '06', '06', '06', '06', '06', '06', '06', '06'),
+    'address_type': (1, 'UNSIGNED', '00', '00', '00', '00', '00', '00', '00', '00', '00', '00', '00'),
+    'error_code': (2, 'ENUM00', '0000', '0000', '0000', '0000', '0000', '0000', '0000', '0000', '0000', '0000', '0000'),
+    'response_code': (1, 'ENUM27', '30', '30', '30', '30', '30', '30', '30', '30', '30', '30', '30'),
+    'device_status': (1, 'BIT_ENUM02', '00', '00', '00', '00', '00', '00', '00', '00', '00', '00', '00'),
+    'comm_status': (1, 'BIT_ENUM03', '00', '00', '00', '00', '00', '00', '00', '00', '00', '00', '00'),
+    'master_address': (1, 'BIT_ENUM01', '80', '80', '80', '80', '80', '80', '80', '80', '80', '80', '80'),
+    'manufacturer_id': (1, 'ENUM08', '3E', '3E', '3E', '3E', '3E', '3E', '3E', '3E', '3E', '3E', '3E'),
+    'device_type': (1, 'ENUM01', '02', '02', '02', '02', '02', '02', '02', '02', '02', '02', '02'),
+    'request_preambles': (1, 'UNSIGNED', '05', '05', '05', '05', '05', '05', '05', '05', '05', '05', '05'),
+    'hart_revision': (1, 'UNSIGNED', '05', '05', '05', '05', '05', '05', '05', '05', '05', '05', '05'),
+    'transmitter_revision': (1, 'UNSIGNED', '30', '30', '30', '30', '30', '30', '30', '30', '30', '30', '30'),
+    'software_revision': (1, 'UNSIGNED', '04', '04', '04', '04', '04', '04', '04', '04', '04', '04', '04'),
+    'hardware_revision': (1, 'UNSIGNED', '01', '01', '01', '01', '01', '01', '01', '01', '01', '01', '01'),
+    'device_flags': (1, 'BIT_ENUM04', '00', '00', '00', '00', '00', '00', '00', '00', '00', '00', '00'),
+    'device_id': (5, 'UNSIGNED', '1F00000010', '1F00000010', '1F00000010', '1F00000010', '1F00000010', '1F00000010', '1F00000010', '1F00000010', '1F00000010', '1F00000010', '1F00000010'),
+    'polling_address': (1, 'UNSIGNED', '80', '80', '80', '80', '80', '80', '80', '80', '80', '80', '80'),
+    'tag': (8,'PACKED_ASCII','514CF0C60820','514CF0C60820','514CF0C60820','514CF0C60820','514CF0C60820','514CF0C60820','514CF0C60820','514CF0C60820','514CF0C60820','514CF0C60820','514CF0C60820'),  # TT301
+    'message': (32,'PACKED_ASCII','34510910F4A010581414D405481515481820820820820820'),  # MEDIDOR DE TEMPERATURA
+    'descriptor': (16,'PACKED_ASCII','505350152054552060820820','505350152054552060820820','505350152054552060820820','505350152054552060820820','505350152054552060820820','505350152054552060820820','505350152054552060820820','505350152054552060820820','505350152054552060820820','505350152054552060820820','505350152054552060820820'),  # TEMPERATURA
+    'date': (3, 'DATE', '130879', '130879', '130879', '130879', '130879', '130879', '130879', '130879', '130879', '130879', '130879'),  # 19/08/2021
+    'upper_range_value': (4, 'FLOAT', '44548000', '44548000', '44548000', '44548000', '44548000', '44548000', '44548000', '44548000', '44548000', '44548000', '44548000'),  # 850
+    'lower_range_value': (4, 'FLOAT', 'C3480000', 'C3480000', 'C3480000', 'C3480000', 'C3480000', 'C3480000', 'C3480000', 'C3480000', 'C3480000', 'C3480000', 'C3480000'),  # -200
+    'PROCESS_VARIABLE': (4,'FLOAT',
+        '@(HART.FV100CA.percent_of_range / 100) * (HART.FV100CA.upper_range_value - HART.FV100CA.lower_range_value) + HART.FV100CA.lower_range_value',
+        '@(HART.FIT100CA.percent_of_range / 100) * (HART.FIT100CA.upper_range_value - HART.FIT100CA.lower_range_value) + HART.FIT100CA.lower_range_value',
+        '@(HART.FV100AR.percent_of_range / 100) * (HART.FV100AR.upper_range_value - HART.FV100AR.lower_range_value) + HART.FV100AR.lower_range_value',
+        '@(HART.FIT100AR.percent_of_range / 100) * (HART.FIT100AR.upper_range_value - HART.FIT100AR.lower_range_value) + HART.FIT100AR.lower_range_value',
+        '@(HART.TIT100.percent_of_range / 100) * (HART.TIT100.upper_range_value - HART.TIT100.lower_range_value) + HART.TIT100.lower_range_value',
+        '@(HART.FIT100V.percent_of_range / 100) * (HART.FIT100V.upper_range_value - HART.FIT100V.lower_range_value) + HART.FIT100V.lower_range_value',
+        '@(HART.PIT100V.percent_of_range / 100) * (HART.PIT100V.upper_range_value - HART.PIT100V.lower_range_value) + HART.PIT100V.lower_range_value',
+        '@(HART.LIT100.percent_of_range / 100) * (HART.LIT100.upper_range_value - HART.LIT100.lower_range_value) + HART.LIT100.lower_range_value',
+        '@(HART.PIT100A.percent_of_range / 100) * (HART.PIT100A.upper_range_value - HART.PIT100A.lower_range_value) + HART.PIT100A.lower_range_value',
+        '@(HART.FV100A.percent_of_range / 100) * (HART.FV100A.upper_range_value - HART.FV100A.lower_range_value) + HART.FV100A.lower_range_value',
+        '@(HART.FV100A.percent_of_range / 100) * (HART.FV100A.upper_range_value - HART.FV100A.lower_range_value) + HART.FV100A.lower_range_value'
     ),  # 50
-    'percent_of_range': (4, 'FLOAT', '@MODBUS.CLP100.LI100'),
+    'percent_of_range': (4, 'FLOAT', 
+        '42480000', # FV100CA -> 0@100 %
+        '$[0.0227],[2.5 1.0],@MODBUS.CLP100.FV100CA/100.0', # FIT100CA  -> 0.0@0.0227,  
+        '42480000', # FV100ARA -> 0@100 %
+        '@MODBUS.CLP100.FV100AR/100.0' #FIT100AR -> 0.0@0.15
+        '@MODBUS.CLP100.qFor/(1000.0 * MODBUS.CLP100.FIT100AR)', # TIT100 -> 0@1000ºC
+        '3EB33333', # FIT100V -> 0@0.35 kg/s
+        '$[1.0],[1000 0.000001],@MODBUS.CLP100.qFor - 2770.0 * MODBUS.CLP100.FIT100V', # PIT100V -> 
+        '$[1.0],[1.1 0.0000000001],@MODBUS.CLP100.FIT100A - MODBUS.CLP100.FIT100V', # LIT100 -> 0@100 %
+        '43C80000', # PIT100A -> 0@600 kPa   
+        '42480000', # FV100A -> 0@100 %  
+        '$[0.5],[1.0 1.0],@math.sqrt(MODBUS.CLP100.PIT100A/400.0)*MODBUS.CLP100.FV100A,' # FIT100A -> Nm3/h
+    ),
     'loop_current_mode': (1, 'ENUM00', '00'),
-    'loop_current': (4, 'FLOAT', '@(HART.LI100.percent_of_range * 0.16) + 4'),
+    'loop_current': (4, 'FLOAT', 
+        '@(HART.FV100CA.percent_of_range * 0.16) + 4'
+        '@(HART.FIT100CA.percent_of_range * 0.16) + 4'
+        '@(HART.FV100AR.percent_of_range * 0.16) + 4'
+        '@(HART.FIT100AR.percent_of_range * 0.16) + 4'
+        '@(HART.TIT100.percent_of_range * 0.16) + 4'
+        '@(HART.FIT100V.percent_of_range * 0.16) + 4'
+        '@(HART.PIT100V.percent_of_range * 0.16) + 4'
+        '@(HART.LIT100.percent_of_range * 0.16) + 4'
+        '@(HART.PIT100A.percent_of_range * 0.16) + 4'
+        '@(HART.FV100A.percent_of_range * 0.16) + 4'
+        '@(HART.FIT100A.percent_of_range * 0.16) + 4'
+    ),
     'write_protect': (1, 'ENUM00', '00'),
     'private_label_distributor': (1, 'ENUM00', '00'),
     'final_assembly_number': (3, 'UNSIGNED', '00FBC6'),
@@ -76,27 +97,10 @@ hrt_banco: Dict[str, Tuple[Union[int, float], str, str]] = {
     'flag_assignment': (1, 'ENUM11', '01'),  # (Multi-Sensor Field Device)
     'operating_mode_code': (1, 'ENUM14', '00'),  # (None)
     'analog_output_numbers_code': (1, 'ENUM15', '00'),  # (Analog Channel 0)
-    'burst_command_number': (1, 'ENUM00', '00'),
-    'burst_mode_select': (1, 'ENUM00', '00'),
-    'meter_installation': (1, 'ENUM00', '00'),
-    'digital_units': (1, 'ENUM00', '00'),
-    'sensor_type': (1, 'ENUM00', '00'),
-    'analog_output_transfer_function': (1, 'ENUM00', '00'),
     'ma_analog_output_1_value': (4, 'FLOAT', '00000000'),
-    'ma_analog_output_1_alarm_select': (1, 'ENUM00', '00'),
     'sensor1_serial_number': (3, 'UNSIGNED', '000000'),
-    'DEVICE_MODE': (1, 'ENUM00', '00'),
-    'number_wires': (1, 'ENUM00', '00'),
-    'device_code': (1, 'UNSIGNED', '00'),
-    'lin_mode': (1, 'ENUM00', '00'),
     'SETPOINT': (4, 'FLOAT', '00000000'),
     'MANIPULATED_VARIABLE': (4, 'FLOAT', '00'),
-    'CONTROLLER_TYPE': (1, 'ENUM00', '00'),
-    'POWER_UP_MODE': (1, 'ENUM00', '00'),
-    'CONTROLLER_ACTION': (1, 'ENUM00', '00'),
-    'unit_code': (1, 'ENUM00', '00'),
-    'SETPOINT_TRACKING_MODE': (1, 'ENUM00', '00'),
-    'pid_mode': (1, 'ENUM00', '00'),
     'ERROR_PERCENT_RANGE': (4, 'FLOAT', '00'),
     'PROPORTIONAL_GAIN': (4, 'FLOAT', '00000000'),
     'INTEGRAL_TIME': (4, 'FLOAT', '00000000'),
@@ -107,23 +111,11 @@ hrt_banco: Dict[str, Tuple[Union[int, float], str, str]] = {
     'POWER_UP_SETPOINT_PERCENT_RANGE': (4, 'FLOAT', '00000000'),
     'POWER_UP_OUTPUT': (4, 'FLOAT', '00000000'),
     'set_point_time': (4, 'FLOAT', '00000000'),
-    'set_point_generator_mode': (1, 'ENUM00', '00'),
-    'set_point_time_generator_mode': (1, 'ENUM00', '00'),
     'range_units': (1, 'UNSIGNED', '00'),
-    'pv_display_code': (1, 'ENUM00', '00'),
-    'sv_display_code': (1, 'ENUM00', '00'),
-    'communication_write_protection_mode': (1, 'ENUM00', '00'),
-    'local_adjust_protection_mode': (1, 'ENUM00', '00'),
-    'local_adjust_mode': (1, 'ENUM00', '00'),
-    'input_unit_code': (1, 'ENUM00', '00'),
     'output_variable': (4, 'FLOAT', '00000000'),
     'mv_ohms': (4, 'FLOAT', '00000000'),
-    'cal_point_limits_unit': (1, 'ENUM00', '00'),
     'upper_cal_point_value': (4, 'FLOAT', '00000000'),
     'lower_cal_point_value': (4, 'FLOAT', '00000000'),
-    'CONTROLLER_MODE': (1, 'ENUM00', '00'),
-    'fail_safe_mode': (1, 'ENUM00', '00'),
-    'sensor_range': (1, 'ENUM00', '00'),
 }
 
 
