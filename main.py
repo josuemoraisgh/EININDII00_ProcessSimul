@@ -63,7 +63,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             lcd_widget = getattr(self, f'lcd{device}')
             slider_widget: QSlider  = getattr(self, f'slider{device}', None)                
             var: ReactDB = self.reactDB.df["MODBUS"].loc[device, col]
-            if slider_widget != None:
+            if slider_widget != None: 
                 if device == 'FI100V':
                     slider_widget.setMinimum(0)
                     slider_widget.setMaximum(100)

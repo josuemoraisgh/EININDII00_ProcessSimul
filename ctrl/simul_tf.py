@@ -16,8 +16,7 @@ class SimulTf(QObject):
     dictDB = {}
     systems = {}
     states = {}
-    v_max = {}
-    v_min = {}  
+    delay = {} 
       
     def __init__(self, stepTime):
         super().__init__()
@@ -29,14 +28,20 @@ class SimulTf(QObject):
     def tfConnect(self, data: ReactVar,  isConnect: bool):
         if isConnect == True:
             self.dictDB[(data.tableName, data.rowName, data.colName)] = data
-            num_str, den_str, _, v_max, v_min = data.getTFunc().split(",")
+            num_str, den_str, _, delay = data.getTFunc().split(",")
             num = ast.literal_eval(num_str.replace(" ", ","))
             den = ast.literal_eval(den_str.replace(" ", ","))
 
-            self.v_max[(data.tableName, data.rowName, data.colName)] = float(v_max)
-            self.v_min[(data.tableName, data.rowName, data.colName)] = float(v_min)
+            self.delay[(data.tableName, data.rowName, data.colName)] = float(delay)
 
-            sys_tf = ctrl.TransferFunction(num, den)
+            G = ctrl.TransferFunction(num, den)
+            # Aproximação de Padé para o atraso de self.delay segundos (ordem 1)
+            num_delay, den_delay = ctrl.pade(self.delay, 1)  # atraso = 2s, ordem = 1
+            # Função de transferência do atraso
+            delay_tf = ctrl.TransferFunction(num_delay, den_delay)
+            # Sistema completo com atraso
+            sys_tf = G * delay_tf
+            
             sys_ss = ctrl.tf2ss(sys_tf)
             sysd = ctrl.c2d(sys_ss, self.stepTime / 1000.0, method='tustin')
 
