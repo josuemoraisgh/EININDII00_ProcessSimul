@@ -24,8 +24,9 @@ from pymodbus.constants import Endian
 from pymodbus.datastore import ModbusSequentialDataBlock as BaseModbusDataBlock
 
 class DynamicDataBlock(BaseModbusDataBlock):
-    def __init__(self, slave_id, reactDB):
+    def __init__(self, slave_id, reactDB, type):
         super().__init__(0x00, 0)  # inicialização base fictícia
+        self.type = type
         self.reactDB = reactDB
         self.slave_id = slave_id
 
@@ -35,35 +36,33 @@ class DynamicDataBlock(BaseModbusDataBlock):
     def getValues(self, address, count=1):
         builder = BinaryPayloadBuilder(byteorder=Endian.BIG, wordorder=Endian.BIG)
         addr = address
-        for i in range(count):
-            try:
-                # Filtra linha correspondente ao endereço atual e ponto "hr"
-                df = self.reactDB.df["MODBUS"]
-                row = df.loc[
-                    (df["ADDRESS"].apply(lambda a: a.getValue() == f"{addr:02}")) &
-                    (df["MB_POINT"].apply(lambda a: a.getValue() == "hr"))
-                ]
-                if row.empty:
-                    builder.add_16bit_int(0)  # valor default caso não encontre
-                    continue
+        size = address + count
+        while addr < size:
+            # Filtra linha correspondente ao endereço atual e ponto "hr"
+            df = self.reactDB.df["MODBUS"]
+            row = df.loc[
+                (df["ADDRESS"].apply(lambda a: a.getValue() == f"{int(addr):02}")) &
+                (df["MB_POINT"].apply(lambda a: a.getValue() == f"{self.type}"))
+            ]
+            if row.empty:
+                builder.add_16bit_int(0)  # valor default caso não encontre
+                addr  += 1
+                continue
 
-                data: ReactVar = row.iloc[0, 4]  # índice 5: coluna com ReactVar
-                data_value = data.getValue()
-                data_type = data.type()
-                addr = addr + (data.byteSize()/2)
-                if data_type == "REAL":
-                    builder.add_32bit_float(data_value)
-                elif data_type == "INTEGER":
-                    builder.add_32bit_int(data_value)
-                elif data_type == "STRING":
-                    builder.add_string(data_value.encode("ascii"))
-                else:  # UNSIGNED ou outros tipos
-                    builder.add_32bit_uint(data_value)
-
-            except Exception as e:
-                print(f"Erro ao processar endereço {addr}: {e}")
-                builder.add_16bit_int(0)
-
+            data: ReactVar = row.iloc[0, 4]  # índice 5: coluna com ReactVar
+            data_value = data.getValue()
+            data_type = data.type()
+            addr  += (data.byteSize()//2)
+            
+            if data_type == "FLOAT":
+                builder.add_32bit_float(data_value)
+            elif data_type == "INTEGER":
+                builder.add_16bit_int(data_value)
+            elif data_type == "STRING":
+                builder.add_string(data_value.encode("ascii"))
+            else:  # UNSIGNED ou outros tipos
+                builder.add_16bit_uint(data_value)
+                
         return builder.to_registers()
 
     def setValues(self, address, data_Value):
@@ -116,8 +115,8 @@ class ModbusServerThread(QThread):
             slaves[slave_id] = ModbusSlaveContext(
                 di=InvalidDataBlock(),
                 co=InvalidDataBlock(),
-                hr=DynamicDataBlock(slave_id, self.reactDB), # MV
-                ir=DynamicDataBlock(slave_id, self.reactDB) # PV
+                hr=DynamicDataBlock(slave_id, self.reactDB, "hr"), # MV
+                ir=DynamicDataBlock(slave_id, self.reactDB, "ir") # PV
             )
 
         context = ModbusServerContext(slaves=slaves, single=False)
