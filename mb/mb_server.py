@@ -66,7 +66,7 @@ class DynamicDataBlock(BaseModbusDataBlock):
         return builder.to_registers()
 
     def setValues(self, address, data_Value):
-        decoder = BinaryPayloadDecoder.fromRegisters(data_Value, byteorder=Endian.Big, wordorder=Endian.Big)
+        decoder = BinaryPayloadDecoder.fromRegisters(data_Value, byteorder=Endian.BIG, wordorder=Endian.BIG)
 
         try:
             row = self.reactDB.df["MODBUS"].query(f'ADDRESS == "{address}" and MB_POINT == "hr"')

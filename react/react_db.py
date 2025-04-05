@@ -1,18 +1,10 @@
 from PySide6.QtCore import QObject, Signal, Slot
 from react.react_var import ReactVar
 from db.db_storage import DBStorage
-from functools import partial
 import pandas as pd
 import os
 import sys
 
-def get_db_path():
-    if getattr(sys, 'frozen', False):  # Se for executável compilado com PyInstaller
-        # base_path = sys._MEIPASS  # PyInstaller move arquivos para esta pasta temporária
-        return os.path.join(os.path.abspath("."), "banco.db")
-    else:
-        return os.path.join(os.path.abspath("."), "db", "banco.db") # Caminho normal em execução direta
-       
 class ReactDB(QObject):
     df                      = {}
     autoCompleteList        = {}
@@ -21,7 +13,7 @@ class ReactDB(QObject):
     def __init__(self, tableNames: str):
         super().__init__()
         self.tableNames = tableNames 
-        self.storage = DBStorage(get_db_path())
+        self.storage = DBStorage('db/banco.db')
         for tableName in self.tableNames:       
             self._createDataFrame(tableName)          
             self._creatAutoCompleteList(tableName)      
