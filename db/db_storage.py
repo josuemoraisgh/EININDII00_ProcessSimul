@@ -17,7 +17,7 @@ def get_app_data_dir(app_name="processSimul"):
     else:  # Linux e outros Unix-like
         return os.path.join(os.path.expanduser("~/.local/share"), app_name)
 
-def get_persistent_db_path(relative_path="db/banco.db", app_name="SimulApp"):
+def get_persistent_db_path(relative_path="db/banco.db", app_name="processSimul"):
     """Garante que o banco seja copiado para um local persistente e retorna seu caminho."""
     target_dir = get_app_data_dir(app_name)
     os.makedirs(target_dir, exist_ok=True)
@@ -39,7 +39,7 @@ class DBStorage():
         
     def __init__(self, db_name: str):
         # super().__init__()
-        self.db_name = get_persistent_db_path(db_name)
+        self.db_name = get_persistent_db_path(db_name, 'processSimul')
 
     def rowKeys(self, tableName: str) -> list:
         with sqlite3.connect(self.db_name) as conn:

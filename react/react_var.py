@@ -99,7 +99,7 @@ class ReactVar(QObject):
             self.model = DBModel.tFunc
             self._value = 5.877471754111438e-39
             self._tFunc  = tFunc
-            _, __, inpValue, ___, ____ = tFunc.split(",")
+            _, __, ___, inpValue = tFunc.split(",")
             self._startFunc(inpValue[1:]) # Ele tem que ser a penultima ante do sinal                         
             self.isTFuncSignal.emit(self, True)         
 

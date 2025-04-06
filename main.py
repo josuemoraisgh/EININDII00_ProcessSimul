@@ -55,7 +55,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.move(janela_geometry.topLeft())
     
     def connectLCDs(self):
-        devices = ['FV100CA', 'FI100CA', 'FV100AR', 'FI100AR', 'TI100', 'FI100V', 'PI100V', 'LI100', 'PI100A', 'FV100A', 'FI100A']
+        devices = ['FV100CA', 'FIT100CA', 'FV100AR', 'FIT100AR', 'TIT100', 'FIT100V', 'PIT100V', 'LIT100', 'PIT100A', 'FV100A', 'FIT100A']
         col = "CLP100"
         def atualizaDisplay(lcd_widget,var):
             lcd_widget.display(var.getValue(DBState.humanValue))
@@ -64,14 +64,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             slider_widget: QSlider  = getattr(self, f'slider{device}', None)                
             var: ReactDB = self.reactDB.df["MODBUS"].loc[device, col]
             if slider_widget != None: 
-                if device == 'FI100V':
+                if device == 'FIT100V':
                     slider_widget.setMinimum(0)
                     slider_widget.setMaximum(100)
                     slider_widget.setValue(100) 
                     def vchanded1(var,x):
                         var.setValue(float(x)*0.0035,DBState.humanValue)
                     slider_widget.valueChanged.connect(partial(vchanded1, var))                   
-                elif device == 'PI100A':
+                elif device == 'PIT100A':
                     slider_widget.setMinimum(0)
                     slider_widget.setMaximum(600)
                     slider_widget.setValue(400)
@@ -92,20 +92,20 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         parent_width = event.size().width()
         parent_height = event.size().height()
         # meu_botao = self.findChild(QWidget, "widgetCtrlLIC100")
-        self.widgetLI100.move(parent_width * 0.58,parent_height * 0.02)
-        self.widgetTI100.move(parent_width * 0.35, parent_height * 0.40)
+        self.widgetLIT100.move(parent_width * 0.58,parent_height * 0.02)
+        self.widgetTIT100.move(parent_width * 0.35, parent_height * 0.40)
         
-        self.widgetPI100V.move(25, 10)
-        self.widgetFI100V.move(-4, 80)
+        self.widgetPIT100V.move(25, 10)
+        self.widgetFIT100V.move(-4, 80)
 
-        self.widgetPI100A.move(-4, 300)
-        self.widgetFI100A.move(parent_width -210, 10)
+        self.widgetPIT100A.move(-4, 300)
+        self.widgetFIT100A.move(parent_width -210, 10)
         self.widgetFV100A.move(parent_width - 248, 68)
         
-        self.widgetFI100CA.move(parent_width * 0.20, parent_height * 0.75)
+        self.widgetFIT100CA.move(parent_width * 0.20, parent_height * 0.75)
         self.widgetFV100CA.move(parent_width * 0.30, parent_height * 0.68)
         
-        self.widgetFI100AR.move(parent_width * 0.54, parent_height * 0.75)
+        self.widgetFIT100AR.move(parent_width * 0.54, parent_height * 0.75)
         self.widgetFV100AR.move(parent_width * 0.64, parent_height * 0.68)
         
         self.groupBoxSimul.move(parent_width - 190, parent_height - 220)        

@@ -5,18 +5,17 @@ from typing import Dict, Tuple, Union
 # ['NAME', 'BYTE_SIZE', 'TYPE', 'MB_POINT', 'ADDRESS', 'CLP100']
 # MB_POINT = di, co, hr, ir
 mb_banco: Dict[str, Tuple[str, str, str, str]] = {
-    'FV100CA': (4, 'FLOAT', 'hr', '01', 'HART.FV100CA.percent_of_range'),    
-    'FIT100CA': (4, 'FLOAT', 'ir', '01','HART.FIT100CA.percent_of_range'),
-    'FV100AR': (4, 'FLOAT', 'hr', '03', 'HART.FV100AR.percent_of_range'),    
-    'FIT100AR': (4, 'FLOAT', 'ir', '03','HART.FIT100AR.percent_of_range'), 
-    'qFor'   : (4, 'FLOAT', 'ir', '05', 'HART.qFor.percent_of_range'),        
-    'TIT100'  : (4, 'FLOAT', 'ir', '07','HART.TIT100.percent_of_range'),    
-    'FIT100V' : (4, 'FLOAT', 'hr', '05','HART.FIT100V.percent_of_range'),
-    'PIT100V' : (4, 'FLOAT', 'ir', '09','HART.PIT100V.percent_of_range'),
-    'LIT100'  : (4, 'FLOAT', 'ir', '11','HART.LIT100.percent_of_range'),    
-    'PIT100A' : (4, 'FLOAT', 'hr', '07','HART.PIT100A.percent_of_range'),    
-    'FV100A' : (4, 'FLOAT', 'hr', '09', 'HART.FV100A.percent_of_range'),    
-    'FIT100A' : (4, 'FLOAT', 'ir', '13','HART.FIT100A.percent_of_range'),
+    'FV100CA': (4, 'FLOAT', 'hr', '01', '@HART.FV100CA.PROCESS_VARIABLE'),    
+    'FIT100CA': (4, 'FLOAT', 'ir', '01','@HART.FIT100CA.PROCESS_VARIABLE'),
+    'FV100AR': (4, 'FLOAT', 'hr', '03', '@HART.FV100AR.PROCESS_VARIABLE'),    
+    'FIT100AR': (4, 'FLOAT', 'ir', '03','@HART.FIT100AR.PROCESS_VARIABLE'),        
+    'TIT100'  : (4, 'FLOAT', 'ir', '05','@HART.TIT100.PROCESS_VARIABLE'),    
+    'FIT100V' : (4, 'FLOAT', 'hr', '05','@HART.FIT100V.PROCESS_VARIABLE'),
+    'PIT100V' : (4, 'FLOAT', 'ir', '07','@HART.PIT100V.PROCESS_VARIABLE'),
+    'LIT100'  : (4, 'FLOAT', 'ir', '09','@HART.LIT100.PROCESS_VARIABLE'),    
+    'PIT100A' : (4, 'FLOAT', 'hr', '07','@HART.PIT100A.PROCESS_VARIABLE'),    
+    'FV100A' : (4, 'FLOAT', 'hr', '09', '@HART.FV100A.PROCESS_VARIABLE'),    
+    'FIT100A' : (4, 'FLOAT', 'ir', '11','@HART.FIT100A.PROCESS_VARIABLE'),
 }
 # ['NAME', 'BYTE_SIZE', 'TYPE', 'FV100CA', 'FIT100CA', 'FV100AR', 'FIT100AR', 'TIT100', 'FIT100V', 'PIT100V', 'LIT100', 'PIT100A', 'FV100A', 'FIT100A']
 hrt_banco: Dict[str, Tuple[Union[int, float], str, str]] = {
@@ -56,43 +55,43 @@ hrt_banco: Dict[str, Tuple[Union[int, float], str, str]] = {
     'upper_range_value': (4, 'FLOAT', '42C80000', '3CB9F559', '42C80000', '3E199999', '447A0000', '3EB33333', '41200000', '42C80000', '44160000', '42C80000', '3F0CCCCC'),  # Varia
     'lower_range_value': (4, 'FLOAT', '00000000', '3727C5AC', '00000000', '3727C5AC', '00000000', '00000000', '00000000', '00000000', '00000000', '00000000', '00000000'),  # 0
     'PROCESS_VARIABLE': (4,'FLOAT',
-        '@(HART.FV100CA.percent_of_range / 100.0) * (HART.FV100CA.upper_range_value - HART.FV100CA.lower_range_value) + HART.FV100CA.lower_range_value',
-        '@(HART.FIT100CA.percent_of_range / 100.0) * (HART.FIT100CA.upper_range_value - HART.FIT100CA.lower_range_value) + HART.FIT100CA.lower_range_value',
-        '@(HART.FV100AR.percent_of_range / 100.0) * (HART.FV100AR.upper_range_value - HART.FV100AR.lower_range_value) + HART.FV100AR.lower_range_value',
-        '@(HART.FIT100AR.percent_of_range / 100.0) * (HART.FIT100AR.upper_range_value - HART.FIT100AR.lower_range_value) + HART.FIT100AR.lower_range_value',
-        '@(HART.TIT100.percent_of_range / 100.0) * (HART.TIT100.upper_range_value - HART.TIT100.lower_range_value) + HART.TIT100.lower_range_value',
-        '@(HART.FIT100V.percent_of_range / 100.0) * (HART.FIT100V.upper_range_value - HART.FIT100V.lower_range_value) + HART.FIT100V.lower_range_value',
-        '@(HART.PIT100V.percent_of_range / 100.0) * (HART.PIT100V.upper_range_value - HART.PIT100V.lower_range_value) + HART.PIT100V.lower_range_value',
-        '@(HART.LIT100.percent_of_range / 100.0) * (HART.LIT100.upper_range_value - HART.LIT100.lower_range_value) + HART.LIT100.lower_range_value',
-        '@(HART.PIT100A.percent_of_range / 100.0) * (HART.PIT100A.upper_range_value - HART.PIT100A.lower_range_value) + HART.PIT100A.lower_range_value',
-        '@(HART.FV100A.percent_of_range / 100.0) * (HART.FV100A.upper_range_value - HART.FV100A.lower_range_value) + HART.FV100A.lower_range_value',
-        '@(HART.FV100A.percent_of_range / 100.0) * (HART.FV100A.upper_range_value - HART.FV100A.lower_range_value) + HART.FV100A.lower_range_value'
+        '@HART.FV100CA.percent_of_range * (HART.FV100CA.upper_range_value - HART.FV100CA.lower_range_value) + HART.FV100CA.lower_range_value',
+        '@HART.FIT100CA.percent_of_range * (HART.FIT100CA.upper_range_value - HART.FIT100CA.lower_range_value) + HART.FIT100CA.lower_range_value',
+        '@HART.FV100AR.percent_of_range * (HART.FV100AR.upper_range_value - HART.FV100AR.lower_range_value) + HART.FV100AR.lower_range_value',
+        '@HART.FIT100AR.percent_of_range * (HART.FIT100AR.upper_range_value - HART.FIT100AR.lower_range_value) + HART.FIT100AR.lower_range_value',
+        '@HART.TIT100.percent_of_range * (HART.TIT100.upper_range_value - HART.TIT100.lower_range_value) + HART.TIT100.lower_range_value',
+        '@HART.FIT100V.percent_of_range * (HART.FIT100V.upper_range_value - HART.FIT100V.lower_range_value) + HART.FIT100V.lower_range_value',
+        '@HART.PIT100V.percent_of_range * (HART.PIT100V.upper_range_value - HART.PIT100V.lower_range_value) + HART.PIT100V.lower_range_value',
+        '@HART.LIT100.percent_of_range * (HART.LIT100.upper_range_value - HART.LIT100.lower_range_value) + HART.LIT100.lower_range_value',
+        '@HART.PIT100A.percent_of_range * (HART.PIT100A.upper_range_value - HART.PIT100A.lower_range_value) + HART.PIT100A.lower_range_value',
+        '@HART.FV100A.percent_of_range * (HART.FV100A.upper_range_value - HART.FV100A.lower_range_value) + HART.FV100A.lower_range_value',
+        '@HART.FV100A.percent_of_range * (HART.FV100A.upper_range_value - HART.FV100A.lower_range_value) + HART.FV100A.lower_range_value'
     ),  # 50
     'percent_of_range': (4, 'FLOAT', 
         '42480000', # FV100CA -> 0@100% esta em 50%
-        '$[100.0],[2.5 1.0], 3, @HART.FV100CA.percent_of_range/100.0', # FIT100CA  -> 0.00001@0.0227kg/s
+        '$[1.0],[2.5 1.0], 1,@HART.FV100CA.percent_of_range', # FIT100CA  -> 0.00001@0.0227kg/s
         '42480000', # FV100AR -> 0@100% esta em 50%
-        '$[100.0],[1.25 1.0], 5,@HART.FV100AR.percent_of_range/100.0', #FIT100AR -> 0.00001@0.15kg/s        
-        '$[100.0],[5000.0 150.0 1.0], 30,@exp(-0.05*((6.61*HART.FIT100AR.percent_of_range/HART.FIT100CA.percent_of_range)-15.0)**2.0)', # TIT100 -> 0@1000ºC
+        '$[1.0],[1.25 1.0], 1,@HART.FV100AR.percent_of_range', #FIT100AR -> 0.00001@0.15kg/s        
+        '$[1.0],[500.0 15.0 1.0], 1.2,@exp(-0.05*((6.61*HART.FIT100AR.percent_of_range/HART.FIT100CA.percent_of_range)-15.0)**2.0)', # TIT100 -> 0@1000ºC
         '42480000', # FIT100V -> 0@0.35kg/s esta em 0.175 (50%)
-        '$[100.0],[1000 0.000001], 1,@HART.CLP100.TIT100 - 0.5*HART.FIT100V.percent_of_range', # PIT100V -> 0@10Bar
-        '$[100.0],[1.1 0.000001], 2,@HART.FIT100A.percent_of_range - HART.FIT100V.percent_of_range', # LIT100 -> 0@100%
+        '$[1.0],[1000 0.000001], 1,@HART.TIT100.percent_of_range - 0.5*HART.FIT100V.percent_of_range', # PIT100V -> 0@10Bar
+        '$[1.0],[1.1 0.000001], 0.5,@HART.FIT100A.percent_of_range - HART.FIT100V.percent_of_range', # LIT100 -> 0@100%
         '428551EB', # PIT100A -> 0@600kPa esta em 400 (66,66%)  
         '42480000', # FV100A -> 0@100% esta em 50% 
-        '$[100.0],[1.0 1.0], 1.2,@math.sqrt(HART.PIT100A.percent_of_range/400.0)*HART.FV100A.percent_of_range' # FIT100A -> 0@0.55kg/s
+        '$[1.0],[1.0 1.0], 1.2,@math.sqrt(HART.PIT100A.percent_of_range/400.0)*HART.FV100A.percent_of_range' # FIT100A -> 0@0.55kg/s
     ),
     'loop_current_mode': (1, 'ENUM00', '00', '00', '00', '00', '00', '00', '00', '00', '00', '00', '00'),
     'loop_current': (4, 'FLOAT', 
-        '@(HART.FV100CA.percent_of_range * 0.16) + 4'
-        '@(HART.FIT100CA.percent_of_range * 0.16) + 4'
-        '@(HART.FV100AR.percent_of_range * 0.16) + 4'
-        '@(HART.FIT100AR.percent_of_range * 0.16) + 4'
-        '@(HART.TIT100.percent_of_range * 0.16) + 4'
-        '@(HART.FIT100V.percent_of_range * 0.16) + 4'
-        '@(HART.PIT100V.percent_of_range * 0.16) + 4'
-        '@(HART.LIT100.percent_of_range * 0.16) + 4'
-        '@(HART.PIT100A.percent_of_range * 0.16) + 4'
-        '@(HART.FV100A.percent_of_range * 0.16) + 4'
+        '@(HART.FV100CA.percent_of_range * 0.16) + 4',
+        '@(HART.FIT100CA.percent_of_range * 0.16) + 4',
+        '@(HART.FV100AR.percent_of_range * 0.16) + 4',
+        '@(HART.FIT100AR.percent_of_range * 0.16) + 4',
+        '@(HART.TIT100.percent_of_range * 0.16) + 4',
+        '@(HART.FIT100V.percent_of_range * 0.16) + 4',
+        '@(HART.PIT100V.percent_of_range * 0.16) + 4',
+        '@(HART.LIT100.percent_of_range * 0.16) + 4',
+        '@(HART.PIT100A.percent_of_range * 0.16) + 4',
+        '@(HART.FV100A.percent_of_range * 0.16) + 4',
         '@(HART.FIT100A.percent_of_range * 0.16) + 4'
     ),
     'write_protect': (1, 'ENUM00', '00', '00', '00', '00', '00', '00', '00', '00', '00', '00', '00'),

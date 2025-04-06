@@ -134,7 +134,7 @@
        <attribute name="title">
         <string>Process</string>
        </attribute>
-       <widget class="QWidget" name="widgetLI100" native="true">
+       <widget class="QWidget" name="widgetLIT100" native="true">
         <property name="geometry">
          <rect>
           <x>150</x>
@@ -159,7 +159,7 @@
          <bool>false</bool>
         </property>
         <property name="styleSheet">
-         <string notr="true">#widgetLI100 {
+         <string notr="true">#widgetLIT100 {
     background-color: #c0c0c0; /* Uma cor de fundo neutra */
     border-width: 2px;
     border-style: solid;
@@ -189,7 +189,7 @@
           </font>
          </property>
          <property name="text">
-          <string>LI100</string>
+          <string>LIT100</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignmentFlag::AlignBottom|Qt::AlignmentFlag::AlignHCenter</set>
@@ -208,7 +208,7 @@
           <string>%</string>
          </property>
         </widget>
-        <widget class="QLCDNumber" name="lcdLI100">
+        <widget class="QLCDNumber" name="lcdLIT100">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -224,7 +224,7 @@
           </sizepolicy>
          </property>
          <property name="styleSheet">
-          <string notr="true">#lcdLI100 {
+          <string notr="true">#lcdLIT100 {
         color: red;
         background-color: black;
         border: 2px solid gray;
@@ -239,7 +239,7 @@
          </property>
         </widget>
        </widget>
-       <widget class="QWidget" name="widgetPI100V" native="true">
+       <widget class="QWidget" name="widgetPIT100V" native="true">
         <property name="geometry">
          <rect>
           <x>0</x>
@@ -270,7 +270,7 @@
          <bool>false</bool>
         </property>
         <property name="styleSheet">
-         <string notr="true">#widgetPI100V{
+         <string notr="true">#widgetPIT100V{
     background-color: #c0c0c0; /* Uma cor de fundo neutra */
     border-width: 2px;
     border-style: solid;
@@ -305,13 +305,13 @@
           <number>2</number>
          </property>
          <property name="text">
-          <string>PI100V</string>
+          <string>PIT100V</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignmentFlag::AlignBottom|Qt::AlignmentFlag::AlignHCenter</set>
          </property>
         </widget>
-        <widget class="QLCDNumber" name="lcdPI100V">
+        <widget class="QLCDNumber" name="lcdPIT100V">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -327,7 +327,7 @@
           </sizepolicy>
          </property>
          <property name="styleSheet">
-          <string notr="true">#lcdPI100V {
+          <string notr="true">#lcdPIT100V {
         color: red;
         background-color: black;
         border: 2px solid gray;
@@ -355,12 +355,12 @@
          </property>
         </widget>
        </widget>
-       <widget class="QWidget" name="widgetFI100A" native="true">
+       <widget class="QWidget" name="widgetFIT100A" native="true">
         <property name="geometry">
          <rect>
           <x>0</x>
           <y>170</y>
-          <width>141</width>
+          <width>131</width>
           <height>60</height>
          </rect>
         </property>
@@ -374,7 +374,7 @@
          <bool>false</bool>
         </property>
         <property name="styleSheet">
-         <string notr="true">#widgetFI100A {
+         <string notr="true">#widgetFIT100A {
     background-color: #c0c0c0; /* Uma cor de fundo neutra */
     border-width: 2px;
     border-style: solid;
@@ -388,7 +388,7 @@
           <rect>
            <x>30</x>
            <y>2</y>
-           <width>48</width>
+           <width>71</width>
            <height>22</height>
           </rect>
          </property>
@@ -404,13 +404,13 @@
           </font>
          </property>
          <property name="text">
-          <string>FI100A</string>
+          <string>FIT100A</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignmentFlag::AlignBottom|Qt::AlignmentFlag::AlignHCenter</set>
          </property>
         </widget>
-        <widget class="QLCDNumber" name="lcdFI100A">
+        <widget class="QLCDNumber" name="lcdFIT100A">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -426,7 +426,7 @@
           </sizepolicy>
          </property>
          <property name="styleSheet">
-          <string notr="true">#lcdFI100A {
+          <string notr="true">#lcdFIT100A {
         color: red;
         background-color: black;
         border: 2px solid gray;
@@ -450,11 +450,11 @@
           </rect>
          </property>
          <property name="text">
-          <string>Nm3/h</string>
+          <string>kg/s</string>
          </property>
         </widget>
        </widget>
-       <widget class="QWidget" name="widgetTI100" native="true">
+       <widget class="QWidget" name="widgetTIT100" native="true">
         <property name="geometry">
          <rect>
           <x>0</x>
@@ -479,7 +479,7 @@
          <bool>false</bool>
         </property>
         <property name="styleSheet">
-         <string notr="true">#widgetTI100{
+         <string notr="true">#widgetTIT100{
     background-color: #c0c0c0; /* Uma cor de fundo neutra */
     border-width: 2px;
     border-style: solid;
@@ -509,13 +509,13 @@
           </font>
          </property>
          <property name="text">
-          <string>TI100</string>
+          <string>TIT100</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignmentFlag::AlignBottom|Qt::AlignmentFlag::AlignHCenter</set>
          </property>
         </widget>
-        <widget class="QLCDNumber" name="lcdTI100">
+        <widget class="QLCDNumber" name="lcdTIT100">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -531,7 +531,7 @@
           </sizepolicy>
          </property>
          <property name="styleSheet">
-          <string notr="true">#lcdTI100 {
+          <string notr="true">#lcdTIT100 {
         color: red;
         background-color: black;
         border: 2px solid gray;
@@ -809,7 +809,7 @@
          </item>
         </layout>
        </widget>
-       <widget class="QWidget" name="widgetFI100V" native="true">
+       <widget class="QWidget" name="widgetFIT100V" native="true">
         <property name="geometry">
          <rect>
           <x>520</x>
@@ -838,7 +838,7 @@
             </spacer>
            </item>
            <item>
-            <widget class="QWidget" name="widgetCtrlFI100V" native="true">
+            <widget class="QWidget" name="widgetCtrlFIT100V" native="true">
              <property name="minimumSize">
               <size>
                <width>131</width>
@@ -855,7 +855,7 @@
               <bool>false</bool>
              </property>
              <property name="styleSheet">
-              <string notr="true">#widgetCtrlFI100V{
+              <string notr="true">#widgetCtrlFIT100V{
     background-color: #c0c0c0; /* Uma cor de fundo neutra */
     border-width: 2px;
     border-style: solid;
@@ -891,7 +891,7 @@
                <set>Qt::AlignmentFlag::AlignBottom|Qt::AlignmentFlag::AlignHCenter</set>
               </property>
              </widget>
-             <widget class="QLCDNumber" name="lcdFI100V">
+             <widget class="QLCDNumber" name="lcdFIT100V">
               <property name="geometry">
                <rect>
                 <x>10</x>
@@ -907,7 +907,7 @@
                </sizepolicy>
               </property>
               <property name="styleSheet">
-               <string notr="true">#lcdFI100V {
+               <string notr="true">#lcdFIT100V {
         color: red;
         background-color: black;
         border: 2px solid gray;
@@ -1001,7 +1001,7 @@
           </layout>
          </item>
          <item>
-          <widget class="QWidget" name="widgetSliderFI100V" native="true">
+          <widget class="QWidget" name="widgetSliderFIT100V" native="true">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
              <horstretch>0</horstretch>
@@ -1018,7 +1018,7 @@
             <string/>
            </property>
            <property name="styleSheet">
-            <string notr="true">#widgetSliderFI100V {
+            <string notr="true">#widgetSliderFIT100V {
     background-color: #c0c0c0; /* Uma cor de fundo neutra */
     border-width: 2px;
     border-style: solid;
@@ -1027,7 +1027,7 @@
     padding: 4px; /* Espaçamento interno (opcional) */
 }</string>
            </property>
-           <widget class="QSlider" name="sliderFI100V">
+           <widget class="QSlider" name="sliderFIT100V">
             <property name="geometry">
              <rect>
               <x>4</x>
@@ -1363,7 +1363,7 @@
          </item>
         </layout>
        </widget>
-       <widget class="QWidget" name="widgetPI100A" native="true">
+       <widget class="QWidget" name="widgetPIT100A" native="true">
         <property name="geometry">
          <rect>
           <x>250</x>
@@ -1392,7 +1392,7 @@
             </spacer>
            </item>
            <item>
-            <widget class="QWidget" name="widgetCtrlPI100A" native="true">
+            <widget class="QWidget" name="widgetCtrlPIT100A" native="true">
              <property name="minimumSize">
               <size>
                <width>131</width>
@@ -1409,7 +1409,7 @@
               <bool>false</bool>
              </property>
              <property name="styleSheet">
-              <string notr="true">#widgetCtrlPI100A{
+              <string notr="true">#widgetCtrlPIT100A{
     background-color: #c0c0c0; /* Uma cor de fundo neutra */
     border-width: 2px;
     border-style: solid;
@@ -1439,13 +1439,13 @@
                </font>
               </property>
               <property name="text">
-               <string>PI100A</string>
+               <string>PIT100A</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignmentFlag::AlignBottom|Qt::AlignmentFlag::AlignHCenter</set>
               </property>
              </widget>
-             <widget class="QLCDNumber" name="lcdPI100A">
+             <widget class="QLCDNumber" name="lcdPIT100A">
               <property name="geometry">
                <rect>
                 <x>10</x>
@@ -1461,7 +1461,7 @@
                </sizepolicy>
               </property>
               <property name="styleSheet">
-               <string notr="true">#lcdPI100A {
+               <string notr="true">#lcdPIT100A {
         color: red;
         background-color: black;
         border: 2px solid gray;
@@ -1555,7 +1555,7 @@
           </layout>
          </item>
          <item>
-          <widget class="QWidget" name="widgetSliderPI100A" native="true">
+          <widget class="QWidget" name="widgetSliderPIT100A" native="true">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
              <horstretch>0</horstretch>
@@ -1572,7 +1572,7 @@
             <string/>
            </property>
            <property name="styleSheet">
-            <string notr="true">#widgetSliderPI100A {
+            <string notr="true">#widgetSliderPIT100A {
     background-color: #c0c0c0; /* Uma cor de fundo neutra */
     border-width: 2px;
     border-style: solid;
@@ -1581,7 +1581,7 @@
     padding: 4px; /* Espaçamento interno (opcional) */
 }</string>
            </property>
-           <widget class="QSlider" name="sliderPI100A">
+           <widget class="QSlider" name="sliderPIT100A">
             <property name="geometry">
              <rect>
               <x>4</x>
@@ -1851,12 +1851,12 @@
          </item>
         </layout>
        </widget>
-       <widget class="QWidget" name="widgetFI100CA" native="true">
+       <widget class="QWidget" name="widgetFIT100CA" native="true">
         <property name="geometry">
          <rect>
           <x>300</x>
           <y>20</y>
-          <width>111</width>
+          <width>131</width>
           <height>71</height>
          </rect>
         </property>
@@ -1876,7 +1876,7 @@
          <bool>false</bool>
         </property>
         <property name="styleSheet">
-         <string notr="true">#widgetFI100CA {
+         <string notr="true">#widgetFIT100CA {
     background-color: #c0c0c0; /* Uma cor de fundo neutra */
     border-width: 2px;
     border-style: solid;
@@ -1906,7 +1906,7 @@
           </font>
          </property>
          <property name="text">
-          <string>FI100CA</string>
+          <string>FIT100CA</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignmentFlag::AlignBottom|Qt::AlignmentFlag::AlignHCenter</set>
@@ -1917,15 +1917,15 @@
           <rect>
            <x>95</x>
            <y>40</y>
-           <width>21</width>
-           <height>16</height>
+           <width>31</width>
+           <height>20</height>
           </rect>
          </property>
          <property name="text">
-          <string>%</string>
+          <string>kg/s</string>
          </property>
         </widget>
-        <widget class="QLCDNumber" name="lcdFI100CA">
+        <widget class="QLCDNumber" name="lcdFIT100CA">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -1941,7 +1941,7 @@
           </sizepolicy>
          </property>
          <property name="styleSheet">
-          <string notr="true">#lcdFI100CA {
+          <string notr="true">#lcdFIT100CA {
         color: red;
         background-color: black;
         border: 2px solid gray;
@@ -1956,12 +1956,12 @@
          </property>
         </widget>
        </widget>
-       <widget class="QWidget" name="widgetFI100AR" native="true">
+       <widget class="QWidget" name="widgetFIT100AR" native="true">
         <property name="geometry">
          <rect>
           <x>450</x>
           <y>20</y>
-          <width>111</width>
+          <width>131</width>
           <height>71</height>
          </rect>
         </property>
@@ -1981,7 +1981,7 @@
          <bool>false</bool>
         </property>
         <property name="styleSheet">
-         <string notr="true">#widgetFI100AR {
+         <string notr="true">#widgetFIT100AR {
     background-color: #c0c0c0; /* Uma cor de fundo neutra */
     border-width: 2px;
     border-style: solid;
@@ -2011,7 +2011,7 @@
           </font>
          </property>
          <property name="text">
-          <string>FI100AR</string>
+          <string>FIT100AR</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignmentFlag::AlignBottom|Qt::AlignmentFlag::AlignHCenter</set>
@@ -2022,15 +2022,15 @@
           <rect>
            <x>95</x>
            <y>40</y>
-           <width>21</width>
+           <width>31</width>
            <height>16</height>
           </rect>
          </property>
          <property name="text">
-          <string>%</string>
+          <string>kg/s</string>
          </property>
         </widget>
-        <widget class="QLCDNumber" name="lcdFI100AR">
+        <widget class="QLCDNumber" name="lcdFIT100AR">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -2046,7 +2046,7 @@
           </sizepolicy>
          </property>
          <property name="styleSheet">
-          <string notr="true">#lcdFI100AR {
+          <string notr="true">#lcdFIT100AR {
         color: red;
         background-color: black;
         border: 2px solid gray;
