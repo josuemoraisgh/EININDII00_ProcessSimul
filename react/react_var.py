@@ -130,7 +130,8 @@ class ReactVar(QObject):
                 "math": math,
                 "exp": exp,
                 "random": random,
-                "log": log
+                "log": log,
+                "abs": abs
             })                  
             self._connectTokens(tokens, True)             
             self._tokens = tokens                   

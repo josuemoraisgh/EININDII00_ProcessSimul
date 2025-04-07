@@ -63,8 +63,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         def atualizaDisplay(lcd_widget, varRead):
             lcd_widget.display(varRead.getValue(DBState.humanValue))
         for device in devices:
-            if 'FIT100A' == device:
-                pass
             lcd_widget = getattr(self, f'lcd{device}')             
             varRead: ReactDB = self.reactDB.df["HART"].loc[rowRead, device]
             varRead.valueChangedSignal.connect(partial(atualizaDisplay,lcd_widget))
