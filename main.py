@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QApplication, QMainWindow, QSlider
+from PySide6.QtWidgets import QApplication, QMainWindow
 from uis.ui_main import Ui_MainWindow  # Interface do Qt Designer
 from react.react_db import ReactDB
 from db.db_types import DBState
@@ -63,12 +63,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         def atualizaDisplay(lcd_widget, varRead):
             lcd_widget.display(varRead.getValue(DBState.humanValue))
         for device in devices:
+            if 'FIT100A' == device:
+                pass
             lcd_widget = getattr(self, f'lcd{device}')             
             varRead: ReactDB = self.reactDB.df["HART"].loc[rowRead, device]
             varRead.valueChangedSignal.connect(partial(atualizaDisplay,lcd_widget))
             lcd_widget.display(varRead.getValue(DBState.humanValue))
             
-            slider_widget: QSlider  = getattr(self, f'slider{device}', None)   
+            slider_widget = getattr(self, f'slider{device}', None)   
             if slider_widget != None:
                 slider_widget.setMinimum(0)
                 slider_widget.setMaximum(100)
