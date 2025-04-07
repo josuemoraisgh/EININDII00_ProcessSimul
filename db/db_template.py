@@ -68,17 +68,17 @@ hrt_banco: Dict[str, Tuple[Union[int, float], str, str]] = {
         '@HART.FV100A.percent_of_range * (HART.FV100A.upper_range_value - HART.FV100A.lower_range_value) + HART.FV100A.lower_range_value'
     ),  # 50
     'percent_of_range': (4, 'FLOAT', 
-        '42480000', # FV100CA -> 0@100% esta em 50%
+        '3F000000', # FV100CA -> 0@100% esta em 50%
         '$[1.0],[2.5 1.0], 1,@HART.FV100CA.percent_of_range', # FIT100CA  -> 0.00001@0.0227kg/s
-        '42480000', # FV100AR -> 0@100% esta em 50%
+        '3F000000', # FV100AR -> 0@100% esta em 50%
         '$[1.0],[1.25 1.0], 1,@HART.FV100AR.percent_of_range', #FIT100AR -> 0.00001@0.15kg/s        
         '$[1.0],[500.0 15.0 1.0], 1.2,@exp(-0.05*((6.61*HART.FIT100AR.percent_of_range/HART.FIT100CA.percent_of_range)-15.0)**2.0)', # TIT100 -> 0@1000ºC
-        '42480000', # FIT100V -> 0@0.35kg/s esta em 0.175 (50%)
+        '3F000000', # FIT100V -> 0@0.35kg/s esta em 0.175 (50%)
         '$[1.0],[1000 0.000001], 1,@HART.TIT100.percent_of_range - 0.5*HART.FIT100V.percent_of_range', # PIT100V -> 0@10Bar
         '$[1.0],[1.1 0.000001], 0.5,@HART.FIT100A.percent_of_range - HART.FIT100V.percent_of_range', # LIT100 -> 0@100%
-        '428551EB', # PIT100A -> 0@600kPa esta em 400 (66,66%)  
-        '42480000', # FV100A -> 0@100% esta em 50% 
-        '$[1.0],[1.0 1.0], 1.2,@math.sqrt(HART.PIT100A.percent_of_range/400.0)*HART.FV100A.percent_of_range' # FIT100A -> 0@0.55kg/s
+        '3F2AA64C', # PIT100A -> 0@600kPa esta em 400 (66,66%)  
+        '3F000000', # FV100A -> 0@100% esta em 50% 
+        '$[1.0],[1.25 1.0], 2,@math.sqrt(HART.PIT100A.percent_of_range/400.0)*HART.FV100A.percent_of_range' # FIT100A -> 0@0.55kg/s
     ),
     'loop_current_mode': (1, 'ENUM00', '00', '00', '00', '00', '00', '00', '00', '00', '00', '00', '00'),
     'loop_current': (4, 'FLOAT', 

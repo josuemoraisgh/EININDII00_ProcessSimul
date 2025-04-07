@@ -56,38 +56,27 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     
     def connectLCDs(self):
         devices = ['FV100CA', 'FIT100CA', 'FV100AR', 'FIT100AR', 'TIT100', 'FIT100V', 'PIT100V', 'LIT100', 'PIT100A', 'FV100A', 'FIT100A']
-        col = "CLP100"
-        def atualizaDisplay(lcd_widget,var):
-            lcd_widget.display(var.getValue(DBState.humanValue))
+        rowRead = "PROCESS_VARIABLE"
+        rowWrite = "percent_of_range"
+        def atualizaValue(varWrite,x):
+            varWrite.setValue(float(x)*0.01,DBState.humanValue)
+        def atualizaDisplay(lcd_widget, varRead):
+            lcd_widget.display(varRead.getValue(DBState.humanValue))
         for device in devices:
-            lcd_widget = getattr(self, f'lcd{device}')
-            slider_widget: QSlider  = getattr(self, f'slider{device}', None)                
-            var: ReactDB = self.reactDB.df["MODBUS"].loc[device, col]
-            if slider_widget != None: 
-                if device == 'FIT100V':
-                    slider_widget.setMinimum(0)
-                    slider_widget.setMaximum(100)
-                    slider_widget.setValue(100) 
-                    def vchanded1(var,x):
-                        var.setValue(float(x)*0.0035,DBState.humanValue)
-                    slider_widget.valueChanged.connect(partial(vchanded1, var))                   
-                elif device == 'PIT100A':
-                    slider_widget.setMinimum(0)
-                    slider_widget.setMaximum(600)
-                    slider_widget.setValue(400)
-                    def vchanded2(var,x):
-                        var.setValue(float(x),DBState.humanValue)
-                    slider_widget.valueChanged.connect(partial(vchanded2, var)) 
-                else:
-                    slider_widget.setMinimum(0)
-                    slider_widget.setMaximum(100)
-                    slider_widget.setValue(50) 
-                    def vchanded3(var,x):
-                        var.setValue(float(x),DBState.humanValue)
-                    slider_widget.valueChanged.connect(partial(vchanded3, var)) 
-            atualizaDisplay(lcd_widget,var)
-            var.valueChangedSignal.connect(partial(atualizaDisplay,lcd_widget))   
-    
+            lcd_widget = getattr(self, f'lcd{device}')             
+            varRead: ReactDB = self.reactDB.df["HART"].loc[rowRead, device]
+            varRead.valueChangedSignal.connect(partial(atualizaDisplay,lcd_widget))
+            lcd_widget.display(varRead.getValue(DBState.humanValue))
+            
+            slider_widget: QSlider  = getattr(self, f'slider{device}', None)   
+            if slider_widget != None:
+                slider_widget.setMinimum(0)
+                slider_widget.setMaximum(100)
+                varWrite: ReactDB = self.reactDB.df["HART"].loc[rowWrite, device]
+                slider_widget.setValue(int(varWrite.getValue(DBState.humanValue)*100)) 
+                slider_widget.valueChanged.connect(partial(atualizaValue, varWrite))
+            
+   
     def resizeEvent(self, event):
         parent_width = event.size().width()
         parent_height = event.size().height()

@@ -2,8 +2,6 @@ from PySide6.QtCore import QObject, Signal, Slot
 from react.react_var import ReactVar
 from db.db_storage import DBStorage
 import pandas as pd
-import os
-import sys
 
 class ReactDB(QObject):
     df                      = {}
