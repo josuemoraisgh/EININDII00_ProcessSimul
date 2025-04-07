@@ -18,7 +18,7 @@ class SimulTf(QObject):
         super().__init__()
         self.stepTime = stepTime  # em milisegundos
         # Inicializa a função repetida para rodar a simulação de forma contínua
-        self._repeated_function = RepeatFunction(self._simulation_step, stepTime)        
+        self._repeated_function = RepeatFunction(self._simulation_step, stepTime)     
 
     @Slot()
     def tfConnect(self, data: ReactVar,  isConnect: bool):
@@ -47,7 +47,7 @@ class SimulTf(QObject):
                 "B": np.array(sysd.B),
                 "C": np.array(sysd.C),
                 "D": np.array(sysd.D)
-            }  
+            } 
             self.states[(data.tableName, data.rowName, data.colName)] = np.zeros((sysd.A.shape[0], 1))          
         else:
             self.dictDB.pop((data.tableName, data.rowName, data.colName), None)
@@ -58,6 +58,7 @@ class SimulTf(QObject):
     def start(self, state: bool):
         """Inicia a execução da simulação."""
         if state:
+            self.load_states()             
             self._repeated_function.start()
         else:
             self._repeated_function.stop()
@@ -93,21 +94,19 @@ class SimulTf(QObject):
 
     def load_states(self):
         try:
-            for row in self.dictDB[key].reactDB.rowKeys("TFSTATES"):
-                for col in self.dictDB[key].reactDB.colKeys("TFSTATES"):
+            key = list(self.dictDB.keys())[0]
+            for row in self.dictDB[key].reactDB.storage.rowKeys("TFSTATES"):
+                for col in self.dictDB[key].reactDB.storage.colKeys("TFSTATES"):
                     key = tuple(row.split("|")) + (col,)
                     if key in self.systems:
-                        state_str = self.dictDB[key].reactDB.getData("TFSTATES", row, col)
+                        state_str = self.dictDB[key].reactDB.storage.getRawData("TFSTATES", row, col)
                         if state_str:
                             try:
                                 self.states[key] = np.array(json.loads(state_str))
                             except Exception as e:
                                 print(f"❌ Erro ao carregar estado de {key}: {e}")
-                        else:
-                            A = self.systems[key]["A"]
-                            self.states[key] = np.zeros((A.shape[0], 1))
                     else:
-                        self.dictDB[key].reactDB.setData("TFSTATES", row, col, None)
+                        self.dictDB[key].reactDB.storage.setData("TFSTATES", row, col, None)
         except Exception as e:
             print(f"❌ Erro geral ao carregar estados do banco: {e}")
 

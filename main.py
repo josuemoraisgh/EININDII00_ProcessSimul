@@ -102,9 +102,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         super().resizeEvent(event)
 
     def closeEvent(self, event):
-        # Código antes de fechar (ex: salvar estados)
-        print("🔒 Salvando dados antes de sair...")
-
         # Exemplo: confirmação do usuário
         reply = QMessageBox.question(
             self,
@@ -115,6 +112,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         )
 
         if reply == QMessageBox.Yes:
+            self.simulTf.start(False)  
+            # Código antes de fechar (ex: salvar estados)
+            print("🔒 Salvando dados antes de sair...")                      
             event.accept()
         else:
             event.ignore()

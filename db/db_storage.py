@@ -106,6 +106,12 @@ class DBStorage():
         except Exception as e:
             print(f"❌ Erro ao atualizar ou inserir no SQLite: {e}")
 
+    def getRawData(self, tableName: str, rowName: str, colName: str) -> str:
+        with sqlite3.connect(self.db_name) as conn:
+            cursor = conn.cursor()
+            cursor.execute(f"SELECT {colName} FROM {tableName}_tabela WHERE NAME = ?", (rowName,))
+            result = cursor.fetchone()
+            return result[0] if result else None            
             
     def dataFrame(self, tableName: str):
         with sqlite3.connect(self.db_name) as conn:
