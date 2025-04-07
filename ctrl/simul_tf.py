@@ -74,11 +74,11 @@ class SimulTf(QObject):
 
             # Calcula a saída com o estado atual
             output = system["C"].dot(self.states[key]) + system["D"] * input_Value
-
-            # Atualiza o estado
-            self.states[key] = system["A"].dot(self.states[key]) + system["B"] * input_Value
+            if output > 0.0001 and output < 100:
+                # Atualiza o estado
+                self.states[key] = system["A"].dot(self.states[key]) + system["B"] * input_Value
 
             # Armazena a saída e emite sinal
-            self.dictDB[key]._value =  np.clip(float(output), 0.0, 100.0)
+            self.dictDB[key]._value =  np.clip(float(output), 0.0001, 1.0)
             self.dictDB[key].valueChangedSignal.emit(self.dictDB[key])
  
