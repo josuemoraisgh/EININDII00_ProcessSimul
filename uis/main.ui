@@ -885,7 +885,7 @@
                </font>
               </property>
               <property name="text">
-               <string>FI100V</string>
+               <string>FIT100V</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignmentFlag::AlignBottom|Qt::AlignmentFlag::AlignHCenter</set>
@@ -2105,7 +2105,7 @@
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="buttonGroupState"/>
   <buttongroup name="buttonGroupSimul"/>
+  <buttongroup name="buttonGroupState"/>
  </buttongroups>
 </ui>

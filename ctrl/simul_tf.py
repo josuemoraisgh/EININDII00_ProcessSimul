@@ -3,6 +3,7 @@ from PySide6.QtCore import QObject, Slot
 from react.react_var import ReactVar
 import control as ctrl
 import numpy as np
+import json
 import ast
 
 
@@ -74,11 +75,48 @@ class SimulTf(QObject):
 
             # Calcula a saída com o estado atual
             output = system["C"].dot(self.states[key]) + system["D"] * input_Value
-            if output > 0.0001 and output < 100:
-                # Atualiza o estado
-                self.states[key] = system["A"].dot(self.states[key]) + system["B"] * input_Value
+            # Atualiza o estado
+            self.states[key] = system["A"].dot(self.states[key]) + system["B"] * input_Value
 
             # Armazena a saída e emite sinal
             self.dictDB[key]._value =  np.clip(float(output), 0.0001, 1.0)
             self.dictDB[key].valueChangedSignal.emit(self.dictDB[key])
- 
+    
+    def save_states(self):
+        for key, state in self.states.items():
+            try:
+                state_json = json.dumps(state.tolist())
+                self.db.setData("states", "|".join(key[:-1]), key[-1], state_json)
+            except Exception as e:
+                print(f"Erro ao salvar estado de {key}: {e}")
+
+    def load_states(self):
+        try:
+            for row in self.db.rowKeys("states"):
+                for col in self.db.colKeys("states"):
+                    key = tuple(row.split("|")) + (col,)
+                    if key in self.systems:
+                        state_str = self.db.getData("states", row, col)
+                        if state_str:
+                            try:
+                                self.states[key] = np.array(json.loads(state_str))
+                            except Exception as e:
+                                print(f"❌ Erro ao carregar estado de {key}: {e}")
+                        else:
+                            A = self.systems[key]["A"]
+                            self.states[key] = np.zeros((A.shape[0], 1))
+                    else:
+                        self.db.setData("states", row, col, None)
+        except Exception as e:
+            print(f"❌ Erro geral ao carregar estados do banco: {e}")
+
+    def clean_orphan_states(self):
+        """Remove do banco os states que não têm sistema correspondente"""
+        try:
+            for row in self.db.rowKeys("states"):
+                for col in self.db.colKeys("states"):
+                    key = tuple(row.split("|")) + (col,)
+                    if key not in self.systems:
+                        self.db.setData("states", row, col, None)
+        except Exception as e:
+            print(f"Erro ao limpar estados órfãos: {e}")

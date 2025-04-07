@@ -990,7 +990,7 @@ class Ui_MainWindow(object):
 #if QT_CONFIG(accessibility)
         self.widgetCtrlFIT100V.setAccessibleDescription("")
 #endif // QT_CONFIG(accessibility)
-        self.label_34.setText(QCoreApplication.translate("MainWindow", u"FI100V", None))
+        self.label_34.setText(QCoreApplication.translate("MainWindow", u"FIT100V", None))
         self.label_35.setText(QCoreApplication.translate("MainWindow", u"kg/s", None))
         self.pbAMFI100V.setText(QCoreApplication.translate("MainWindow", u"M", None))
 #if QT_CONFIG(tooltip)

@@ -72,9 +72,9 @@ hrt_banco: Dict[str, Tuple[Union[int, float], str, str]] = {
         '$[1.0],[2.5 1.0], 1,@HART.FV100CA.percent_of_range', # FIT100CA  -> 0.00001@0.0227kg/s
         '3F000000', # FV100AR -> 0@100% esta em 50%
         '$[1.0],[1.25 1.0], 1,@HART.FV100AR.percent_of_range', #FIT100AR -> 0.00001@0.15kg/s        
-        '$[1.0],[50.0 1.5 1.0], 1.2,@exp(-0.05*((6.61*HART.FIT100AR.percent_of_range/HART.FIT100CA.percent_of_range)-15.0)**2.0)', # TIT100 -> 0@1000ºC
+        '$[1.0],[500.0 1.0], 1.2,@exp(-0.05*((15.0*HART.FIT100AR.percent_of_range/HART.FIT100CA.percent_of_range)-15.0)**2.0)', # TIT100 -> 0@1000ºC
         '3F000000', # FIT100V -> 0@0.35kg/s esta em 0.175 (50%)
-        '$[1.0],[100 0.000001], 1,@HART.TIT100.percent_of_range - HART.FIT100V.percent_of_range', # PIT100V -> 0@10Bar
+        '$[1.0],[100 0.000001], 1,@HART.TIT100.percent_of_range - 0.5*HART.FIT100V.percent_of_range', # PIT100V -> 0@10Bar
         '$[1.0],[100 0.000001], 0.5,@HART.FIT100A.percent_of_range - HART.FIT100V.percent_of_range', # LIT100 -> 0@100%
         '3F2AA64C', # PIT100A -> 0@600kPa esta em 400 (66,66%)  
         '3F000000', # FV100A -> 0@100% esta em 50% 
