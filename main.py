@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QApplication, QMainWindow
+from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox
 from uis.ui_main import Ui_MainWindow  # Interface do Qt Designer
 from react.react_db import ReactDB
 from db.db_types import DBState
@@ -101,6 +101,23 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # self.resizeEventSignal.emit(event)
         super().resizeEvent(event)
 
+    def closeEvent(self, event):
+        # Código antes de fechar (ex: salvar estados)
+        print("🔒 Salvando dados antes de sair...")
+
+        # Exemplo: confirmação do usuário
+        reply = QMessageBox.question(
+            self,
+            "Sair",
+            "Tem certeza que deseja sair?",
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No
+        )
+
+        if reply == QMessageBox.Yes:
+            event.accept()
+        else:
+            event.ignore()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

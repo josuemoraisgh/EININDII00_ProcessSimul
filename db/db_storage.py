@@ -80,21 +80,32 @@ class DBStorage():
 
     def setData(self, tableName: str, rowName: str, colName: str, value: str):
         try:
-            # Conectar ao banco de dados SQLite
             with sqlite3.connect(self.db_name) as conn:
                 cursor = conn.cursor()
-                # Verificar se o registro já existe
+
+                # Garante que a tabela exista
+                cursor.execute(f'''
+                    CREATE TABLE IF NOT EXISTS {tableName}_tabela (
+                        NAME TEXT PRIMARY KEY
+                    )
+                ''')
+
+                # Garante que a coluna exista
+                cursor.execute(f"PRAGMA table_info({tableName}_tabela)")
+                columns = [col[1] for col in cursor.fetchall()]
+                if colName not in columns:
+                    cursor.execute(f"ALTER TABLE {tableName}_tabela ADD COLUMN {colName} TEXT")
+
+                # Atualiza ou insere o valor
                 cursor.execute(f"SELECT 1 FROM {tableName}_tabela WHERE NAME = ?", (rowName,))
                 if cursor.fetchone():
-                    # Atualizar o valor da coluna para o rowName
                     cursor.execute(f"UPDATE {tableName}_tabela SET {colName} = ? WHERE NAME = ?", (value, rowName))
                 else:
-                    # Inserir um novo registro com o rowName e o valor na coluna
                     cursor.execute(f"INSERT INTO {tableName}_tabela (NAME, {colName}) VALUES (?, ?)", (rowName, value))
-            # Emitir o sinal de dados atualizados após a alteração
-            # self.data_updated.emit()
+
         except Exception as e:
             print(f"❌ Erro ao atualizar ou inserir no SQLite: {e}")
+
             
     def dataFrame(self, tableName: str):
         with sqlite3.connect(self.db_name) as conn:

@@ -61,6 +61,7 @@ class SimulTf(QObject):
             self._repeated_function.start()
         else:
             self._repeated_function.stop()
+            self.save_states()            
 
     def reset(self):
         """Finaliza a execução e reseta os estados."""      
@@ -86,17 +87,17 @@ class SimulTf(QObject):
         for key, state in self.states.items():
             try:
                 state_json = json.dumps(state.tolist())
-                self.db.setData("states", "|".join(key[:-1]), key[-1], state_json)
+                self.dictDB[key].reactDB.storage.setData("TFSTATES", "|".join(key[:-1]), key[-1], state_json)
             except Exception as e:
                 print(f"Erro ao salvar estado de {key}: {e}")
 
     def load_states(self):
         try:
-            for row in self.db.rowKeys("states"):
-                for col in self.db.colKeys("states"):
+            for row in self.dictDB[key].reactDB.rowKeys("TFSTATES"):
+                for col in self.dictDB[key].reactDB.colKeys("TFSTATES"):
                     key = tuple(row.split("|")) + (col,)
                     if key in self.systems:
-                        state_str = self.db.getData("states", row, col)
+                        state_str = self.dictDB[key].reactDB.getData("TFSTATES", row, col)
                         if state_str:
                             try:
                                 self.states[key] = np.array(json.loads(state_str))
@@ -106,17 +107,17 @@ class SimulTf(QObject):
                             A = self.systems[key]["A"]
                             self.states[key] = np.zeros((A.shape[0], 1))
                     else:
-                        self.db.setData("states", row, col, None)
+                        self.dictDB[key].reactDB.setData("TFSTATES", row, col, None)
         except Exception as e:
             print(f"❌ Erro geral ao carregar estados do banco: {e}")
 
     def clean_orphan_states(self):
-        """Remove do banco os states que não têm sistema correspondente"""
+        """Remove do banco os TFSTATES que não têm sistema correspondente"""
         try:
-            for row in self.db.rowKeys("states"):
-                for col in self.db.colKeys("states"):
+            for row in self.dictDB[key].reactDB.rowKeys("TFSTATES"):
+                for col in self.dictDB[key].reactDB.colKeys("TFSTATES"):
                     key = tuple(row.split("|")) + (col,)
                     if key not in self.systems:
-                        self.db.setData("states", row, col, None)
+                        self.dictDB[key].reactDB.setData("TFSTATES", row, col, None)
         except Exception as e:
             print(f"Erro ao limpar estados órfãos: {e}")
