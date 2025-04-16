@@ -54,31 +54,34 @@ class DBStorage():
             cursor.execute(f"PRAGMA table_info({tableName}_tabela)")
             colunas = cursor.fetchall()    
             return [coluna[1] for coluna in colunas[1:]]
-
-    def getData(self, tableName: str, rowName: str, colName: str) -> str:
+        
+    def getRawData(self, tableName: str, rowName: str, colName: str) -> str:
         with sqlite3.connect(self.db_name) as conn:
             cursor = conn.cursor()
-            if '|' in rowName:
-                variables = rowName.split(' | ')
-                operation = operator.or_
-            elif '&' in rowName:
-                variables = rowName.split(' & ')
-                operation = operator.and_
-            else:
-                variables = [rowName]
-                operation = None
-            values = []
-            for var in variables:
-                cursor.execute(f"SELECT {colName} FROM {tableName}_tabela WHERE NAME = ?", (var,))
-                result = cursor.fetchone()
-                values.append(result[0] if result else None)
+            cursor.execute(f"SELECT {colName} FROM {tableName}_tabela WHERE NAME = ?", (rowName,))
+            result = cursor.fetchone()
+            return result[0] if result else None    
+        
+    def getData(self, tableName: str, rowName: str, colName: str) -> str:
+        if '|' in rowName:
+            variables = rowName.split(' | ')
+            operation = operator.or_
+        elif '&' in rowName:
+            variables = rowName.split(' & ')
+            operation = operator.and_
+        else:
+            variables = [rowName]
+            operation = None
+        values = []
+        for var in variables:
+            values.append(self.getRawData(tableName, rowName, colName))
         if any(x in values for x in [None, "ERROR"]):
             return None
         if operation:
             return str(reduce(operation, map(int, values)))
         return str(values[0])
 
-    def setData(self, tableName: str, rowName: str, colName: str, value: str):
+    def setRawData(self, tableName: str, rowName: str, colName: str, value: str):
         try:
             with sqlite3.connect(self.db_name) as conn:
                 cursor = conn.cursor()
@@ -104,14 +107,7 @@ class DBStorage():
                     cursor.execute(f"INSERT INTO {tableName}_tabela (NAME, {colName}) VALUES (?, ?)", (rowName, value))
 
         except Exception as e:
-            print(f"❌ Erro ao atualizar ou inserir no SQLite: {e}")
-
-    def getRawData(self, tableName: str, rowName: str, colName: str) -> str:
-        with sqlite3.connect(self.db_name) as conn:
-            cursor = conn.cursor()
-            cursor.execute(f"SELECT {colName} FROM {tableName}_tabela WHERE NAME = ?", (rowName,))
-            result = cursor.fetchone()
-            return result[0] if result else None            
+            print(f"❌ Erro ao atualizar ou inserir no SQLite: {e}")        
             
     def dataFrame(self, tableName: str):
         with sqlite3.connect(self.db_name) as conn:
