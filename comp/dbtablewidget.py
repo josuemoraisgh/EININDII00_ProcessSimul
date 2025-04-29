@@ -1,170 +1,189 @@
 from PySide6.QtWidgets import QTableWidget, QLineEdit, QComboBox, QMenu, QDialog
 from PySide6.QtGui import QAction, QFont
-from db.db_types import DBState, DBModel
-import qtawesome as qta
 from PySide6.QtCore import Qt
-from uis.ui_dialog_value import Ui_Dialog_Value
-from uis.ui_dialog_func import Ui_Dialog_Func 
-from uis.ui_dialog_tfunc import Ui_Dialog_Tfunc 
-from functools import partial
-from react.react_db import ReactDB
-from react.react_var import ReactVar
+from db.db_types import DBState, DBModel
 from hrt.hrt_enum import hrt_enum
 from hrt.hrt_bitenum import hrt_bitEnum
 from hrt.hrt_type import str2type, type2str
+import qtawesome as qta
+from uis.ui_dialog_value import Ui_Dialog_Value
+from uis.ui_dialog_func import Ui_Dialog_Func
+from uis.ui_dialog_tfunc import Ui_Dialog_Tfunc
+from react.react_var import ReactVar
+
 class DBTableWidget(QTableWidget):
-    # def __init__(self):
-    def __init__(self, parent: None):
-        # super().__init__() 
-        super().__init__(parent=parent)
+    def __init__(self, parent=None):
+        super().__init__(parent)
         self.state = DBState.humanValue
 
-    def sertAutoCompleteList(self, data:list):
+    def setAutoCompleteList(self, data: dict):
         self.autoCompleteList = data
-        
-    def setBaseData(self, dbDataFrame: ReactDB, tableName: str):
+
+    def setBaseData(self, dbDataFrame, tableName: str):
         self.tableName = tableName
         self.dbDataFrame = dbDataFrame
         self.df = dbDataFrame.df[tableName]
-        horizontalHeader_font = QFont("Arial", 12, QFont.Bold)  # Fonte maior e em negrito
-        self.horizontalHeader().setFont(horizontalHeader_font)
-        verticalHeader_font = QFont("Arial", 10, QFont.Bold)  # Fonte maior e em negrito
-        self.verticalHeader().setFont(verticalHeader_font)              
-        self.redrawAll()
-            
-    def changeType(self, type:bool):
-        if(type):
-            self.state = DBState.humanValue
-        else:
-            self.state = DBState.machineValue
+
+        hh_font = QFont("Arial", 12, QFont.Bold)
+        vh_font = QFont("Arial", 10, QFont.Bold)
+        self.horizontalHeader().setFont(hh_font)
+        self.verticalHeader().setFont(vh_font)
+
         self.redrawAll()
 
-    def redrawAll(self):   
+    def changeType(self, isHuman: bool):
+        self.state = DBState.humanValue if isHuman else DBState.machineValue
+        self.redrawAll()
+
+    def redrawAll(self):
+        def get_sync_value(var: ReactVar, state: DBState):
+            if state == DBState.humanValue:
+                return var._value
+            return var.translate(var._value, var.type(), var.byteSize(), DBState.machineValue, DBState.humanValue)
+
         rows, cols = self.df.shape
         rowKeys = self.df.index
         colKeys = self.df.columns
-        self.blockSignals(True)  # Bloqueia sinais para evitar loops infinitos
+        self.blockSignals(True)
         self.setRowCount(rows)
         self.setColumnCount(cols)
-        self.setHorizontalHeaderLabels(colKeys)
-        self.setVerticalHeaderLabels(rowKeys)        
-        # Ajuste automático das colunas ao conteúdo
-      
-        for rowName in rowKeys: 
-            for colName in colKeys: 
-                data: ReactVar = self.df.loc[rowName, colName]
-                value = data.getValue(self.state)
-                cellValue = type2str(value,data.type()) if self.state == DBState.humanValue and not isinstance(value,str) else value
+        self.setHorizontalHeaderLabels(colKeys.tolist())
+        self.setVerticalHeaderLabels(rowKeys.tolist())
+
+        for r_idx, rowName in enumerate(rowKeys):
+            for c_idx, colName in enumerate(colKeys):
+                data: ReactVar = self.df.at[rowName, colName]
+                raw_value = get_sync_value(data, self.state)
+                display_value = (type2str(raw_value, data.type())
+                                 if (self.state == DBState.humanValue and not isinstance(raw_value, str))
+                                 else raw_value)
                 typeValue = data.type()
-                dataModel = data.model
-                rowID = rowKeys.get_loc(rowName)
-                colID = colKeys.get_loc(colName)
+                model = data.model
 
-                if  self.state != DBState.machineValue and any(typeValue.find(x)!=-1 for x in ["ENUM", "BIT_ENUM"]) and not (dataModel in [DBModel.Func, DBModel.tFunc]) and not(colName in ["BYTE_SIZE","TYPE"]):
-                    comboBox = QComboBox()
-                    if typeValue.find("BIT_") == -1:
-                        dados = list(hrt_enum[int(typeValue[4:])].values()) if self.tableName == "HART" else {}
-                    else:
-                        dados = list(hrt_bitEnum[int(typeValue[8:])].values()) if self.tableName == "HART" else {}
-                    comboBox.addItems(dados)
-                    comboBox.setCurrentText(cellValue)
-                    def setDataBaseCombBox(data: ReactVar, widget:QComboBox, state: DBState, _):
-                        data.setValue(widget.currentText(),state)
-                    comboBox.currentIndexChanged.connect(partial(setDataBaseCombBox, data,comboBox,self.state))
-                    def setTextCombBox(widget:QLineEdit, state: DBState, data: ReactVar):
-                        value = data.getValue(state)
-                        cellValue = str(value)
-                        widget.setCurrentText(cellValue)
-                    data.valueChangedSignal.connect(partial(setTextCombBox,lineEdit,self.state))
-                    self.setCellWidget(rowID, colID, comboBox)
-                
+                is_enum = any(x in typeValue for x in ["ENUM", "BIT_ENUM"]
+                              ) and model not in {DBModel.Func, DBModel.tFunc}
+                editable_field = (self.state == DBState.humanValue or colName in ["BYTE_SIZE", "TYPE"]
+                                  or any(x in typeValue for x in ["PACKED","UNSIGNED","FLOAT","INTEGER","DATE","TIME"]))
+
+                if is_enum and colName not in ["BYTE_SIZE", "TYPE"]:
+                    combo = QComboBox()
+                    items = []
+                    if self.tableName == "HART":
+                        # Tenta extrair índice de enum
+                        idx = None
+                        try:
+                            if typeValue.startswith('BIT_ENUM'):
+                                idx = int(typeValue[len('BIT_ENUM'):])
+                                items = list(hrt_bitEnum.get(idx, {}).values())
+                            elif typeValue.startswith('ENUM'):
+                                idx = int(typeValue[len('ENUM'):])
+                                items = list(hrt_enum.get(idx, {}).values())
+                        except (ValueError, IndexError, KeyError):
+                            items = []
+                    combo.addItems(items)
+                    combo.setCurrentText(str(display_value))
+
+                    combo.currentIndexChanged.connect(
+                        lambda _, var=data, cb=combo: var.setValue(cb.currentText(), self.state)
+                    )
+                    data.valueChangedSignal.connect(
+                        lambda var=data, cb=combo: cb.setCurrentText(
+                            str(get_sync_value(var, self.state))
+                        )
+                    )
+                    self.setCellWidget(r_idx, c_idx, combo)
+
                 else:
-                    lineEdit = QLineEdit()
-                    if(self.state or (colName in ["BYTE_SIZE","TYPE"]) or any(typeValue.find(x)!=-1 for x in ["PACKED", "UNSIGNED", "FLOAT", "INTEGER", "DATE", "TIME"])) and not (dataModel in [DBModel.Func, DBModel.tFunc]):
-                        lineEdit.setStyleSheet("#QLineEdit{background-color: white;}")
-                        def setDataBaseLineEdit(data: ReactVar, widget:QLineEdit, state: DBState):
-                            data.setValue(str2type(widget.text(),data.type()),state)
-                        lineEdit.editingFinished.connect(partial(setDataBaseLineEdit,data,lineEdit,self.state))
+                    line = QLineEdit()
+                    if editable_field and model not in {DBModel.Func, DBModel.tFunc}:
+                        line.setStyleSheet("background-color: white;")
+                        line.editingFinished.connect(
+                            lambda var=data, ln=line: var.setValue(
+                                str2type(ln.text(), var.type()), self.state
+                            )
+                        )
                     else:
-                        lineEdit.setReadOnly(True)
-                        lineEdit.setStyleSheet("background-color: #D3D3D3;")
-                    def setTextLineEdit(widget:QLineEdit, state: DBState, data: ReactVar):
-                        value = data.getValue(state)
-                        cellValue = type2str(value,data.type()) if state == DBState.humanValue and not isinstance(value,str) else value
-                        widget.setText(cellValue)
-                    data.valueChangedSignal.connect(partial(setTextLineEdit,lineEdit,self.state))
-                    lineEdit.setContextMenuPolicy(Qt.CustomContextMenu)
-                    lineEdit.customContextMenuRequested.connect(partial(self.show_custom_context_menu, lineEdit, rowName, colName))
-                    lineEdit.setText(cellValue)
-                    self.setCellWidget(rowID, colID, lineEdit)
-                                      
-                self.setColumnWidth(colID, 150)
-                # self.resizeColumnToContents(colID)
+                        line.setReadOnly(True)
+                        line.setStyleSheet("background-color: #D3D3D3;")
 
-        self.blockSignals(False)  # Libera sinais após a configuração da tabela
-        self.viewport().update()  # Atualiza a interface
-        # self.resizeColumnsToContents()        
-    
-    def show_custom_context_menu(self, line_edit, rowName, colName, event):
-        """Mostra o menu de contexto quando o botão direito é pressionado"""
-        if isinstance(line_edit, QLineEdit):
-            menu = QMenu(self)
-            
-            action_Value = QAction(qta.icon("mdi.numeric"), "Value", self)
-            data : ReactVar = self.df.loc[rowName,colName]
-            def actionValueSlot():
-                dialog = QDialog(self)
-                dialog_ui = Ui_Dialog_Value()  # Cria a instância do QDialog
-                dialog_ui.setupUi(dialog)  # Configura a interface do QDialog
-                dialog_ui.lineEdit.setText(str(data.getValue(self.state)))
-                dialog_ui.buttonBox.accepted.connect(lambda: data.setValue(dialog_ui.lineEdit.text(),self.state))
-                # dialog_ui.buttonBox.accepted.connect(self.redrawAll)
-                dialog.exec()
-            action_Value.triggered.connect(actionValueSlot)
-            menu.addAction(action_Value)
+                    data.valueChangedSignal.connect(
+                        lambda var=data, ln=line: ln.setText(
+                            (type2str(
+                                get_sync_value(var, self.state),
+                                var.type()
+                            ) if (self.state == DBState.humanValue and not isinstance(get_sync_value(var, self.state), str))
+                            else get_sync_value(var, self.state))
+                        )
+                    )
 
-            action_Func = QAction(qta.icon("mdi.alarm-panel"), "Func", self)
-            def actionFuncSlot():
-                dialog = QDialog(self)
-                dialog_ui = Ui_Dialog_Func()
-                dialog_ui.setupUi(dialog)  # Configura a interface do QDialog
-                dialog_ui.lineEdit.suggestions = self.dbDataFrame.autoCompleteList
-                dialog_ui.lineEdit.adjust_height_by_lines(1)
-                dialog_ui.lineEdit.setText(data.getFunc())
-                dialog_ui.buttonBox.accepted.connect(lambda: data.setFunc(f'{dialog_ui.lineEdit.toPlainText()}'))
-                # dialog_ui.buttonBox.accepted.connect(self.redrawAll)                
-                dialog.exec()
-            action_Func.triggered.connect(actionFuncSlot)
-            menu.addAction(action_Func)
-            
-            action_Tfunc = QAction(qta.icon("mdi.math-integral"), "Tfunc", self)
-            def actionTfuncSlot():
-                dialog = QDialog(self)
-                dialog_ui = Ui_Dialog_Tfunc()
-                dialog_ui.setupUi(dialog)  # Configura a interface do QDialog
-                dialog_ui.lineEditInput.suggestions = self.dbDataFrame.autoCompleteList
-                dialog_ui.lineEditInput.adjust_height_by_lines(1)   
-                tfunc = data.getTFunc()                           
-                if tfunc != None:
-                    num_str, den_str, delay_str, input_str = map(str.strip, tfunc.split(","))
-                    dialog_ui.lineEditNum.setText(num_str[1:-1])
-                    dialog_ui.lineEditDen.setText(den_str[1:-1])
-                    dialog_ui.lineEditDelay.setText(delay_str)
-                    dialog_ui.lineEditInput.setText(input_str)
-                else:
-                    dialog_ui.lineEditNum.setText("")
-                    dialog_ui.lineEditDen.setText("")
-                    dialog_ui.lineEditDelay.setText("")
-                    dialog_ui.lineEditInput.setText("")
-                dialog_ui.buttonBox.accepted.connect(lambda: data.setTFunc(f'[{dialog_ui.lineEditNum.text()}],[{dialog_ui.lineEditDen.text()}],{dialog_ui.lineEditDelay.text()},{dialog_ui.lineEditInput.toPlainText()},') )
-                # dialog_ui.buttonBox.accepted.connect(self.redrawAll)                
-                dialog.exec()
-            action_Tfunc.triggered.connect(actionTfuncSlot)
-            menu.addAction(action_Tfunc)
+                    line.setContextMenuPolicy(Qt.CustomContextMenu)
+                    line.customContextMenuRequested.connect(
+                        lambda pos, ln=line, rn=rowName, cn=colName: self.show_custom_context_menu(ln, rn, cn, pos)
+                    )
+                    line.setText(str(display_value))
+                    self.setCellWidget(r_idx, c_idx, line)
 
-            menu.addSeparator()
-            standard_menu = line_edit.createStandardContextMenu()
-            # Adiciona as ações padrão ao menu
-            for action in standard_menu.actions():
-                menu.addAction(action) 
-            menu.exec(line_edit.mapToGlobal(event))  # Correção aqui
+                self.setColumnWidth(c_idx, 150)
+
+        self.blockSignals(False)
+        self.viewport().update()
+
+    def show_custom_context_menu(self, line_edit, rowName, colName, pos):
+        menu = QMenu(self)
+        data: ReactVar = self.df.at[rowName, colName]
+
+        action_val = QAction(qta.icon("mdi.numeric"), "Value", self)
+        action_val.triggered.connect(lambda: self._open_value_dialog(data))
+        menu.addAction(action_val)
+
+        action_fun = QAction(qta.icon("mdi.alarm-panel"), "Func", self)
+        action_fun.triggered.connect(lambda: self._open_func_dialog(data))
+        menu.addAction(action_fun)
+
+        action_tfu = QAction(qta.icon("mdi.math-integral"), "Tfunc", self)
+        action_tfu.triggered.connect(lambda: self._open_tfunc_dialog(data))
+        menu.addAction(action_tfu)
+
+        menu.addSeparator()
+        for act in line_edit.createStandardContextMenu().actions():
+            menu.addAction(act)
+        menu.exec(line_edit.mapToGlobal(pos))
+
+    def _open_value_dialog(self, data: ReactVar):
+        dlg = QDialog(self)
+        ui = Ui_Dialog_Value()
+        ui.setupUi(dlg)
+        ui.lineEdit.setText(str(data._value))
+        ui.buttonBox.accepted.connect(lambda: data.setValue(ui.lineEdit.text(), self.state))
+        dlg.exec()
+
+    def _open_func_dialog(self, data: ReactVar):
+        dlg = QDialog(self)
+        ui = Ui_Dialog_Func()
+        ui.setupUi(dlg)
+        ui.lineEdit.suggestions = self.dbDataFrame.autoCompleteList
+        ui.lineEdit.adjust_height_by_lines(1)
+        ui.lineEdit.setText(data.getFunc() or "")
+        ui.buttonBox.accepted.connect(lambda: data.setFunc(ui.lineEdit.toPlainText()))
+        dlg.exec()
+
+    def _open_tfunc_dialog(self, data: ReactVar):
+        dlg = QDialog(self)
+        ui = Ui_Dialog_Tfunc()
+        ui.setupUi(dlg)
+        ui.lineEditInput.suggestions = self.dbDataFrame.autoCompleteList
+        ui.lineEditInput.adjust_height_by_lines(1)
+        tfunc = data.getTFunc() or ''
+        try:
+            num, den, delay, inp = map(str.strip, tfunc.split(','))
+        except ValueError:
+            num = den = delay = inp = ''
+        ui.lineEditNum.setText(num.strip('[]'))
+        ui.lineEditDen.setText(den.strip('[]'))
+        ui.lineEditDelay.setText(delay)
+        ui.lineEditInput.setText(inp)
+        ui.buttonBox.accepted.connect(lambda: data.setTFunc(
+            f'[{ui.lineEditNum.text()}],[{ui.lineEditDen.text()}],' \
+            f'{ui.lineEditDelay.text()},{ui.lineEditInput.toPlainText()},'
+        ))
+        dlg.exec()

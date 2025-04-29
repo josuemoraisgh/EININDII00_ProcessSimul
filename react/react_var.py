@@ -1,189 +1,189 @@
+import asyncio
 from PySide6.QtCore import QObject, Signal, Slot
 from hrt.hrt_type import hrt_type_hex_to, hrt_type_hex_from
 from db.db_types import DBState, DBModel
 from asteval import Interpreter
 from numpy import exp, log
-import random, math, re
+import random
+import math
+import re
 
 class ReactVar(QObject):
-    valueChangedSignal = Signal(QObject)
-    isTFuncSignal      = Signal(QObject, bool)
+    valueChangedSignal = Signal(object)
+    isTFuncSignal = Signal(object, bool)
 
-    def __init__(self, tableName: str, rowName: str, colName: str, reactDB):
+    def __init__(self, tableName: str, rowName: str, colName: str, reactFactory):
         super().__init__()
-        self.tableName  = tableName
-        self.rowName    = rowName
-        self.colName    = colName
-        self.reactDB    = reactDB
+        self.tableName = tableName
+        self.rowName = rowName
+        self.colName = colName
+        self.reactFactory = reactFactory
         self._evaluator = Interpreter()
-        self._value     = None
+
+        # Async init tracking
+        self._initialized = False
+        self._init_event = asyncio.Event()
+
+        # Internal state
+        self._value = None
         self.inputValue = None
-        self.model      = None
-        self._func      = None
-        self._tFunc     = None
-        self._tokens    = []
+        self.model = None
+        self._func = None
+        self._tFunc = None
+        self._tokens: list[str] = []
+
+    async def _startDatabase(self):
+        loop = asyncio.get_event_loop()
+        data = await loop.run_in_executor(
+            None,
+            self.reactFactory.storage.getData,
+            self.tableName,
+            self.rowName,
+            self.colName
+        )
+
+        newModel = self.getModel(data)
+        if newModel == DBModel.Value:
+            self.setValue(data, stateAtual=DBState.machineValue)
+        elif newModel == DBModel.Func:
+            self.setFunc(data[1:])
+        elif newModel == DBModel.tFunc:
+            self.setTFunc(data[1:])
+
+        self._initialized = True
+        self._init_event.set()
+
+    async def getValue(self, stateDesejado: DBState = DBState.humanValue) -> float | str:
+        if not self._initialized:
+            await self._init_event.wait()
+
+        if self.colName in ['NAME', 'TYPE', 'BYTE_SIZE', 'MB_POINT', 'ADDRESS']:
+            return self._value
+
+        return self.translate(
+            self._value,
+            self.type(),
+            self.byteSize(),
+            stateDesejado,
+            DBState.humanValue
+        )
+
+    @staticmethod
+    def translate(value, type: str, byteSize: int,
+                  stateDesejado: DBState, stateAtual: DBState = DBState.humanValue):
+        if stateDesejado == stateAtual or \
+           (stateDesejado == DBState.originValue and stateAtual == DBState.machineValue) or \
+           (stateDesejado == DBState.machineValue and stateAtual == DBState.originValue):
+            return value
+        if stateDesejado == DBState.humanValue:
+            return hrt_type_hex_to(value, type)
+        return hrt_type_hex_from(value, type, byteSize)
 
     def type(self, tableName=None, rowName=None):
         if tableName is None or rowName is None:
-            tableName, rowName = self.tableName, self.rowName
-        return self.reactDB.storage.getData(tableName, rowName, 'TYPE')
+            tableName = self.tableName
+            rowName = self.rowName
+        return self.reactFactory.storage.getData(tableName, rowName, 'TYPE')
 
     def byteSize(self, tableName=None, rowName=None):
         if tableName is None or rowName is None:
-            tableName, rowName = self.tableName, self.rowName
-        return int(self.reactDB.storage.getData(tableName, rowName, 'BYTE_SIZE'))
+            tableName = self.tableName
+            rowName = self.rowName
+        return int(self.reactFactory.storage.getData(tableName, rowName, 'BYTE_SIZE'))
 
-    @staticmethod
-    def translate(value, type_: str, byteSize: int, desiredState: DBState, currentState: DBState = DBState.humanValue):
-        if desiredState == currentState or \
-           (desiredState == DBState.originValue and currentState == DBState.machineValue) or \
-           (desiredState == DBState.machineValue and currentState == DBState.originValue):
-            return value
-        if desiredState == DBState.humanValue:
-            return hrt_type_hex_to(value, type_)
-        return hrt_type_hex_from(value, type_, byteSize)
-
-    def getModel(self, rawValue=None) -> DBModel:
-        if rawValue is None:
-            rawValue = self.reactDB.storage.getData(self.tableName, self.rowName, self.colName)
-        if isinstance(rawValue, str):
-            if rawValue.startswith('@'):
+    def getModel(self, value=None) -> DBModel:
+        if value is None:
+            value = self.reactFactory.storage.getData(self.tableName, self.rowName, self.colName)
+        if isinstance(value, str):
+            if value.startswith('@'):
                 return DBModel.Func
-            elif rawValue.startswith('$'):
+            elif value.startswith('$'):
                 return DBModel.tFunc
         return DBModel.Value
 
-    def getValue(self, desiredState: DBState = DBState.humanValue):
-        if self._value is None:
-            self._start_from_db()
-        if self._value is None:
-            # ainda sem valor após buscar do banco -> devolve zero
-            return 0
-        if self.colName in ('NAME', 'TYPE', 'BYTE_SIZE', 'MB_POINT', 'ADDRESS'):
-            return self._value
-        return self.translate(self._value, self.type(), self.byteSize(), desiredState)
-
-
-    def setValue(self, value, currentState: DBState = DBState.humanValue):
-        if self.colName in ('NAME', 'TYPE', 'BYTE_SIZE', 'MB_POINT', 'ADDRESS'):
-            converted = value
+    def setValue(self, value, stateAtual: DBState = DBState.humanValue):
+        if self.colName in ['NAME', 'TYPE', 'BYTE_SIZE', 'MB_POINT', 'ADDRESS']:
+            valueAux = value
         else:
-            self._ensure_model(DBModel.Value)
-            converted = self.translate(value, self.type(), self.byteSize(), DBState.humanValue, currentState)
-        self._func  = None
+            self._checkModel(DBModel.Value)
+            valueAux = self.translate(value, self.type(), self.byteSize(), DBState.humanValue, stateAtual)
+        self._func = None
         self._tFunc = None
-        changed = (self._value != converted)
-        self._value = converted
-        self.model  = DBModel.Value
-        if changed:
+        isChanged = self._value != valueAux
+        self._value = valueAux
+        self.model = DBModel.Value
+        if isChanged:
             self.valueChangedSignal.emit(self)
 
-    def getFunc(self):
-        if self._func is None:
-            self._start_from_db()
-        return self._func
-
     def setFunc(self, func: str):
-        if func != self._func:
-            self._ensure_model(DBModel.Func)
+        if self._func != func:
+            self._checkModel(DBModel.Func)
             self._tFunc = None
-            self.model  = DBModel.Func
-            self._init_func(func)
+            self.model = DBModel.Func
+            self._startFunc(func)
 
-    def getTFunc(self):
-        if self._tFunc is None:
-            self._start_from_db()
-        return self._tFunc
-
-    def setTFunc(self, tfunc: str):
-        if tfunc != self._tFunc:
-            self._ensure_model(DBModel.tFunc)
-            self.model  = DBModel.tFunc
-            self._value = 0.0
-            self._tFunc = tfunc
-            _, _, _, inp = tfunc.split(',')
-            self._init_func(inp.strip()[1:])
+    def setTFunc(self, tFunc: str):
+        if self._tFunc != tFunc:
+            self._checkModel(DBModel.tFunc)
+            self.model = DBModel.tFunc
+            self._value = 0
+            self._tFunc = tFunc
+            _, __, ___, inp = tFunc.split(',')
+            self._startFunc(inp[1:])
             self.isTFuncSignal.emit(self, True)
 
-    def _ensure_model(self, newModel: DBModel):
-        old = self.model
-        if old is not None and old != newModel:
-            self._disconnect_tokens()
-            if old == DBModel.tFunc:
+    def _checkModel(self, newModel: DBModel):
+        oldModel = self.model
+        if oldModel is not None and oldModel != newModel:
+            self._connectTokens(self._tokens, False)
+            if oldModel == DBModel.tFunc:
                 self.isTFuncSignal.emit(self, False)
 
-    def _start_from_db(self):
-        raw   = self.reactDB.storage.getData(self.tableName, self.rowName, self.colName)
-        model = self.getModel(raw)
-        if model == DBModel.Value:
-            self.setValue(raw, DBState.machineValue)
-        elif model == DBModel.Func:
-            self.setFunc(raw[1:])
-        else:
-            self.setTFunc(raw[1:])
-
-    def _init_func(self, func: str):
+    def _startFunc(self, func: str):
         self._func = func
-        tokens  = re.findall(r'[A-Z]\w+\.[A-Z0-9]\w+\.[A-Za-z_0-9]\w+', func)
-        if tokens != self._tokens:
+        tokens = re.findall(r'[A-Z]\w+\.[A-Z0-9]\w+\.[A-Za-z_0-9]\w+', func)
+        if self._tokens != tokens:
             self._evaluator.symtable.clear()
             self._evaluator.symtable.update({
-                'math': math, 'exp': exp, 'random': random, 'log': log, 'abs': abs
+                'math': math,
+                'exp': exp,
+                'random': random,
+                'log': log
             })
+            self._connectTokens(tokens, True)
             self._tokens = tokens
-            self._connect_tokens(tokens)
 
-    def _connect_tokens(self, tokens: list[str]):
-        for tok in tokens:
-            tbl, col, row = tok.split('.')
-            other: ReactVar = self.reactDB.df[tbl].at[row, col]
-            key = f'{tbl}_{col}_{row}'
-            # tenta obter valor; se for None ou lançar, pula este token
-            try:
-                v = other.getValue()
-            except Exception:
-                continue
-            if v is None:
-                continue
-            self._evaluator.symtable[key] = v
-            other.valueChangedSignal.connect(self._on_other_changed)
-        result = self._evaluate(self._func)
+    def _evaluate_expression(self, expr: str) -> float:
+        sanitized = re.sub(r'([A-Z]\w+)\.([A-Z0-9]\w+)\.([A-Za-z_0-9]\w+)', r"\1_\2_\3", expr)
+        result = self._evaluator(sanitized)
+        return float(result) if result is not None else 0.0
+
+    def _connectTokens(self, tokens: list[str], isconnect: bool = True):
+        for token in tokens:
+            table, col, row = token.split('.')
+            other: ReactVar = self.reactFactory.df[table].at[row, col]
+            if isconnect:
+                # Use valor interno já inicializado
+                val = other._value
+                self._evaluator.symtable[f'{table}_{col}_{row}'] = val
+                other.valueChangedSignal.connect(self._update_from_other_slot)
+            else:
+                other.valueChangedSignal.disconnect(self._update_from_other_slot)
+        if isconnect and self._func:
+            result = self._evaluate_expression(self._func)
+            if self.model == DBModel.tFunc:
+                self.inputValue = result
+            else:
+                self._value = result
+                self.valueChangedSignal.emit(self)
+
+    @Slot(object)
+    def _update_from_other_slot(self, data: "ReactVar"):
+        val = data._value
+        self._evaluator.symtable[f'{data.tableName}_{data.colName}_{data.rowName}'] = val
+        result = self._evaluate_expression(self._func)
         if self.model == DBModel.tFunc:
             self.inputValue = result
         else:
             self._value = result
-            self.valueChangedSignal.emit(self)
-
-    def _disconnect_tokens(self):
-        for tok in self._tokens:
-            tbl, col, row = tok.split('.')
-            other: ReactVar = self.reactDB.df[tbl].at[row, col]
-            other.valueChangedSignal.disconnect(self._on_other_changed)
-        self._tokens = []
-
-    def _evaluate(self, expr: str) -> float:
-        expression_sanitized = re.sub(r'([A-Z]\w+)\.([A-Z0-9]\w+)\.([A-Za-z_0-9]\w+)', r'\1_\2_\3', expr)
-        result = self._evaluator(expression_sanitized)
-        if result is None:
-            # Erro mais claro: veja qual expressão falhou
-            raise RuntimeError(
-                f"[ReactVar] Falha ao avaliar '{expr}': "
-                "Interpreter retornou None"
-            )
-        try:
-            return float(result)
-        except (ValueError, TypeError):
-            raise RuntimeError(
-                f"[ReactVar] Resultado inválido para '{expr}': {result!r}"
-            )
-
-    @Slot(object)
-    def _on_other_changed(self, var):
-        key = f'{var.tableName}_{var.colName}_{var.rowName}'
-        self._evaluator.symtable[key] = var.getValue()
-        val = self._evaluate(self._func)
-        if self.model == DBModel.tFunc:
-            self.inputValue = val
-        else:
-            self._value = val
             self.valueChangedSignal.emit(self)
