@@ -17,7 +17,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.reactDB = ReactDB({"HART", "MODBUS"})  
         self.simulTf = SimulTf(500)
         self.reactDB.isTFuncSignal.connect(self.simulTf.tfConnect)
-        servidor_thread = ModbusServerThread(self.reactDB, num_slaves=1, port=5020)            
+        servidor_thread = ModbusServerThread(self.reactDB, num_slaves=1, port=502)            
         self.resize(800, 500)  # Defina o tamanho desejado
         self.setupUi(self)  # Configura a interface do Qt Designer     
         self.radioButtonHex.clicked["bool"].connect(self.hrtDBTableWidget.changeType)         
@@ -64,14 +64,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             lcd_widget.display(varRead.getValue(DBState.humanValue))
         for device in devices:
             lcd_widget = getattr(self, f'lcd{device}')             
-            varRead: ReactDB = self.reactDB.df["HART"].loc[rowRead, device]
+            varRead: ReactDB = self.reactDB.df["MODBUS"].loc[device, "CLP100"]
             varRead.valueChangedSignal.connect(partial(atualizaDisplay,lcd_widget))
             lcd_widget.display(varRead.getValue(DBState.humanValue))
             
             slider_widget = getattr(self, f'slider{device}', None)   
             if slider_widget != None:
                 slider_widget.setMinimum(0)
-                slider_widget.setMaximum(100)
+                slider_widget.setMaximum(65535)
                 varWrite: ReactDB = self.reactDB.df["HART"].loc[rowWrite, device]
                 slider_widget.setValue(int(varWrite.getValue(DBState.humanValue)*100)) 
                 slider_widget.valueChanged.connect(partial(atualizaValue, varWrite))

@@ -101,7 +101,7 @@ class DynamicDataBlock(BaseModbusDataBlock):
 
 # --- Classe para rodar o servidor em thread ---
 class ModbusServerThread(QThread):
-    def __init__(self, reactDB: ReactDB, num_slaves=3, address="0.0.0.0", port=5020):
+    def __init__(self, reactDB: ReactDB, num_slaves=3, address="0.0.0.0", port=502):
         super().__init__()
         self.reactDB = reactDB
         self.num_slaves = num_slaves
