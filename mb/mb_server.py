@@ -2,13 +2,12 @@ from pymodbus.datastore import ModbusSlaveContext, ModbusServerContext
 from pymodbus.payload import BinaryPayloadBuilder, BinaryPayloadDecoder
 from pymodbus.datastore import ModbusSequentialDataBlock as BaseModbusDataBlock
 from pymodbus.device import ModbusDeviceIdentification
-from pymodbus.server import StartTcpServer
+from pymodbus.server.async_io import StartTcpServer
 from pymodbus.constants import Endian
 from react.react_var import ReactVar
 from react.react_factory import ReactFactory
 from PySide6.QtCore import QThread
 import asyncio
-
 
 class InvalidDataBlock(BaseModbusDataBlock):
     """Data block que rejeita qualquer leitura ou escrita."""
@@ -27,7 +26,6 @@ class InvalidDataBlock(BaseModbusDataBlock):
 class DynamicDataBlock(BaseModbusDataBlock):
     """Data block que lê/escreve diretamente de/agora ReactVar já inicializados."""
     def __init__(self, slave_id: int, reactFactory: ReactFactory, point_type: str):
-        # Inicializa com endereço base e lista vazia
         super().__init__(0, [0])
         self.slave_id = slave_id
         self.reactFactory = reactFactory
@@ -38,7 +36,10 @@ class DynamicDataBlock(BaseModbusDataBlock):
 
     def getValues(self, address, count=1):
         builder = BinaryPayloadBuilder(byteorder=Endian.Big, wordorder=Endian.Big)
-        df = self.reactFactory.df["MODBUS"]
+        df = self.reactFactory.df.get("MODBUS")
+        if df is None:
+            return [0] * count
+
         for addr in range(address, address + count):
             mask_addr = df["ADDRESS"].apply(lambda a: a._value == f"{addr:02}")
             mask_pt   = df["MB_POINT"].apply(lambda a: a._value == self.point_type)
@@ -47,7 +48,6 @@ class DynamicDataBlock(BaseModbusDataBlock):
                 builder.add_16bit_int(0)
                 continue
 
-            # Assume PROCESS_VARIABLE está num índice fixo
             col_idx = df.columns.get_loc("PROCESS_VARIABLE")
             data: ReactVar = df.loc[mask].iloc[0, col_idx]
             val = data._value
@@ -59,18 +59,22 @@ class DynamicDataBlock(BaseModbusDataBlock):
                 builder.add_16bit_int(val)
             else:
                 builder.add_16bit_uint(val)
+
         return builder.to_registers()
 
     def setValues(self, address, values):
         decoder = BinaryPayloadDecoder.fromRegisters(values,
             byteorder=Endian.Big, wordorder=Endian.Big)
-        df = self.reactFactory.df["MODBUS"]
+        df = self.reactFactory.df.get("MODBUS")
+        if df is None:
+            return
         mask = (
             df["ADDRESS"].apply(lambda a: a._value == f"{address:02}") &
             df["MB_POINT"].apply(lambda a: a._value == "hr")
         )
         if not mask.any():
             return
+
         col_idx = df.columns.get_loc("PROCESS_VARIABLE")
         data: ReactVar = df.loc[mask].iloc[0, col_idx]
         dtype = data.type()
@@ -86,14 +90,16 @@ class DynamicDataBlock(BaseModbusDataBlock):
                 data.setValue(valor)
         except Exception as e:
             print(f"[WARN] Erro ao decodificar/escrever em {address}: {e}")
+
 class ModbusServerThread(QThread):
-    def __init__(self, reactFactory, num_slaves=1, address="0.0.0.0", port=5020):
+    """Thread que executa um servidor Modbus TCP baseado em dados dinâmicos do ReactFactory."""
+    def __init__(self, reactFactory: ReactFactory, num_slaves=1, address="0.0.0.0", port=5020):
         super().__init__()
         self.reactFactory = reactFactory
         self.num_slaves = num_slaves
         self.address = address
         self.port = port
-        self.loop = None  # vamos criar nosso asyncio loop
+        self.loop = None
         self.server = None
 
     async def _start_server(self):
@@ -112,10 +118,11 @@ class ModbusServerThread(QThread):
         identity.ModelName = 'Transparent Model'
         identity.MajorMinorRevision = '2.0'
 
-        self.server = await StartTcpServer(
+        await StartTcpServer(
             context=context,
             identity=identity,
             address=(self.address, self.port),
+            allow_reuse_address=True,
             defer_start=False
         )
 
