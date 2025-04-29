@@ -6,117 +6,116 @@ import numpy as np
 import json
 import ast
 
-
 class SimulTf(QObject):
-    
-    dictDB = {}
-    systems = {}
-    states = {}
-    delay = {} 
-      
     def __init__(self, stepTime):
         super().__init__()
         self.stepTime = stepTime  # em milisegundos
-        # Inicializa a função repetida para rodar a simulação de forma contínua
-        self._repeated_function = RepeatFunction(self._simulation_step, stepTime)     
+        self.dictDB = {}
+        self.systems = {}
+        self.states = {}
+        self.delay = {}
+        self._repeated_function = RepeatFunction(self._simulation_step, stepTime)
 
-    @Slot()
-    def tfConnect(self, data: ReactVar,  isConnect: bool):
-        if isConnect == True:
-            self.dictDB[(data.tableName, data.rowName, data.colName)] = data
-            num_str, den_str, delay_str, _ = data.getTFunc().split(",")
-            num = ast.literal_eval(num_str.replace(" ", ","))
-            den = ast.literal_eval(den_str.replace(" ", ","))
-
-            self.delay[(data.tableName, data.rowName, data.colName)] = float(delay_str)
-            if self.delay[(data.tableName, data.rowName, data.colName)] != 0.0:
+    @Slot(object, bool)
+    def tfConnect(self, data: ReactVar, isConnect: bool):
+        key = (data.tableName, data.rowName, data.colName)
+        if isConnect:
+            self.dictDB[key] = data
+            # Extrai parâmetros de tFunc, suportando separador espaço ou vírgula
+            tfunc = data.getTFunc() or ''
+            parts = tfunc.strip(',').split(',', maxsplit=3)
+            if len(parts) < 3:
+                return
+            num_str, den_str, delay_str = parts[0], parts[1], parts[2]
+            # Normaliza separadores e formata listas
+            num_content = num_str.strip('[]').replace(' ', ',')
+            den_content = den_str.strip('[]').replace(' ', ',')
+            try:
+                num = ast.literal_eval(f'[{num_content}]')
+                den = ast.literal_eval(f'[{den_content}]')
+                delay = float(delay_str)
+            except Exception as e:
+                print(f"Erro ao parsear tFunc '{tfunc}': {e}")
+                return
+            self.delay[key] = delay
+            # Monta a função de transferência com ou sem atraso
+            if delay != 0.0:
                 G = ctrl.TransferFunction(num, den)
-                # Aproximação de Padé para o atraso de self.delay segundos (ordem 1)
-                num_delay, den_delay = ctrl.pade(self.delay[(data.tableName, data.rowName, data.colName)], 1)  # atraso = self.delay (seg), ordem = 1
-                # Função de transferência do atraso
-                delay_tf = ctrl.TransferFunction(num_delay, den_delay)
-                # Sistema completo com atraso
-                sys_tf = G * delay_tf
+                num_d, den_d = ctrl.pade(delay, 1)
+                sys_tf = G * ctrl.TransferFunction(num_d, den_d)
             else:
                 sys_tf = ctrl.TransferFunction(num, den)
+            # Converte para espaço de estados e discretiza
             sys_ss = ctrl.tf2ss(sys_tf)
             sysd = ctrl.c2d(sys_ss, self.stepTime / 1000.0, method='tustin')
-
-            self.systems[(data.tableName, data.rowName, data.colName)] = {
-                "A": np.array(sysd.A),
-                "B": np.array(sysd.B),
-                "C": np.array(sysd.C),
-                "D": np.array(sysd.D)
-            } 
-            self.states[(data.tableName, data.rowName, data.colName)] = np.zeros((sysd.A.shape[0], 1))          
+            A, B, C, D = map(lambda x: np.array(x), (sysd.A, sysd.B, sysd.C, sysd.D))
+            self.systems[key] = {'A': A, 'B': B, 'C': C, 'D': D}
+            self.states[key] = np.zeros((A.shape[0], 1))
         else:
-            self.dictDB.pop((data.tableName, data.rowName, data.colName), None)
-            self.delay.pop((data.tableName, data.rowName, data.colName), None)
-            self.systems.pop((data.tableName, data.rowName, data.colName), None)
-            self.states.pop((data.tableName, data.rowName, data.colName), None)
-            
+            self.dictDB.pop(key, None)
+            self.delay.pop(key, None)
+            self.systems.pop(key, None)
+            self.states.pop(key, None)
+
     def start(self, state: bool):
-        """Inicia a execução da simulação."""
         if state:
-            self.load_states()             
+            self.load_states()
             self._repeated_function.start()
         else:
             self._repeated_function.stop()
-            self.save_states()            
+            self.save_states()
 
     def reset(self):
-        """Finaliza a execução e reseta os estados."""      
-        self._repeated_function.stop() 
-        for key in self.states:
+        self._repeated_function.stop()
+        for key in list(self.states.keys()):
             self.states[key] = np.zeros_like(self.states[key])
 
     def _simulation_step(self):
-        """Calcula o próximo passo para todas as funções de transferência."""
-        for key, system in self.systems.items():
-            input_Value = self.dictDB[key].inputValue
+        for key, sys in self.systems.items():
+            var = self.dictDB.get(key)
+            if var is None:
+                continue
+            u = var.inputValue if var.inputValue is not None else 0.0
+            # Calcula saída e atualiza estado
+            y = sys['C'].dot(self.states[key]) + sys['D'] * u
+            self.states[key] = sys['A'].dot(self.states[key]) + sys['B'] * u
+            new_val = float(np.clip(y, 0.0001, 1.0))
+            var._value = new_val
+            var.valueChangedSignal.emit(var)
 
-            # Calcula a saída com o estado atual
-            output = system["C"].dot(self.states[key]) + system["D"] * input_Value
-            # Atualiza o estado
-            self.states[key] = system["A"].dot(self.states[key]) + system["B"] * input_Value
-
-            # Armazena a saída e emite sinal
-            self.dictDB[key]._value =  np.clip(float(output), 0.0001, 1.0)
-            self.dictDB[key].valueChangedSignal.emit(self.dictDB[key])
-    
     def save_states(self):
         for key, state in self.states.items():
+            var = self.dictDB.get(key)
+            if not var:
+                continue
+            row = "|".join(key[:-1])
+            col = key[-1]
             try:
-                state_json = json.dumps(state.tolist())
-                self.dictDB[key].reactDB.storage.setData("TFSTATES", "|".join(key[:-1]), key[-1], state_json)
+                s = json.dumps(state.tolist())
+                var.reactFactory.storage.setRawData("TFSTATES", row, col, s)
             except Exception as e:
-                print(f"Erro ao salvar estado de {key}: {e}")
+                print(f"Erro ao salvar estado {key}: {e}")
 
     def load_states(self):
-        try:
-            key = list(self.dictDB.keys())[0]
-            for row in self.dictDB[key].reactDB.storage.rowKeys("TFSTATES"):
-                for col in self.dictDB[key].reactDB.storage.colKeys("TFSTATES"):
-                    key = tuple(row.split("|")) + (col,)
-                    if key in self.systems:
-                        state_str = self.dictDB[key].reactDB.storage.getRawData("TFSTATES", row, col)
-                        if state_str:
-                            try:
-                                self.states[key] = np.array(json.loads(state_str))
-                            except Exception as e:
-                                print(f"❌ Erro ao carregar estado de {key}: {e}")
-                    else:
-                        self.dictDB[key].reactDB.storage.setData("TFSTATES", row, col, None)
-        except Exception as e:
-            print(f"❌ Erro geral ao carregar estados do banco: {e}")
+        for key, var in list(self.dictDB.items()):
+            row = "|".join(key[:-1])
+            col = key[-1]
+            try:
+                raw = var.reactFactory.storage.getRawData("TFSTATES", row, col)
+                if raw:
+                    self.states[key] = np.array(json.loads(raw))
+            except Exception as e:
+                print(f"Erro ao carregar estado {key}: {e}")
 
     def clean_orphan_states(self):
-        """Remove do banco os TFSTATES que não têm sistema correspondente"""
-        try:
-            for row in self.dictDB[key].reactDB.rowKeys("TFSTATES"):
-                for col in self.dictDB[key].reactDB.colKeys("TFSTATES"):
-                    key = tuple(row.split("|")) + (col,)
-                    if key not in self.systems:
-                        self.dictDB[key].reactDB.setData("TFSTATES", row, col, None)
-        except Exception as e:
-            print(f"Erro ao limpar estados órfãos: {e}")
+        for key in list(self.states.keys()):
+            if key not in self.systems:
+                var = self.dictDB.get(key)
+                if not var:
+                    continue
+                row = "|".join(key[:-1])
+                col = key[-1]
+                try:
+                    var.reactFactory.storage.setData("TFSTATES", row, col, None)
+                except Exception as e:
+                    print(f"Erro ao limpar órfão {key}: {e}")

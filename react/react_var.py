@@ -68,6 +68,14 @@ class ReactVar(QObject):
             DBState.humanValue
         )
 
+    def getFunc(self) -> str | None:
+        """Retorna a expressão da função (sem prefixo)"""
+        return self._func
+
+    def getTFunc(self) -> str | None:
+        """Retorna a expressão de tFunc (sem prefixo)"""
+        return self._tFunc
+
     @staticmethod
     def translate(value, type: str, byteSize: int,
                   stateDesejado: DBState, stateAtual: DBState = DBState.humanValue):
@@ -163,7 +171,6 @@ class ReactVar(QObject):
             table, col, row = token.split('.')
             other: ReactVar = self.reactFactory.df[table].at[row, col]
             if isconnect:
-                # Use valor interno já inicializado
                 val = other._value
                 self._evaluator.symtable[f'{table}_{col}_{row}'] = val
                 other.valueChangedSignal.connect(self._update_from_other_slot)

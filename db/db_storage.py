@@ -108,7 +108,7 @@ class DBStorage():
 
         except Exception as e:
             print(f"❌ Erro ao atualizar ou inserir no SQLite: {e}")        
-            
+    
     def dataFrame(self, tableName: str):
         with sqlite3.connect(self.db_name) as conn:
             df = pd.read_sql_query(f"SELECT * FROM {tableName}_tabela", conn, index_col='NAME')
