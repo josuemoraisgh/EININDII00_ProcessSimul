@@ -153,10 +153,12 @@ class ReactVar(QObject):
         if self._tokens != tokens:
             self._evaluator.symtable.clear()
             self._evaluator.symtable.update({
-                'math': math,
-                'exp': exp,
+                'math':   math,
+                'exp':    exp,
                 'random': random,
-                'log': log
+                'log':    log,
+                'abs':    abs,
+                'int':    int                
             })
             self._connectTokens(tokens, True)
             self._tokens = tokens

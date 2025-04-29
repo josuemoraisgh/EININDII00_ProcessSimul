@@ -7,7 +7,8 @@ from pymodbus.constants import Endian
 from react.react_var import ReactVar
 from react.react_factory import ReactFactory
 from PySide6.QtCore import QThread
-import json
+import asyncio
+
 
 class InvalidDataBlock(BaseModbusDataBlock):
     """Data block que rejeita qualquer leitura ou escrita."""
@@ -85,19 +86,17 @@ class DynamicDataBlock(BaseModbusDataBlock):
                 data.setValue(valor)
         except Exception as e:
             print(f"[WARN] Erro ao decodificar/escrever em {address}: {e}")
-
 class ModbusServerThread(QThread):
-    """Thread que executa um servidor Modbus TCP baseado em dados dinâmicos do ReactFactory."""
-    def __init__(self, reactFactory: ReactFactory, num_slaves=3,
-                 address="0.0.0.0", port=502):
+    def __init__(self, reactFactory, num_slaves=1, address="0.0.0.0", port=5020):
         super().__init__()
         self.reactFactory = reactFactory
         self.num_slaves = num_slaves
         self.address = address
         self.port = port
+        self.loop = None  # vamos criar nosso asyncio loop
+        self.server = None
 
-    def run(self):
-        # Cria contexto para cada slave
+    async def _start_server(self):
         slaves = {}
         for sid in range(1, self.num_slaves + 1):
             slaves[sid] = ModbusSlaveContext(
@@ -107,21 +106,27 @@ class ModbusServerThread(QThread):
                 ir=DynamicDataBlock(sid, self.reactFactory, "ir")
             )
         context = ModbusServerContext(slaves=slaves, single=False)
-
         identity = ModbusDeviceIdentification()
         identity.VendorName = 'LASEC'
-        identity.ProductCode = 'LASEC'
-        identity.VendorUrl = 'http://www.lasec.feelt.ufu.br/'
         identity.ProductName = 'Transparent Simulator'
         identity.ModelName = 'Transparent Model'
         identity.MajorMinorRevision = '2.0'
 
-        print(f"Server Modbus TCP iniciado em {self.address}:{self.port} com {self.num_slaves} slaves...")
-        StartTcpServer(context=context, identity=identity,
-                       address=(self.address, self.port))
+        self.server = await StartTcpServer(
+            context=context,
+            identity=identity,
+            address=(self.address, self.port),
+            defer_start=False
+        )
+
+    def run(self):
+        print(f"Iniciando Modbus TCP em {self.address}:{self.port}...")
+        self.loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(self.loop)
+        self.loop.run_until_complete(self._start_server())
+        self.loop.run_forever()
 
     def stop(self):
-        if self.isRunning():
-            self.terminate()
-            self.wait()
-            print("Servidor Modbus encerrado.")
+        if self.loop and self.loop.is_running():
+            print("Encerrando Modbus...")
+            self.loop.call_soon_threadsafe(self.loop.stop)
