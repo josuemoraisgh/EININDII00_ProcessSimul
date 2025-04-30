@@ -19,6 +19,10 @@ class CtrlGLWidget(QOpenGLWidget):
         glEnable(GL_TEXTURE_2D)
         glClearColor(1, 1, 1, 1)
 
+        # ✅ Só aqui podemos chamar glGetString!
+        renderer = glGetString(GL_RENDERER)
+        print("OpenGL Renderer:", renderer)
+
     def load_texture_from_base64(self):
         """Carrega a imagem Base64 e a converte em textura OpenGL."""
         if not self.image_base64:

@@ -35,32 +35,60 @@ class DynamicDataBlock(BaseModbusDataBlock):
         return True
 
     def getValues(self, address, count=1):
+        from pymodbus.payload import BinaryPayloadBuilder
         builder = BinaryPayloadBuilder(byteorder=Endian.Big, wordorder=Endian.Big)
-        df = self.reactFactory.df.get("MODBUS")
-        if df is None:
-            return [0] * count
+        df = self.reactFactory.df["MODBUS"]
 
-        for addr in range(address, address + count):
-            mask_addr = df["ADDRESS"].apply(lambda a: a._value == f"{addr:02}")
-            mask_pt   = df["MB_POINT"].apply(lambda a: a._value == self.point_type)
-            mask = mask_addr & mask_pt
-            if not mask.any():
+        addr = address
+        while addr < (address + count):
+            row = df.loc[
+                (df["ADDRESS"].apply(lambda a: a and a._value == f"{addr:02}")) &
+                (df["MB_POINT"].apply(lambda a: a and a._value.lower() == self.point_type.lower()))
+            ]
+
+            if row.empty:
                 builder.add_16bit_int(0)
+                addr += 1
                 continue
 
-            col_idx = df.columns.get_loc("PROCESS_VARIABLE")
-            data: ReactVar = df.loc[mask].iloc[0, col_idx]
-            val = data._value
-            dtype = data.type()
+            try:
+                # PROCURA DINAMICAMENTE O ReactVar NA LINHA
+                data = None
+                for val in row.iloc[0]:
+                    if isinstance(val, ReactVar):
+                        data = val
+                        break
 
-            if dtype == "FLOAT":
-                builder.add_32bit_float(val)
-            elif dtype == "INTEGER":
-                builder.add_16bit_int(val)
-            else:
-                builder.add_16bit_uint(val)
+                if data is None:
+                    print(f"[WARN] Nenhum ReactVar encontrado no endereço {addr}")
+                    builder.add_16bit_int(0)
+                    addr += 1
+                    continue
+
+                val = data._value or 0
+                dtype = data.type()
+
+                if dtype == "FLOAT":
+                    builder.add_32bit_float(val)
+                    addr += 2  # FLOAT ocupa 2 words
+                elif dtype == "INTEGER":
+                    builder.add_16bit_int(val)
+                    addr += 1
+                elif dtype == "UNSIGNED":
+                    builder.add_16bit_uint(val)
+                    addr += 1
+                else:
+                    print(f"[WARN] Tipo '{dtype}' desconhecido para leitura no endereço {addr}")
+                    builder.add_16bit_int(0)
+                    addr += 1
+
+            except Exception as e:
+                print(f"[ERRO] Erro ao ler endereço {addr}: {e}")
+                builder.add_16bit_int(0)
+                addr += 1
 
         return builder.to_registers()
+
 
     def setValues(self, address, values):
         decoder = BinaryPayloadDecoder.fromRegisters(values,
