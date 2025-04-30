@@ -7,7 +7,7 @@ from db.db_types import DBState, DBModel
 from ctrl.simul_tf import SimulTf
 from functools import partial
 from img.imgCaldeira import imagem_base64
-from mb.mb_server import ModbusServerThread
+from mb.mb_server import ModbusServer
 from react.react_var import ReactVar
 
 class MainWindow(QMainWindow, Ui_MainWindow):
@@ -31,7 +31,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         self.simulTf.tfConnect(var, True)
 
         # Inicia servidor Modbus
-        self.servidor_thread = ModbusServerThread(self.reactFactory, num_slaves=1, port=502)
+        self.servidor_thread = ModbusServer(self.reactFactory)
 
         # Setup UI
         self.resize(800, 500)
@@ -43,10 +43,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # Start/Stop simulação
         def startSimul(state: bool):
             if state:
-                self.servidor_thread.start()
+                self.servidor_thread.start(port=502)
                 # print(self.reactFactory.df["MODBUS"][["ADDRESS", "MB_POINT"]])
             else:
-                self.servidor_thread.stop()
+                self.servidor_thread.start(port=5020)
             self.simulTf.start(state)
 
         self.pushButtonStart.toggled.connect(startSimul)
@@ -131,6 +131,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         )
         if reply == QMessageBox.Yes:
             self.simulTf.start(False)
+            self.servidor_thread.stop()
             print("🔒 Salvando dados...")
             event.accept()
         else:
