@@ -8,6 +8,7 @@ from ctrl.simul_tf import SimulTf
 from functools import partial
 from img.imgCaldeira import imagem_base64
 from mb.mb_server import ModbusServerThread
+from react.react_var import ReactVar
 
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self):
@@ -16,7 +17,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.reactFactory = asyncio.run(
             ReactFactory.create(["HART", "MODBUS"])
         )
-
+        # self.debug_modbus_vars(self.reactFactory)
         # Configura simulador
         self.simulTf = SimulTf(500)
         # Conecta sinal de tFunc
@@ -43,6 +44,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         def startSimul(state: bool):
             if state:
                 self.servidor_thread.start()
+                # print(self.reactFactory.df["MODBUS"][["ADDRESS", "MB_POINT"]])
             else:
                 self.servidor_thread.stop()
             self.simulTf.start(state)
@@ -133,6 +135,24 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             event.accept()
         else:
             event.ignore()
+
+    def debug_modbus_vars(self, react_factory):
+        print("\n🔍 [DEBUG] Mapas MODBUS:")
+        df = react_factory.df.get("MODBUS")
+        if df is None:
+            print("❌ Tabela MODBUS não encontrada.")
+            return
+
+        for row_key in df.index:
+            for col_key in df.columns:
+                try:
+                    var = df.at[row_key, col_key]
+                    if isinstance(var, ReactVar):
+                        addr = react_factory.df["MODBUS"].at[row_key, "ADDRESS"]._value
+                        mb_point = react_factory.df["MODBUS"].at[row_key, "MB_POINT"]._value
+                        print(f"[{row_key}][{col_key}] -> ADDR={addr} | MB_POINT={mb_point} | TYPE={var.type()} | VALUE={var._value}")
+                except Exception as e:
+                    print(f"[ERRO] Ao processar {row_key}.{col_key}: {e}")
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
