@@ -1061,6 +1061,46 @@
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_5">
          <item>
+          <layout class="QHBoxLayout" name="horizontalLayout">
+           <item>
+            <widget class="QLabel" name="label_10">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>12</pointsize>
+              </font>
+             </property>
+             <property name="layoutDirection">
+              <enum>Qt::LayoutDirection::RightToLeft</enum>
+             </property>
+             <property name="text">
+              <string>MB_PORT:</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignmentFlag::AlignBottom|Qt::AlignmentFlag::AlignHCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="lineEditMBPort">
+             <property name="font">
+              <font>
+               <pointsize>12</pointsize>
+              </font>
+             </property>
+             <property name="text">
+              <string>502</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
           <widget class="QPushButton" name="pushButtonStart">
            <property name="styleSheet">
             <string notr="true">#pushButtonStart {
@@ -2105,7 +2145,7 @@
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="buttonGroupState"/>
   <buttongroup name="buttonGroupSimul"/>
+  <buttongroup name="buttonGroupState"/>
  </buttongroups>
 </ui>

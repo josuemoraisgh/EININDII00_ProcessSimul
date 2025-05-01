@@ -2,7 +2,6 @@ from datetime import date, time, datetime
 from hrt.hrt_enum import hrt_enum
 from hrt.hrt_bitenum import hrt_bitEnum
 from typing import Union
-import unittest
 import math
 
 def format_number(num):
@@ -345,6 +344,7 @@ class TestHrtType(unittest.TestCase):
         self.assertEqual(hrt_type_hex_to(valor_hex, 'UInt'), 43981)    
 
 if __name__ == '__main__':
+    import unittest
     unittest.main()
     def processar_valor(valor):
         return ''.join(map(_hrt_type_hex2_uint, split_by_length(valor, 2)))

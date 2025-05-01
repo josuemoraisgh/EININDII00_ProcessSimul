@@ -130,14 +130,32 @@ class ModbusServer:
             self._stop_event.set()
             self._loop.call_soon_threadsafe(self._loop.stop)
             self._server_thread.join()
-            print("[INFO] Servidor parado.")
 
     def _run(self, port):
-        asyncio.run(self._start_async_server(port))
+        self._loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(self._loop)
+
+        try:
+            print(f"[START] Iniciando Modbus TCP em 0.0.0.0:{port}...")
+            self._loop.run_until_complete(self._start_async_server(port))
+        except Exception as e:
+            print(f"[ERRO] Loop principal do servidor Modbus falhou: {e}")
+        finally:
+            print("[INFO] Encerrando loop de eventos Modbus...")
+            try:
+                pending = asyncio.all_tasks(self._loop)
+                for task in pending:
+                    task.cancel()
+                self._loop.run_until_complete(asyncio.gather(*pending, return_exceptions=True))
+            except Exception as e:
+                print(f"[WARN] Erro ao cancelar tarefas pendentes: {e}")
+            finally:
+                self._loop.run_until_complete(self._loop.shutdown_asyncgens())
+                self._loop.close()
+                self._loop = None
+                print("[INFO] Loop de eventos Modbus encerrado com sucesso.")
 
     async def _start_async_server(self, port):
-        self._loop = asyncio.get_event_loop()
-        print(f"[START] Iniciando Modbus TCP em 0.0.0.0:{port}...")
         print("[INFO] Criando slaves Modbus...")
         slaves = {
             sid: ModbusSlaveContext(

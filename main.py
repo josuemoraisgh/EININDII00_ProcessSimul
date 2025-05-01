@@ -43,10 +43,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # Start/Stop simulação
         def startSimul(state: bool):
             if state:
-                self.servidor_thread.start(port=502)
+                self.servidor_thread.start(port=int(self.lineEditMBPort.text().strip()))
                 # print(self.reactFactory.df["MODBUS"][["ADDRESS", "MB_POINT"]])
             else:
-                self.servidor_thread.start(port=5020)
+                self.servidor_thread.stop()
             self.simulTf.start(state)
 
         self.pushButtonStart.toggled.connect(startSimul)

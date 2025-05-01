@@ -16,9 +16,10 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QButtonGroup, QGroupBox, QHBoxLayout,
-    QLCDNumber, QLabel, QMainWindow, QPushButton,
-    QRadioButton, QSizePolicy, QSlider, QSpacerItem,
-    QStatusBar, QTabWidget, QVBoxLayout, QWidget)
+    QLCDNumber, QLabel, QLineEdit, QMainWindow,
+    QPushButton, QRadioButton, QSizePolicy, QSlider,
+    QSpacerItem, QStatusBar, QTabWidget, QVBoxLayout,
+    QWidget)
 
 from comp.ctrlglwidget import CtrlGLWidget
 from comp.dbtablewidget import DBTableWidget
@@ -484,6 +485,27 @@ class Ui_MainWindow(object):
         self.groupBoxSimul.setGeometry(QRect(760, 370, 161, 151))
         self.verticalLayout_5 = QVBoxLayout(self.groupBoxSimul)
         self.verticalLayout_5.setObjectName(u"verticalLayout_5")
+        self.horizontalLayout = QHBoxLayout()
+        self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.label_10 = QLabel(self.groupBoxSimul)
+        self.label_10.setObjectName(u"label_10")
+        sizePolicy1.setHeightForWidth(self.label_10.sizePolicy().hasHeightForWidth())
+        self.label_10.setSizePolicy(sizePolicy1)
+        self.label_10.setFont(font)
+        self.label_10.setLayoutDirection(Qt.LayoutDirection.RightToLeft)
+        self.label_10.setAlignment(Qt.AlignmentFlag.AlignBottom|Qt.AlignmentFlag.AlignHCenter)
+
+        self.horizontalLayout.addWidget(self.label_10)
+
+        self.lineEditMBPort = QLineEdit(self.groupBoxSimul)
+        self.lineEditMBPort.setObjectName(u"lineEditMBPort")
+        self.lineEditMBPort.setFont(font)
+
+        self.horizontalLayout.addWidget(self.lineEditMBPort)
+
+
+        self.verticalLayout_5.addLayout(self.horizontalLayout)
+
         self.pushButtonStart = QPushButton(self.groupBoxSimul)
         self.buttonGroupSimul = QButtonGroup(MainWindow)
         self.buttonGroupSimul.setObjectName(u"buttonGroupSimul")
@@ -1000,6 +1022,8 @@ class Ui_MainWindow(object):
         self.sliderFIT100V.setToolTip("")
 #endif // QT_CONFIG(tooltip)
         self.groupBoxSimul.setTitle(QCoreApplication.translate("MainWindow", u"Simula\u00e7\u00e3o", None))
+        self.label_10.setText(QCoreApplication.translate("MainWindow", u"MB_PORT:", None))
+        self.lineEditMBPort.setText(QCoreApplication.translate("MainWindow", u"502", None))
         self.pushButtonStart.setText(QCoreApplication.translate("MainWindow", u"Start", None))
         self.pushButtonStop.setText(QCoreApplication.translate("MainWindow", u"Stop", None))
         self.pushButtonReset.setText(QCoreApplication.translate("MainWindow", u"reset", None))
