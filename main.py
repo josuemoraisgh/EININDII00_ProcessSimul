@@ -9,73 +9,99 @@ from functools import partial
 from img.imgCaldeira import imagem_base64
 from mb.mb_server import ModbusServer
 from react.react_var import ReactVar
+import os
+import shutil
+import platform
 
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super().__init__()
+        print("🚀 Iniciando MainWindow...")
+
         # Cria ReactFactory assincronamente
-        self.reactFactory = asyncio.run(
-            ReactFactory.create(["HART", "MODBUS"])
-        )
-        # self.debug_modbus_vars(self.reactFactory)
+        print("🔄 Criando ReactFactory...")
+        self.reactFactory = asyncio.run(ReactFactory.create(["HART", "MODBUS"]))
+        print("✅ ReactFactory criado com sucesso!")
+
         # Configura simulador
+        print("🔄 Configurando Simulador...")
         self.simulTf = SimulTf(500)
+        print("✅ Simulador configurado.")
+
         # Conecta sinal de tFunc
+        print("🔄 Conectando sinais de tFunc...")
         self.reactFactory.isTFuncSignal.connect(self.simulTf.tfConnect)
+        print("✅ Sinais de tFunc conectados.")
+
         # Registra manualmente variáveis já com tFunc
+        print("🔄 Registrando variáveis com tFunc...")
         for tbl in self.reactFactory.df:
             for row in self.reactFactory.df[tbl].index:
                 for col in self.reactFactory.df[tbl].columns:
                     var = self.reactFactory.df[tbl].at[row, col]
                     if var.model == DBModel.tFunc:
                         self.simulTf.tfConnect(var, True)
+        print("✅ Variáveis registradas com tFunc.")
 
         # Inicia servidor Modbus
+        print("🔄 Iniciando servidor Modbus...")
         self.servidor_thread = ModbusServer(self.reactFactory)
 
         # Setup UI
+        print("🔄 Configurando UI...")
         self.resize(800, 500)
         self.setupUi(self)
 
         # Hex view
+        print("🔄 Conectando hex view...")
         self.radioButtonHex.clicked[bool].connect(self.hrtDBTableWidget.changeType)
 
         # Start/Stop simulação
+        print("🔄 Conectando Start/Stop simulação...")
         def startSimul(state: bool):
             if state:
+                print("🔄 Iniciando servidor Modbus...")
                 self.servidor_thread.start(port=int(self.lineEditMBPort.text().strip()))
-                # print(self.reactFactory.df["MODBUS"][["ADDRESS", "MB_POINT"]])
             else:
+                print("🔄 Parando servidor Modbus...")
                 self.servidor_thread.stop()
             self.simulTf.start(state)
-
         self.pushButtonStart.toggled.connect(startSimul)
+        print("✅ Start/Stop simulação configurado.")
 
         # Carrega tabelas
+        print("🔄 Carregando tabelas...")
         self.hrtDBTableWidget.setBaseData(self.reactFactory, "HART")
         self.mbDBTableWidget.setBaseData(self.reactFactory, "MODBUS")
+        print("✅ Tabelas carregadas.")
 
         # Botão reset
+        print("🔄 Configurando botão de reset...")
         def resetTf():
             self.buttonGroupSimul.exclusive = False
             self.pushButtonStart.setChecked(False)
             self.pushButtonStop.setChecked(True)
             self.buttonGroupSimul.exclusive = True
             self.simulTf.reset()
-
         self.pushButtonReset.clicked.connect(resetTf)
+        print("✅ Botão de reset configurado.")
 
         # Imagem de fundo
+        print("🔄 Configurando imagem de fundo...")
         self.processTab1.setBackgroundImageFromBase64(imagem_base64)
+        print("✅ Imagem de fundo configurada.")
 
         # Configura LCDs e sliders
+        print("🔄 Conectando LCDs e sliders...")
         self._sync = lambda coro: asyncio.run(coro)
         self.connectLCDs()
         self.centralizar_janela()
+        print("✅ LCDs e sliders configurados.")
 
     def connectLCDs(self):
-        devices_hr = ['FV100CA','FV100AR','FIT100V','PIT100A','FV100A']
-        devices_ir = ['FIT100CA','FIT100AR','TIT100','PIT100V','LIT100','FIT100A']
+        print("🔄 Conectando LCDs...")
+        devices_hr = ['FV100CA', 'FV100AR', 'FIT100V', 'PIT100A', 'FV100A']
+        devices_ir = ['FIT100CA', 'FIT100AR', 'TIT100', 'PIT100V', 'LIT100', 'FIT100A']
         devices = devices_hr + devices_ir
         rowRead = "PROCESS_VARIABLE"
 
@@ -102,15 +128,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 slider.valueChanged.connect(partial(atualizaValue, varW))
 
     def centralizar_janela(self):
+        print("🔄 Centralizando janela...")
         screen = QApplication.primaryScreen()
         geo = screen.geometry()
         center = geo.center()
         frame = self.frameGeometry()
         frame.moveCenter(center)
         self.move(frame.topLeft())
+        print("✅ Janela centralizada.")
 
     def resizeEvent(self, event):
         w, h = event.size().width(), event.size().height()
+        print(f"🔄 Redimensionando janela para {w}x{h}...")
         self.widgetLIT100.move(w*0.58, h*0.02)
         self.widgetTIT100.move(w*0.35, h*0.40)
         self.widgetPIT100V.move(25, 10)
@@ -124,8 +153,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.widgetFV100AR.move(w*0.64, h*0.68)
         self.groupBoxSimul.move(w-190, h-220)
         super().resizeEvent(event)
+        print("✅ Redimensionamento concluído.")
 
     def closeEvent(self, event):
+        print("🔄 Verificando se deseja sair...")
         reply = QMessageBox.question(
             self, "Sair", "Tem certeza?", QMessageBox.Yes|QMessageBox.No, QMessageBox.No
         )
@@ -136,6 +167,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             event.accept()
         else:
             event.ignore()
+        print("✅ Evento de fechamento concluído.")
 
     def debug_modbus_vars(self, react_factory):
         print("\n🔍 [DEBUG] Mapas MODBUS:")
@@ -156,6 +188,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     print(f"[ERRO] Ao processar {row_key}.{col_key}: {e}")
 
 if __name__ == '__main__':
+    print("🚀 Iniciando a aplicação...")
     app = QApplication(sys.argv)
     win = MainWindow()
     win.show()

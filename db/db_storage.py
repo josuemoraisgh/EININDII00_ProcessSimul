@@ -18,12 +18,11 @@ def get_app_data_dir(app_name="processSimul"):
         return os.path.join(os.path.expanduser("~/.local/share"), app_name)
 
 def get_persistent_db_path(relative_path="db/banco.db", app_name="processSimul"):
-    """Garante que o banco seja copiado para um local persistente e retorna seu caminho."""
     target_dir = get_app_data_dir(app_name)
     os.makedirs(target_dir, exist_ok=True)
-
     target_db_path = os.path.join(target_dir, os.path.basename(relative_path))
-
+    # Imprimir onde o banco está sendo copiado
+    print(f"Banco de dados será copiado para: {target_db_path}")
     # Copia o banco apenas na primeira execução
     if not os.path.exists(target_db_path):
         if hasattr(sys, "_MEIPASS"):
@@ -31,9 +30,7 @@ def get_persistent_db_path(relative_path="db/banco.db", app_name="processSimul")
         else:
             source_path = os.path.abspath(relative_path)
         shutil.copy(source_path, target_db_path)
-
     return target_db_path
-
 class DBStorage():
     # data_updated = Signal()  # Sinal emitido ao atualizar dados
         
