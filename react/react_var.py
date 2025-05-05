@@ -18,6 +18,7 @@ class ReactVar(QObject):
         self.rowName = rowName
         self.colName = colName
         self.reactFactory = reactFactory
+        self.isWidgetValueChanged = False
         self._evaluator = Interpreter()
 
         # Async init tracking
@@ -109,7 +110,8 @@ class ReactVar(QObject):
                 return DBModel.tFunc
         return DBModel.Value
 
-    def setValue(self, value, stateAtual: DBState = DBState.humanValue):
+    def setValue(self, value, stateAtual: DBState = DBState.humanValue, isWidgetValueChanged: bool = False):
+        self.isWidgetValueChanged = isWidgetValueChanged
         if self.colName in ['NAME', 'TYPE', 'BYTE_SIZE', 'MB_POINT', 'ADDRESS']:
             valueAux = value
         else:
@@ -122,7 +124,7 @@ class ReactVar(QObject):
         self.model = DBModel.Value
         if isChanged:
             self.valueChangedSignal.emit(self)
-
+            
     def setFunc(self, func: str):
         if self._func != func:
             self._checkModel(DBModel.Func)
@@ -183,7 +185,7 @@ class ReactVar(QObject):
             if self.model == DBModel.tFunc:
                 self.inputValue = result
             else:
-                self._value = result
+                self._value = result               
                 self.valueChangedSignal.emit(self)
 
     @Slot(object)
@@ -195,4 +197,5 @@ class ReactVar(QObject):
             self.inputValue = result
         else:
             self._value = result
-            self.valueChangedSignal.emit(self)
+            self.isWidgetValueChanged = data.isWidgetValueChanged
+            self.valueChangedSignal.emit(self)           

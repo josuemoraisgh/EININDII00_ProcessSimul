@@ -101,35 +101,45 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def connectLCDs(self):
         print("🔄 Conectando LCDs...")
+        self.isSliderChangeValue = False
         devices_hr = ['FV100CA', 'FV100AR', 'FIT100V', 'PIT100A', 'FV100A']
         devices_ir = ['FIT100CA', 'FIT100AR', 'TIT100', 'PIT100V', 'LIT100', 'FIT100A']
         devices = devices_hr + devices_ir
         rowRead = "PROCESS_VARIABLE"
 
-        def atualizaWidget(lcd_widget,slider_widget, varRead):
-            value = self._sync(varRead.getValue(DBState.humanValue))
-            lcd_widget.display(value)
-            # if slider_widget:
-            #     slider_widget.setValue(int(value))
+        def atualizaDisplay(lcd_widget, varRead):
+            lcd_widget.display(self._sync(varRead.getValue(DBState.humanValue)))
 
-        for device in devices:
-            lcd = getattr(self, f'lcd{device}')
-            slider = getattr(self, f'slider{device}', None)            
-            var = self.reactFactory.df["HART"].at[rowRead, device]
-            var.valueChangedSignal.connect(partial(atualizaWidget, lcd, slider))
-            lcd.display(self._sync(var.getValue(DBState.humanValue)))
+        for device in devices_ir:
+            lcd = getattr(self, f'lcd{device}')          
+            varR = self.reactFactory.df["HART"].at[rowRead, device]
+            varR.valueChangedSignal.connect(partial(atualizaDisplay, lcd))
+            lcd.display(self._sync(varR.getValue(DBState.humanValue)))
                 
-        def atualizaValue(varWrite, x):
-            varWrite.setValue(x, DBState.humanValue)
+        def atualizaValue(varWrite, value):
+            varWrite.setValue(value, DBState.humanValue, True)        
+
+        def atualizaSlider(slider, varRead):
+            if not varRead.isWidgetValueChanged:
+                slider.blockSignals(True)  
+                slider.setValue(int(655.35*self._sync(varRead.getValue(DBState.humanValue))))
+                slider.blockSignals(True)            
 
         for device in devices_hr:
+            lcd = getattr(self, f'lcd{device}')             
+            varR = self.reactFactory.df["HART"].at[rowRead, device]
+            varR.valueChangedSignal.connect(partial(atualizaDisplay, lcd))                
+            lcd.display(self._sync(varR.getValue(DBState.humanValue)))             
             slider = getattr(self, f'slider{device}', None)
-            if slider:
+            if slider:               
                 slider.setMinimum(0)
                 slider.setMaximum(65535)
+                
                 varW = self.reactFactory.df["MODBUS"].at[device, "CLP100"]
                 slider.setValue(int(self._sync(varW.getValue(DBState.humanValue))))
-                slider.valueChanged.connect(partial(atualizaValue, varW))
+               
+                slider.valueChanged.connect(partial(atualizaValue, varW))               
+                varR.valueChangedSignal.connect(partial(atualizaSlider, slider))                
 
     def centralizar_janela(self):
         print("🔄 Centralizando janela...")
