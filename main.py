@@ -1,4 +1,5 @@
 import sys
+import traceback
 import asyncio
 from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox
 from uis.ui_main import Ui_MainWindow
@@ -105,16 +106,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         devices = devices_hr + devices_ir
         rowRead = "PROCESS_VARIABLE"
 
-        def atualizaDisplay(lcd_widget, varRead):
+        def atualizaWidget(lcd_widget,slider_widget, varRead):
             value = self._sync(varRead.getValue(DBState.humanValue))
             lcd_widget.display(value)
+            # if slider_widget:
+            #     slider_widget.setValue(int(value))
 
         for device in devices:
             lcd = getattr(self, f'lcd{device}')
+            slider = getattr(self, f'slider{device}', None)            
             var = self.reactFactory.df["HART"].at[rowRead, device]
-            var.valueChangedSignal.connect(partial(atualizaDisplay, lcd))
+            var.valueChangedSignal.connect(partial(atualizaWidget, lcd, slider))
             lcd.display(self._sync(var.getValue(DBState.humanValue)))
-
+                
         def atualizaValue(varWrite, x):
             varWrite.setValue(x, DBState.humanValue)
 
@@ -188,8 +192,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     print(f"[ERRO] Ao processar {row_key}.{col_key}: {e}")
 
 if __name__ == '__main__':
-    print("🚀 Iniciando a aplicação...")
-    app = QApplication(sys.argv)
-    win = MainWindow()
-    win.show()
-    sys.exit(app.exec())
+    try:    
+        print("🚀 Iniciando a aplicação...")
+        app = QApplication(sys.argv)
+        win = MainWindow()
+        win.show()
+        sys.exit(app.exec())
+    except Exception:
+        traceback.print_exc()
+        input("Erro ocorrido. Pressione Enter para sair...")

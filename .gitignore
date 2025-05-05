@@ -1,2 +1,3 @@
 py_build/
 __pycache__/
+venv/

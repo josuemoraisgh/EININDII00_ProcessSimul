@@ -19,4 +19,6 @@ CALL pip install PyOpenGL-accelerate
 
 @REM pip install nuitka
 @REM No menu Iniciar, busque por “x64 Native Tools Command Prompt for VS 2022” (ou equivalente à sua versão) e rode como Administrator.
-@REM python -m nuitka --standalone --onefile --output-dir=py_build --enable-plugin=pyside6 --windows-console-mode=disable --include-data-file="db/banco.db=db/banco.db" --jobs=4 --output-filename=processSimul.exe main.py
+@REM --onefile
+@REM python -m nuitka --standalone --output-dir=py_build --enable-plugin=pyside6 --include-qt-plugins=all --windows-console-mode=disable --include-data-file="db/banco.db=db/banco.db" --jobs=4 --output-filename=processSimul.exe main.py
+@REM python -m nuitka --standalone --output-dir=py_build --enable-plugin=pyside6 --include-qt-plugins=all --windows-console-mode=force --include-data-file="db/banco.db=db/banco.db" --jobs=4 --output-filename=processSimul.exe main.py
