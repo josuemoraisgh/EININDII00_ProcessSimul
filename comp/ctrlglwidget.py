@@ -11,8 +11,10 @@ class CtrlGLWidget(QWidget):
         # Layout para exibir a imagem
         self.layout = QVBoxLayout(self)
         self.image_label = QLabel(self)
+        self.image_label.setAlignment(Qt.AlignCenter)
+        self.image_label.setScaledContents(True)  # Faz o QLabel escalar a imagem
         self.layout.addWidget(self.image_label)
-        
+
     def setBackgroundImageFromBase64(self, image_base64: str):
         """Define a imagem de fundo a partir de Base64 e agenda atualização."""
         self.image_base64 = image_base64
@@ -37,14 +39,14 @@ class CtrlGLWidget(QWidget):
         # Exibindo a imagem no QLabel
         pixmap = QPixmap.fromImage(image)
         self.image_label.setPixmap(pixmap)
-        self.image_label.setAlignment(Qt.AlignCenter)  # Centraliza a imagem no QLabel
 
         print("✅ Imagem carregada com sucesso!")
 
-    def resizeEvent(self, event):
-        """Ajusta a exibição da imagem ao redimensionar."""
-        self.image_label.resize(self.size())
-        super().resizeEvent(event)
+    # Remover o resizeEvent desnecessário
+    # def resizeEvent(self, event):
+    #     self.image_label.resize(self.size())
+    #     super().resizeEvent(event)
+
 
 # import base64
 # from PySide6.QtOpenGLWidgets import QOpenGLWidget
