@@ -5,17 +5,22 @@ from typing import Dict, Tuple, Union
 # ['NAME', 'BYTE_SIZE', 'TYPE', 'MB_POINT', 'ADDRESS', 'CLP100']
 # MB_POINT = di, co, hr, ir
 mb_banco: Dict[str, Tuple[str, str, str, str]] = {
-    'FV100CA': (4, 'FLOAT', 'hr', '01', '@HART.FV100CA.PROCESS_VARIABLE'),    
-    'FIT100CA': (4, 'FLOAT', 'ir', '01','@HART.FIT100CA.PROCESS_VARIABLE'),
-    'FV100AR': (4, 'FLOAT', 'hr', '03', '@HART.FV100AR.PROCESS_VARIABLE'),    
-    'FIT100AR': (4, 'FLOAT', 'ir', '03','@HART.FIT100AR.PROCESS_VARIABLE'),        
-    'TIT100'  : (4, 'FLOAT', 'ir', '05','@HART.TIT100.PROCESS_VARIABLE'),    
-    'FIT100V' : (4, 'FLOAT', 'hr', '05','@HART.FIT100V.PROCESS_VARIABLE'),
-    'PIT100V' : (4, 'FLOAT', 'ir', '07','@HART.PIT100V.PROCESS_VARIABLE'),
-    'LIT100'  : (4, 'FLOAT', 'ir', '09','@HART.LIT100.PROCESS_VARIABLE'),    
-    'PIT100A' : (4, 'FLOAT', 'hr', '07','@HART.PIT100A.PROCESS_VARIABLE'),    
-    'FV100A' : (4, 'FLOAT', 'hr', '09', '@HART.FV100A.PROCESS_VARIABLE'),    
-    'FIT100A' : (4, 'FLOAT', 'ir', '11','@HART.FIT100A.PROCESS_VARIABLE'),
+    'FV100CA': (4, 'FLOAT', 'hr', '01', '3F000000'),    
+    'FIT100CA': (4, 'FLOAT', 'ir', '01','@int(65535*HART.FIT100CA.percent_of_range)'),
+    'FV100AR': (4, 'FLOAT', 'hr', '03', '3F000000'),    
+    'FIT100AR': (4, 'FLOAT', 'ir', '03','@int(65535*HART.FIT100AR.percent_of_range)'),        
+    'TIT100'  : (4, 'FLOAT', 'ir', '05','@int(65535*HART.TIT100.percent_of_range)'),    
+    'FIT100V' : (4, 'FLOAT', 'hr', '05','3F000000'),
+    'PIT100V' : (4, 'FLOAT', 'ir', '07','@int(65535*HART.PIT100V.percent_of_range)'),
+    'LIT100'  : (4, 'FLOAT', 'ir', '09','@int(65535*HART.LIT100.percent_of_range)'),    
+    'PIT100A' : (4, 'FLOAT', 'hr', '07','3F000000'),    
+    'FV100A' : (4, 'FLOAT', 'hr', '09', '3F000000'),    
+    'FIT100A' : (4, 'FLOAT', 'ir', '11','@int(65535*HART.FIT100A.percent_of_range)'),
+    'FV100CA_AM' : (1, 'BOOL', 'co', '01','0'),
+    'FV100AR_AM' : (1, 'BOOL', 'co', '02','0'),      
+    'FIT100V_AM' : (1, 'BOOL', 'co', '03','0'), 
+    'PIT100A_AM' : (1, 'BOOL', 'co', '04','0'),    
+    'FV100A_AM'  : (1, 'BOOL', 'co', '05','0'),  
 }
 # ['NAME', 'BYTE_SIZE', 'TYPE', 'FV100CA', 'FIT100CA', 'FV100AR', 'FIT100AR', 'TIT100', 'FIT100V', 'PIT100V', 'LIT100', 'PIT100A', 'FV100A', 'FIT100A']
 hrt_banco: Dict[str, Tuple[Union[int, float], str, str]] = {
@@ -68,16 +73,16 @@ hrt_banco: Dict[str, Tuple[Union[int, float], str, str]] = {
         '@HART.FIT100A.percent_of_range * (HART.FIT100A.upper_range_value - HART.FIT100A.lower_range_value) + HART.FIT100A.lower_range_value'
     ),  # 50
     'percent_of_range': (4, 'FLOAT', 
-        '3F000000', # FV100CA -> 0@100% esta em 50%
+        '@(MODBUS.CLP100.FV100CA / 65535)', # FV100CA -> 0@100% esta em 50%
         '$[1.0],[2.5 1.0], 1,@HART.FV100CA.percent_of_range', # FIT100CA  -> 0.00001@0.0227kg/s
-        '3F000000', # FV100AR -> 0@100% esta em 50%
+        '@MODBUS.CLP100.FV100AR/65535', # FV100AR -> 0@100% esta em 50%
         '$[1.0],[1.25 1.0], 1,@HART.FV100AR.percent_of_range', #FIT100AR -> 0.00001@0.15kg/s        
         '$[1.0],[500.0 1.0], 1.2,@exp(-0.05*((15.0*HART.FIT100AR.percent_of_range/HART.FIT100CA.percent_of_range)-15.0)**2.0)', # TIT100 -> 0@1000ºC
-        '3F000000', # FIT100V -> 0@0.35kg/s esta em 0.175 (50%)
+        '@MODBUS.CLP100.FIT100V/65535', # FIT100V -> 0@0.35kg/s esta em 0.175 (50%)
         '$[1.0],[100 0.000001], 1,@HART.TIT100.percent_of_range - 0.5*HART.FIT100V.percent_of_range', # PIT100V -> 0@10Bar
         '$[1.0],[100 0.000001], 0.5,@HART.FIT100A.percent_of_range - HART.FIT100V.percent_of_range', # LIT100 -> 0@100%
-        '3F2AA64C', # PIT100A -> 0@600kPa esta em 400 (66,66%)  
-        '3F000000', # FV100A -> 0@100% esta em 50% 
+        '@MODBUS.CLP100.PIT100A/65535', # PIT100A -> 0@600kPa esta em 400 (66,66%)  
+        '@MODBUS.CLP100.FV100A/65535', # FV100A -> 0@100% esta em 50% 
         '$[1.0],[1.25 1.0], 2,@math.sqrt(HART.PIT100A.percent_of_range/0.6666)*HART.FV100A.percent_of_range' # FIT100A -> 0@0.55kg/s
     ),
     'loop_current_mode': (1, 'ENUM00', '00', '00', '00', '00', '00', '00', '00', '00', '00', '00', '00'),
