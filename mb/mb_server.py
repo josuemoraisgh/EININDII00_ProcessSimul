@@ -1,6 +1,6 @@
 # modbus_server.py
 # ---------------------------------------------------------------------------
-# Servidor Modbus TCP – versão refatorada e modular
+# Servidor Modbus TCP – versão refatorada e modular (com correções em CO/DI)
 # Foco: clareza, reuso, elegância e robustez
 # ---------------------------------------------------------------------------
 
@@ -10,7 +10,7 @@ import logging
 import struct
 import time
 from dataclasses import dataclass
-from typing import Dict, Optional
+from typing import Dict, Optional, Any
 
 from pymodbus.server.async_io import StartAsyncTcpServer
 from pymodbus.datastore import (
@@ -93,6 +93,76 @@ def to_point_str(point_raw) -> str:
     if hasattr(point_raw, "_value"):
         point_raw = point_raw._value
     return str(point_raw or "").strip().lower()
+
+# --- Conversões seguras para CO/DI ---
+
+_TRUE_TOKENS = {"true", "t", "1", "on", "yes", "y", "high"}
+_FALSE_TOKENS = {"false", "f", "0", "off", "no", "n", "low", ""}
+
+def coerce_to_bool(v: Any) -> bool:
+    """
+    Converte diferentes representações para bool:
+    - bool -> retorna direto
+    - int  -> True se != 0 (aceita 0xFF00 como True ao ler estados)
+    - str  -> tokens comuns ('true', 'false', '1', '0', ...)
+    - outros -> fallback: bool(v)
+    """
+    if isinstance(v, bool):
+        return v
+    if isinstance(v, int):
+        # Para leitura de estado interno, qualquer != 0 conta como True
+        return v != 0
+    if isinstance(v, str):
+        s = v.strip().lower()
+        if s in _TRUE_TOKENS:
+            return True
+        if s in _FALSE_TOKENS:
+            return False
+        # tenta inteiro em string
+        try:
+            return int(s) != 0
+        except Exception:
+            return bool(s)  # último recurso (não recomendado, mas evita crash)
+    # outros tipos (ex.: numpy.bool_, numpy.int64 etc.)
+    try:
+        # tenta tratar como inteiro
+        if hasattr(v, "__int__"):
+            return int(v) != 0
+    except Exception:
+        pass
+    return bool(v)
+
+def parse_coil_command(v: Any) -> bool:
+    """
+    Interpreta comando de escrita de coil conforme Modbus:
+    - FC5 (Write Single Coil): ON = 0xFF00, OFF = 0x0000 (qualquer outro valor -> OFF por robustez)
+    - FC15 (Write Multiple Coils): normalmente já vem como bools; ainda assim normalizamos.
+    Também aceita 'True'/'False', 1/0, etc., de clientes livres.
+    """
+    if isinstance(v, bool):
+        return v
+    if isinstance(v, int):
+        # Modbus FC5: exatamente 0xFF00 liga; 0x0000 desliga.
+        # Clientes não conformes às vezes mandam 1/0 no servidor Python; trate ambos.
+        if v == 0xFF00 or v == 1:
+            return True
+        return False
+    if isinstance(v, str):
+        s = v.strip().lower()
+        if s in _TRUE_TOKENS:
+            return True
+        if s in _FALSE_TOKENS:
+            return False
+        try:
+            iv = int(s, 0)
+            if iv == 0xFF00 or iv == 1:
+                return True
+            return False
+        except Exception:
+            # Se o cliente mandar "False" (string), não pode virar True
+            return False
+    # Tipos exóticos: cair para coerce_to_bool, mas mantendo FC5 compatível
+    return coerce_to_bool(v)
 
 
 # ===========================
@@ -296,7 +366,8 @@ class _BaseBitBlock(SequentialBlockBase):
                 logger.warning(f"{self.point_type.upper()} {addr} com tipo inválido: {entry.dtype}")
                 out.append(False); continue
             try:
-                out.append(bool(try_get_value(entry.rv, False)))
+                v = try_get_value(entry.rv, False)
+                out.append(coerce_to_bool(v))
             except Exception as e:
                 logger.error(f"Erro ao ler {self.point_type.upper()} {addr}: {e}")
                 out.append(False)
@@ -317,7 +388,9 @@ class _BaseBitBlock(SequentialBlockBase):
                 logger.warning(f"Escrita em {self.point_type.upper()} {addr} rejeitada: destino não-BOOL")
                 continue
             try:
-                entry.rv.setValue(bool(raw))
+                desired = parse_coil_command(raw)
+                entry.rv.setValue(desired)
+                logger.debug(f"CO write addr={addr} raw={raw!r} -> {desired}")
             except Exception as e:
                 logger.error(f"Escrita {self.point_type.upper()} falhou em {addr}: {e}")
 

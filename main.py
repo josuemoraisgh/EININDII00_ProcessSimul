@@ -102,7 +102,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def connectLCDs(self):
         print("🔄 Conectando LCDs...")
         self.isSliderChangeValue = False
-        sliders = ['FIT100V', 'PIT100A', 'FV100CA', 'FV100AR', 'FV100A']
+        sliders = ['FV100CA', 'FV100AR', 'FV100A', 'FIT100V', 'PIT100A']
         displays = ['PIT100V', 'FIT100V','PIT100A', 'FIT100CA','FV100CA', 'TIT100', 'LIT100', 'FIT100AR', 'FV100AR', 'FIT100A', 'FV100A']
 
         def atualizaDisplay(lcd_widget, varRead):

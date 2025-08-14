@@ -338,6 +338,7 @@ class Ui_MainWindow(object):
         self.pbAMFV100AR.setMinimumSize(QSize(30, 30))
         self.pbAMFV100AR.setStyleSheet(u"")
         self.pbAMFV100AR.setCheckable(True)
+
         self.verticalLayout_11.addWidget(self.pbAMFV100AR)
 
 
@@ -424,16 +425,6 @@ class Ui_MainWindow(object):
         self.verticalSpacer_4 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.verticalLayout_12.addItem(self.verticalSpacer_4)
-
-        self.pbAMFIT100V = QPushButton(self.widgetFIT100V)
-        self.pbAMFIT100V.setObjectName(u"pbAMFIT100V")
-        sizePolicy2.setHeightForWidth(self.pbAMFIT100V.sizePolicy().hasHeightForWidth())
-        self.pbAMFIT100V.setSizePolicy(sizePolicy2)
-        self.pbAMFIT100V.setMinimumSize(QSize(30, 30))
-        self.pbAMFIT100V.setStyleSheet(u"")
-        self.pbAMFIT100V.setCheckable(True)
-
-        self.verticalLayout_12.addWidget(self.pbAMFIT100V)
 
 
         self.horizontalLayout_6.addLayout(self.verticalLayout_12)
@@ -681,16 +672,6 @@ class Ui_MainWindow(object):
         self.verticalSpacer_8 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.verticalLayout_16.addItem(self.verticalSpacer_8)
-
-        self.pbAMPIT100A = QPushButton(self.widgetPIT100A)
-        self.pbAMPIT100A.setObjectName(u"pbAMPIT100A")
-        sizePolicy2.setHeightForWidth(self.pbAMPIT100A.sizePolicy().hasHeightForWidth())
-        self.pbAMPIT100A.setSizePolicy(sizePolicy2)
-        self.pbAMPIT100A.setMinimumSize(QSize(30, 30))
-        self.pbAMPIT100A.setStyleSheet(u"")
-        self.pbAMPIT100A.setCheckable(True)
-
-        self.verticalLayout_16.addWidget(self.pbAMPIT100A)
 
 
         self.horizontalLayout_13.addLayout(self.verticalLayout_16)
@@ -978,7 +959,6 @@ class Ui_MainWindow(object):
 #endif // QT_CONFIG(accessibility)
         self.label_34.setText(QCoreApplication.translate("MainWindow", u"FIT100V", None))
         self.label_35.setText(QCoreApplication.translate("MainWindow", u"kg/s", None))
-        self.pbAMFIT100V.setText(QCoreApplication.translate("MainWindow", u"M", None))
 #if QT_CONFIG(tooltip)
         self.widgetSliderFIT100V.setToolTip("")
 #endif // QT_CONFIG(tooltip)
@@ -1020,7 +1000,6 @@ class Ui_MainWindow(object):
 #endif // QT_CONFIG(accessibility)
         self.label_38.setText(QCoreApplication.translate("MainWindow", u"PIT100A", None))
         self.label_39.setText(QCoreApplication.translate("MainWindow", u"kPa", None))
-        self.pbAMPIT100A.setText(QCoreApplication.translate("MainWindow", u"M", None))
 #if QT_CONFIG(tooltip)
         self.widgetSliderPIT100A.setToolTip("")
 #endif // QT_CONFIG(tooltip)

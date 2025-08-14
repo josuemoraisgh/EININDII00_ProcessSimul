@@ -25,10 +25,8 @@ mb_banco: Dict[str, Tuple[str, str, str, str]] = {
     'FV100A'  : (4, 'UNSIGNED', 'hr', '05', '3F000000'), 
     
     'AM_FV100CA' : (1, 'BOOL', 'co', '01','0'),
-    'AM_FV100AR' : (1, 'BOOL', 'co', '02','0'),      
-    'AM_FIT100V' : (1, 'BOOL', 'co', '03','0'), 
-    'AM_PIT100A' : (1, 'BOOL', 'co', '04','0'),    
-    'AM_FV100A'  : (1, 'BOOL', 'co', '05','0'),  
+    'AM_FV100AR' : (1, 'BOOL', 'co', '02','0'),        
+    'AM_FV100A'  : (1, 'BOOL', 'co', '03','0'),  
 }
 # ['NAME', 'BYTE_SIZE', 'TYPE', 'FV100CA', 'FIT100CA', 'FV100AR', 'FIT100AR', 'TIT100', 'FIT100V', 'PIT100V', 'LIT100', 'PIT100A', 'FV100A', 'FIT100A']
 hrt_banco: Dict[str, Tuple[Union[int, float], str, str]] = {
