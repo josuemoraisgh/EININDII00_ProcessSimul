@@ -6,4 +6,4 @@ CALL pyside6-uic dialog_func.ui -o ui_dialog_func.py
 CALL pyside6-uic dialog_tfunc.ui -o ui_dialog_tfunc.py
 cd ..
 cls
-CALL "C:/Program Files/Python312/python.exe" c:/SourceCode/0II2/EININDII07_hrtSimulPython/main.py
+REM CALL "C:/Program Files/Python312/python.exe" c:/SourceCode/0II2/EININDII07_hrtSimulPython/main.py

@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'main.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.8.2
+## Created by: Qt User Interface Compiler version 6.9.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -433,12 +433,12 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_12.addItem(self.verticalSpacer_4)
 
-        self.pbAMFI100V = QPushButton(self.widgetFIT100V)
-        self.pbAMFI100V.setObjectName(u"pbAMFI100V")
-        sizePolicy2.setHeightForWidth(self.pbAMFI100V.sizePolicy().hasHeightForWidth())
-        self.pbAMFI100V.setSizePolicy(sizePolicy2)
-        self.pbAMFI100V.setMinimumSize(QSize(30, 30))
-        self.pbAMFI100V.setStyleSheet(u"#pbAMFI100V {\n"
+        self.pbAMFIT100V = QPushButton(self.widgetFIT100V)
+        self.pbAMFIT100V.setObjectName(u"pbAMFIT100V")
+        sizePolicy2.setHeightForWidth(self.pbAMFIT100V.sizePolicy().hasHeightForWidth())
+        self.pbAMFIT100V.setSizePolicy(sizePolicy2)
+        self.pbAMFIT100V.setMinimumSize(QSize(30, 30))
+        self.pbAMFIT100V.setStyleSheet(u"#pbAMFI100V {\n"
 "    background-color: #c0c0c0; /* Uma cor de fundo neutra */\n"
 "    border-width: 2px;\n"
 "    border-style: solid;\n"
@@ -446,9 +446,9 @@ class Ui_MainWindow(object):
 "    border-radius: 4px; /* Bordas arredondadas (opcional) */\n"
 "    padding: 4px; /* Espa\u00e7amento interno (opcional) */\n"
 "}")
-        self.pbAMFI100V.setCheckable(True)
+        self.pbAMFIT100V.setCheckable(True)
 
-        self.verticalLayout_12.addWidget(self.pbAMFI100V)
+        self.verticalLayout_12.addWidget(self.pbAMFIT100V)
 
 
         self.horizontalLayout_6.addLayout(self.verticalLayout_12)
@@ -704,12 +704,12 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_16.addItem(self.verticalSpacer_8)
 
-        self.pbAMPI100A = QPushButton(self.widgetPIT100A)
-        self.pbAMPI100A.setObjectName(u"pbAMPI100A")
-        sizePolicy2.setHeightForWidth(self.pbAMPI100A.sizePolicy().hasHeightForWidth())
-        self.pbAMPI100A.setSizePolicy(sizePolicy2)
-        self.pbAMPI100A.setMinimumSize(QSize(30, 30))
-        self.pbAMPI100A.setStyleSheet(u"#pbAMPI100A {\n"
+        self.pbAMPIT100A = QPushButton(self.widgetPIT100A)
+        self.pbAMPIT100A.setObjectName(u"pbAMPIT100A")
+        sizePolicy2.setHeightForWidth(self.pbAMPIT100A.sizePolicy().hasHeightForWidth())
+        self.pbAMPIT100A.setSizePolicy(sizePolicy2)
+        self.pbAMPIT100A.setMinimumSize(QSize(30, 30))
+        self.pbAMPIT100A.setStyleSheet(u"#pbAMPI100A {\n"
 "    background-color: #c0c0c0; /* Uma cor de fundo neutra */\n"
 "    border-width: 2px;\n"
 "    border-style: solid;\n"
@@ -717,9 +717,9 @@ class Ui_MainWindow(object):
 "    border-radius: 4px; /* Bordas arredondadas (opcional) */\n"
 "    padding: 4px; /* Espa\u00e7amento interno (opcional) */\n"
 "}")
-        self.pbAMPI100A.setCheckable(True)
+        self.pbAMPIT100A.setCheckable(True)
 
-        self.verticalLayout_16.addWidget(self.pbAMPI100A)
+        self.verticalLayout_16.addWidget(self.pbAMPIT100A)
 
 
         self.horizontalLayout_13.addLayout(self.verticalLayout_16)
@@ -1014,7 +1014,7 @@ class Ui_MainWindow(object):
 #endif // QT_CONFIG(accessibility)
         self.label_34.setText(QCoreApplication.translate("MainWindow", u"FIT100V", None))
         self.label_35.setText(QCoreApplication.translate("MainWindow", u"kg/s", None))
-        self.pbAMFI100V.setText(QCoreApplication.translate("MainWindow", u"M", None))
+        self.pbAMFIT100V.setText(QCoreApplication.translate("MainWindow", u"M", None))
 #if QT_CONFIG(tooltip)
         self.widgetSliderFIT100V.setToolTip("")
 #endif // QT_CONFIG(tooltip)
@@ -1056,7 +1056,7 @@ class Ui_MainWindow(object):
 #endif // QT_CONFIG(accessibility)
         self.label_38.setText(QCoreApplication.translate("MainWindow", u"PIT100A", None))
         self.label_39.setText(QCoreApplication.translate("MainWindow", u"kPa", None))
-        self.pbAMPI100A.setText(QCoreApplication.translate("MainWindow", u"M", None))
+        self.pbAMPIT100A.setText(QCoreApplication.translate("MainWindow", u"M", None))
 #if QT_CONFIG(tooltip)
         self.widgetSliderPIT100A.setToolTip("")
 #endif // QT_CONFIG(tooltip)

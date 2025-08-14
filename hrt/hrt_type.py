@@ -157,6 +157,8 @@ def hrt_type_hex_to(valor: str, type_str: str):
         return _hrt_type_hex2_int(valor)
     elif t.find("PACKED") != -1:
         return _hrt_type_hex2_pascii(valor)
+    elif t.find("BOOL") != -1:
+        return str(valor)   
     else:
         return "INVALID TYPE"
 ###################################################################################
@@ -229,7 +231,9 @@ def hrt_type_hex_from(valor, type_str: str, byte_size: int) -> str:
     elif t.find('INTEGER') != -1:
         return _hrt_type_int2_hex(int(valor), byte_size)    
     elif t.find('PACKED') != -1:
-        return _hrt_type_pascii2_hex(valor, byte_size)    
+        return _hrt_type_pascii2_hex(valor, byte_size)  
+    elif t.find('BOOL') != -1:
+        return 1 if valor != '0' else 0
     else:
         return "INVALID TYPE"
 

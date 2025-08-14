@@ -952,7 +952,7 @@
               </spacer>
              </item>
              <item>
-              <widget class="QPushButton" name="pbAMFI100V">
+              <widget class="QPushButton" name="pbAMFIT100V">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
                  <horstretch>0</horstretch>
@@ -1546,7 +1546,7 @@
               </spacer>
              </item>
              <item>
-              <widget class="QPushButton" name="pbAMPI100A">
+              <widget class="QPushButton" name="pbAMPIT100A">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
                  <horstretch>0</horstretch>
@@ -2134,12 +2134,12 @@
    <slot>changeType(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>217</x>
+     <x>226</x>
      <y>79</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>139</y>
+     <x>101</x>
+     <y>105</y>
     </hint>
    </hints>
   </connection>
