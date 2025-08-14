@@ -728,14 +728,7 @@
                 </size>
                </property>
                <property name="styleSheet">
-                <string notr="true">#pbAMFV100AR {
-    background-color: #c0c0c0; /* Uma cor de fundo neutra */
-    border-width: 2px;
-    border-style: solid;
-    border-color: #ffffff #888888 #888888 #ffffff; /* Bordas: cima, direita, baixo, esquerda */
-    border-radius: 4px; /* Bordas arredondadas (opcional) */
-    padding: 4px; /* Espaçamento interno (opcional) */
-}</string>
+                <string notr="true"/>
                </property>
                <property name="text">
                 <string>M</string>
@@ -966,14 +959,7 @@
                 </size>
                </property>
                <property name="styleSheet">
-                <string notr="true">#pbAMFI100V {
-    background-color: #c0c0c0; /* Uma cor de fundo neutra */
-    border-width: 2px;
-    border-style: solid;
-    border-color: #ffffff #888888 #888888 #ffffff; /* Bordas: cima, direita, baixo, esquerda */
-    border-radius: 4px; /* Bordas arredondadas (opcional) */
-    padding: 4px; /* Espaçamento interno (opcional) */
-}</string>
+                <string notr="true"/>
                </property>
                <property name="text">
                 <string>M</string>
@@ -1322,14 +1308,7 @@
                 </size>
                </property>
                <property name="styleSheet">
-                <string notr="true">#pbAMFV100CA {
-    background-color: #c0c0c0; /* Uma cor de fundo neutra */
-    border-width: 2px;
-    border-style: solid;
-    border-color: #ffffff #888888 #888888 #ffffff; /* Bordas: cima, direita, baixo, esquerda */
-    border-radius: 4px; /* Bordas arredondadas (opcional) */
-    padding: 4px; /* Espaçamento interno (opcional) */
-}</string>
+                <string notr="true"/>
                </property>
                <property name="text">
                 <string>M</string>
@@ -1560,14 +1539,7 @@
                 </size>
                </property>
                <property name="styleSheet">
-                <string notr="true">#pbAMPI100A {
-    background-color: #c0c0c0; /* Uma cor de fundo neutra */
-    border-width: 2px;
-    border-style: solid;
-    border-color: #ffffff #888888 #888888 #ffffff; /* Bordas: cima, direita, baixo, esquerda */
-    border-radius: 4px; /* Bordas arredondadas (opcional) */
-    padding: 4px; /* Espaçamento interno (opcional) */
-}</string>
+                <string notr="true"/>
                </property>
                <property name="text">
                 <string>M</string>
@@ -1810,14 +1782,7 @@
                 </size>
                </property>
                <property name="styleSheet">
-                <string notr="true">#pbAMFV100A {
-    background-color: #c0c0c0; /* Uma cor de fundo neutra */
-    border-width: 2px;
-    border-style: solid;
-    border-color: #ffffff #888888 #888888 #ffffff; /* Bordas: cima, direita, baixo, esquerda */
-    border-radius: 4px; /* Bordas arredondadas (opcional) */
-    padding: 4px; /* Espaçamento interno (opcional) */
-}</string>
+                <string notr="true"/>
                </property>
                <property name="text">
                 <string>M</string>

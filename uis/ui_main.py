@@ -336,16 +336,8 @@ class Ui_MainWindow(object):
         sizePolicy2.setHeightForWidth(self.pbAMFV100AR.sizePolicy().hasHeightForWidth())
         self.pbAMFV100AR.setSizePolicy(sizePolicy2)
         self.pbAMFV100AR.setMinimumSize(QSize(30, 30))
-        self.pbAMFV100AR.setStyleSheet(u"#pbAMFV100AR {\n"
-"    background-color: #c0c0c0; /* Uma cor de fundo neutra */\n"
-"    border-width: 2px;\n"
-"    border-style: solid;\n"
-"    border-color: #ffffff #888888 #888888 #ffffff; /* Bordas: cima, direita, baixo, esquerda */\n"
-"    border-radius: 4px; /* Bordas arredondadas (opcional) */\n"
-"    padding: 4px; /* Espa\u00e7amento interno (opcional) */\n"
-"}")
+        self.pbAMFV100AR.setStyleSheet(u"")
         self.pbAMFV100AR.setCheckable(True)
-
         self.verticalLayout_11.addWidget(self.pbAMFV100AR)
 
 
@@ -438,14 +430,7 @@ class Ui_MainWindow(object):
         sizePolicy2.setHeightForWidth(self.pbAMFIT100V.sizePolicy().hasHeightForWidth())
         self.pbAMFIT100V.setSizePolicy(sizePolicy2)
         self.pbAMFIT100V.setMinimumSize(QSize(30, 30))
-        self.pbAMFIT100V.setStyleSheet(u"#pbAMFI100V {\n"
-"    background-color: #c0c0c0; /* Uma cor de fundo neutra */\n"
-"    border-width: 2px;\n"
-"    border-style: solid;\n"
-"    border-color: #ffffff #888888 #888888 #ffffff; /* Bordas: cima, direita, baixo, esquerda */\n"
-"    border-radius: 4px; /* Bordas arredondadas (opcional) */\n"
-"    padding: 4px; /* Espa\u00e7amento interno (opcional) */\n"
-"}")
+        self.pbAMFIT100V.setStyleSheet(u"")
         self.pbAMFIT100V.setCheckable(True)
 
         self.verticalLayout_12.addWidget(self.pbAMFIT100V)
@@ -607,14 +592,7 @@ class Ui_MainWindow(object):
         sizePolicy2.setHeightForWidth(self.pbAMFV100CA.sizePolicy().hasHeightForWidth())
         self.pbAMFV100CA.setSizePolicy(sizePolicy2)
         self.pbAMFV100CA.setMinimumSize(QSize(30, 30))
-        self.pbAMFV100CA.setStyleSheet(u"#pbAMFV100CA {\n"
-"    background-color: #c0c0c0; /* Uma cor de fundo neutra */\n"
-"    border-width: 2px;\n"
-"    border-style: solid;\n"
-"    border-color: #ffffff #888888 #888888 #ffffff; /* Bordas: cima, direita, baixo, esquerda */\n"
-"    border-radius: 4px; /* Bordas arredondadas (opcional) */\n"
-"    padding: 4px; /* Espa\u00e7amento interno (opcional) */\n"
-"}")
+        self.pbAMFV100CA.setStyleSheet(u"")
         self.pbAMFV100CA.setCheckable(True)
 
         self.verticalLayout_14.addWidget(self.pbAMFV100CA)
@@ -709,14 +687,7 @@ class Ui_MainWindow(object):
         sizePolicy2.setHeightForWidth(self.pbAMPIT100A.sizePolicy().hasHeightForWidth())
         self.pbAMPIT100A.setSizePolicy(sizePolicy2)
         self.pbAMPIT100A.setMinimumSize(QSize(30, 30))
-        self.pbAMPIT100A.setStyleSheet(u"#pbAMPI100A {\n"
-"    background-color: #c0c0c0; /* Uma cor de fundo neutra */\n"
-"    border-width: 2px;\n"
-"    border-style: solid;\n"
-"    border-color: #ffffff #888888 #888888 #ffffff; /* Bordas: cima, direita, baixo, esquerda */\n"
-"    border-radius: 4px; /* Bordas arredondadas (opcional) */\n"
-"    padding: 4px; /* Espa\u00e7amento interno (opcional) */\n"
-"}")
+        self.pbAMPIT100A.setStyleSheet(u"")
         self.pbAMPIT100A.setCheckable(True)
 
         self.verticalLayout_16.addWidget(self.pbAMPIT100A)
@@ -814,14 +785,7 @@ class Ui_MainWindow(object):
         sizePolicy2.setHeightForWidth(self.pbAMFV100A.sizePolicy().hasHeightForWidth())
         self.pbAMFV100A.setSizePolicy(sizePolicy2)
         self.pbAMFV100A.setMinimumSize(QSize(30, 30))
-        self.pbAMFV100A.setStyleSheet(u"#pbAMFV100A {\n"
-"    background-color: #c0c0c0; /* Uma cor de fundo neutra */\n"
-"    border-width: 2px;\n"
-"    border-style: solid;\n"
-"    border-color: #ffffff #888888 #888888 #ffffff; /* Bordas: cima, direita, baixo, esquerda */\n"
-"    border-radius: 4px; /* Bordas arredondadas (opcional) */\n"
-"    padding: 4px; /* Espa\u00e7amento interno (opcional) */\n"
-"}")
+        self.pbAMFV100A.setStyleSheet(u"")
         self.pbAMFV100A.setCheckable(True)
 
         self.verticalLayout_18.addWidget(self.pbAMFV100A)

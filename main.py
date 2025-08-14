@@ -117,6 +117,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         def atualizaValue(varWrite, value):
             varWrite.setValue(value, DBState.humanValue, True)        
  
+        def atualizaBotao(botao, varWrite):
+            value = botao.isChecked()
+            varWrite.setValue(str(value), DBState.humanValue, True)
+            botao.setText("M" if value == True else "A")
+ 
         for device in sliders:           
             slider = getattr(self, f'slider{device}', None)
             if slider:               
@@ -129,7 +134,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             if botao:
                 varAM = self.reactFactory.df["MODBUS"].at[f'AM_{device}', "CLP100"]
                 botao.setChecked(bool(self._sync(varAM.getValue(DBState.humanValue))))
-                botao.clicked.connect(partial(atualizaValue, varAM))
+                botao.clicked.connect(partial(atualizaBotao,botao, varAM))
                              
 
     def centralizar_janela(self):
