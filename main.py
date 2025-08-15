@@ -1,7 +1,8 @@
 import sys
 import traceback
 import asyncio
-from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox
+from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox, QPushButton
+from PySide6.QtCore import Qt
 from uis.ui_main import Ui_MainWindow
 from react.react_factory import ReactFactory
 from db.db_types import DBState, DBModel
@@ -10,6 +11,8 @@ from functools import partial
 from img.imgCaldeira import imagem_base64
 from mb.mb_server import ModbusServer
 from react.react_var import ReactVar
+from plant_viewer_reactVar import PlantViewerWindow
+
 import os
 import shutil
 import platform
@@ -67,7 +70,22 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 print("🔄 Parando servidor Modbus...")
                 self.servidor_thread.stop()
             self.simulTf.start(state)
+
+            # VISUAL do MAIN (fonte da verdade)
+            self._set_main_running_visual(state)
+
+            # Espelha VISUAL no viewer (se aberto)
+            if self.plantViewer:
+                self.plantViewer.sync_running_state(state)
+
+        # Quando Start é pressionado/solto
         self.pushButtonStart.toggled.connect(startSimul)
+
+        # Quando Stop é pressionado, força estado "parado"
+        def stopSimul(checked: bool):
+            if checked:           # reage quando Stop fica selecionado
+                startSimul(False) # reusa a mesma lógica de parar
+        self.pushButtonStop.toggled.connect(stopSimul)
         print("✅ Start/Stop simulação configurado.")
 
         # Carrega tabelas
@@ -84,6 +102,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.pushButtonStop.setChecked(True)
             self.buttonGroupSimul.exclusive = True
             self.simulTf.reset()
+
+            # VISUAL parado
+            self._set_main_running_visual(False)
+            if self.plantViewer:
+                self.plantViewer.sync_reset()
         self.pushButtonReset.clicked.connect(resetTf)
         print("✅ Botão de reset configurado.")
 
@@ -99,6 +122,86 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.centralizar_janela()
         print("✅ LCDs e sliders configurados.")
 
+        # ---------- Plant Viewer ----------
+        self.plantViewer = None
+        self.btnOpenPlantViewer = QPushButton("Abrir Plant Viewer", self.groupBoxSimul)
+        _layout = self.groupBoxSimul.layout()
+        if _layout is not None:
+            _layout.addWidget(self.btnOpenPlantViewer)
+        else:
+            # se não tiver layout, posiciona abaixo do Reset (fallback)
+            y = self.pushButtonReset.y() + self.pushButtonReset.height() + 6
+            self.btnOpenPlantViewer.move(self.pushButtonReset.x(), y)
+        self.btnOpenPlantViewer.clicked.connect(self._openPlantViewer)
+
+        # Espelhamento VISUAL para o viewer (sem lógica)
+        self.pushButtonStart.toggled.connect(self._mirror_start_visual_to_viewer)
+        self.pushButtonStop.toggled.connect(self._mirror_stop_visual_to_viewer)
+        self.pushButtonReset.clicked.connect(self._mirror_reset_visual_to_viewer)
+        # ----------------------------------
+
+        # Fecha o PlantViewer quando a aplicação encerrar (extra segurança)
+        app = QApplication.instance()
+        if app:
+            app.aboutToQuit.connect(lambda: (self.plantViewer and self.plantViewer.close()))
+
+    # ----- estilos VISUAIS dos botões do MAIN -----
+    def _set_main_running_visual(self, running: bool):
+        if running:
+            # Start verde, Stop default
+            self.pushButtonStart.setStyleSheet("background:#2ecc71; color:white; font-weight:bold;")
+            self.pushButtonStop.setStyleSheet("")  # default
+        else:
+            # Stop vermelho, Start default
+            self.pushButtonStart.setStyleSheet("")
+            self.pushButtonStop.setStyleSheet("background:#ff2d2d; color:white; font-weight:bold;")
+
+    # ----- espelhamento VISUAL para o viewer (sem lógica) -----
+    def _mirror_start_visual_to_viewer(self, checked: bool):
+        if self.plantViewer:
+            self.plantViewer.sync_running_state(checked)
+
+    def _mirror_stop_visual_to_viewer(self, checked: bool):
+        if self.plantViewer and checked:
+            self.plantViewer.sync_running_state(False)
+
+    def _mirror_reset_visual_to_viewer(self, *args):
+        if self.plantViewer:
+            self.plantViewer.sync_reset()
+    # ----------------------------------------------------------
+
+    def _openPlantViewer(self):
+        if self.plantViewer is None:
+            self.plantViewer = PlantViewerWindow(
+                react_factory=self.reactFactory,
+                simul_tf=self.simulTf,   # <- mesma simulação da tela principal
+            )
+            # Viewer -> MAIN: quando o usuário clica lá, o MAIN aplica a lógica padrão
+            self.plantViewer.simStartStop.connect(self._apply_running_from_viewer)  # bool
+            self.plantViewer.simReset.connect(lambda: self.pushButtonReset.click())
+
+            # Limpa a referência quando fechar a janela
+            self.plantViewer.setAttribute(Qt.WA_DeleteOnClose)
+            self.plantViewer.destroyed.connect(lambda *_: setattr(self, "plantViewer", None))
+
+            # Espelha estado atual no viewer
+            self.plantViewer.sync_running_state(self.pushButtonStart.isChecked())
+
+        self.plantViewer.show()
+        self.plantViewer.raise_()
+        self.plantViewer.activateWindow()
+
+    # Viewer pediu start/stop -> aciona fluxo "padrão" do MAIN (liga Modbus, etc.)
+    def _apply_running_from_viewer(self, running: bool):
+        if self.pushButtonStart.isChecked() != running:
+            # isso aciona startSimul/stopSimul via toggled
+            self.pushButtonStart.setChecked(running)
+            if not running:
+                self.pushButtonStop.setChecked(True)
+        else:
+            # já coerente; só garante visual
+            self._set_main_running_visual(running)
+
     def connectLCDs(self):
         print("🔄 Conectando LCDs...")
         self.isSliderChangeValue = False
@@ -109,22 +212,22 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             lcd_widget.display(self._sync(varRead.getValue(DBState.humanValue)))
 
         for display in displays:
-            lcd = getattr(self, f'lcd{display}')          
+            lcd = getattr(self, f'lcd{display}')
             varR = self.reactFactory.df["HART"].at["PROCESS_VARIABLE", display]
             varR.valueChangedSignal.connect(partial(atualizaDisplay, lcd))
             lcd.display(self._sync(varR.getValue(DBState.humanValue)))
-                
+
         def atualizaValue(varWrite, value):
-            varWrite.setValue(value, DBState.humanValue, True)        
- 
+            varWrite.setValue(value, DBState.humanValue, True)
+
         def atualizaBotao(botao, varWrite):
             value = botao.isChecked()
             varWrite.setValue(str(value), DBState.humanValue, True)
-            botao.setText("M" if value == True else "A")
- 
-        for device in sliders:           
+            botao.setText("M" if value is True else "A")
+
+        for device in sliders:
             slider = getattr(self, f'slider{device}', None)
-            if slider:               
+            if slider:
                 slider.setMinimum(0)
                 slider.setMaximum(65535)
                 varW = self.reactFactory.df["MODBUS"].at[f'W_{device}', "CLP100"]
@@ -134,8 +237,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             if botao:
                 varAM = self.reactFactory.df["MODBUS"].at[f'AM_{device}', "CLP100"]
                 botao.setChecked(bool(self._sync(varAM.getValue(DBState.humanValue))))
-                botao.clicked.connect(partial(atualizaBotao,botao, varAM))
-                             
+                botao.clicked.connect(partial(atualizaBotao, botao, varAM))
 
     def centralizar_janela(self):
         print("🔄 Centralizando janela...")
@@ -171,8 +273,25 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self, "Sair", "Tem certeza?", QMessageBox.Yes|QMessageBox.No, QMessageBox.No
         )
         if reply == QMessageBox.Yes:
-            self.simulTf.start(False)
-            self.servidor_thread.stop()
+            # Para simulação / servidor
+            try:
+                self.simulTf.start(False)
+            except Exception as e:
+                print("⚠️ simulTf.start(False) falhou:", e)
+            try:
+                self.servidor_thread.stop()
+            except Exception as e:
+                print("⚠️ servidor_thread.stop() falhou:", e)
+
+            # Fecha o Plant Viewer se estiver aberto
+            try:
+                if self.plantViewer:
+                    self.plantViewer.blockSignals(True)
+                    self.plantViewer.close()
+                    self.plantViewer = None
+            except Exception as e:
+                print("⚠️ Falha ao fechar PlantViewer:", e)
+
             print("🔒 Salvando dados...")
             event.accept()
         else:
@@ -197,8 +316,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 except Exception as e:
                     print(f"[ERRO] Ao processar {row_key}.{col_key}: {e}")
 
+
 if __name__ == '__main__':
-    try:    
+    try:
         print("🚀 Iniciando a aplicação...")
         app = QApplication(sys.argv)
         win = MainWindow()
