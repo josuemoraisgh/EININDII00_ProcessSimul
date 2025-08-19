@@ -33,7 +33,6 @@ def bind_slider_to_reactvar(slider, reactVar, sync_call):
         try:
             hv = sync_call(reactVar.getValue(DBState.humanValue))
         except Exception:
-            # best-effort fallback to internal value
             try:
                 hv = int(getattr(reactVar, '_value', 0))
             except Exception:
@@ -274,7 +273,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 varW = self.reactFactory.df["MODBUS"].at[f'W_{device}', "CLP100"]
                 slider.setValue(int(self._sync(varW.getValue(DBState.humanValue))))
                 slider.valueChanged.connect(partial(atualizaValue, varW))
-                # Bind ReactVar -> Slider as well
+                # Bind ReactVar -> Slider
                 try:
                     bind_slider_to_reactvar(slider, varW, self._sync)
                 except Exception as e:

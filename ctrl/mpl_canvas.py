@@ -5,8 +5,6 @@ from typing import Optional, List, Tuple
 
 import numpy as np
 
-from db.db_types import DBState
-
 from PySide6 import QtCore
 from PySide6.QtCore import Slot
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
@@ -61,7 +59,7 @@ class ReactVarAdapter(QtCore.QObject):
 
     def write(self, v: float):
         try:
-            self._rv.setValue(float(v), stateAtual=DBState.humanValue, isWidgetValueChanged=True)
+            self._rv.setValue(float(v), isWidgetValueChanged=True)
         except Exception:
             pass
 

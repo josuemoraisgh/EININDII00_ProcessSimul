@@ -29,8 +29,22 @@ from typing import Optional
 from collections import deque
 
 from PySide6 import QtCore
+
+# -------------------------- Conversões u: human (0..65535) <-> percent (0..100) --------------------------
+def _u_human_to_percent(h: float) -> float:
+    try:
+        return float(h) * 100.0 / 65535.0
+    except Exception:
+        return 0.0
+
+def _u_percent_to_human(p: float) -> float:
+    try:
+        return round(float(p) * 65535.0 / 100.0)
+    except Exception:
+        return 0.0
+
 from PySide6.QtCore import Slot
-from PySide6.QtWidgets import (
+from PySide6.QtWidgets import QAbstractSpinBox, (
     QApplication, QMainWindow, QWidget,
     QFormLayout, QHBoxLayout, QVBoxLayout,
     QDoubleSpinBox, QComboBox, QGroupBox,
@@ -79,6 +93,10 @@ class PlantViewerWindow(QMainWindow):
         # Plot
         left = QVBoxLayout()
         self.canvas = MplCanvas(self)
+        try:
+            self.canvas.ax_u.set_ylabel('u [%]')
+        except Exception:
+            pass
         self.toolbar = PVToolbar(self.canvas, self)
         left.addWidget(self.toolbar)
         left.addWidget(self.canvas, 1)
@@ -150,7 +168,7 @@ class PlantViewerWindow(QMainWindow):
         # Entrada (u): A, +A, -A (último bloco)
         g_u = QGroupBox("Entrada (u)")
         lay_u = QHBoxLayout(g_u)
-        self.sb_A = QDoubleSpinBox(); self.sb_A.setDecimals(3); self.sb_A.setRange(-1e9, 1e9); self.sb_A.setValue(1.0)
+        self.sb_A = QDoubleSpinBox(); self.sb_A.setDecimals(3); self.sb_A.setRange(-1e9, 1e9); self.sb_A.setValue(1.0); self.sb_A.setButtonSymbols(QAbstractSpinBox.NoButtons)
         self.btn_step_pos = QPushButton("+A"); self.btn_step_neg = QPushButton("-A")
         self.btn_step_pos.clicked.connect(lambda: self._inc_u(+self.sb_A.value()))
         self.btn_step_neg.clicked.connect(lambda: self._inc_u(-self.sb_A.value()))
@@ -325,15 +343,19 @@ class PlantViewerWindow(QMainWindow):
     # -------------------------- Entrada u (A, +A, -A) --------------------------
     def _inc_u(self, delta: float):
         if self.tabs_adj.currentWidget() is self.tab_sim:
+            # Simulado: step em porcentagem diretamente
             self.sim_u = float(self.sim_u) + float(delta)
         else:
+            # Real: ler human (0..65535) -> converter para percent -> somar delta(%) -> converter para human -> escrever
             if not hasattr(self, "rv_u"):
                 return
-            cur = self.rv_u.read_sync()
-            if cur is None:
-                cur = 0.0
-            v = float(cur) + float(delta)
-            self.rv_u.write(v)
+            cur_h = self.rv_u.read_sync()  # human 0..65535
+            if cur_h is None:
+                cur_h = 0.0
+            cur_p = _u_human_to_percent(cur_h)
+            new_p = float(cur_p) + float(delta)  # delta em %
+            new_h = _u_percent_to_human(new_p)
+            self.rv_u.write(new_h)
 
     # -------------------------- Callbacks (Real) --------------------------
     @Slot(float)
@@ -341,7 +363,8 @@ class PlantViewerWindow(QMainWindow):
         if not self.running or self.t0 is None:
             return
         t = time.monotonic() - self.t0
-        self.buff.append(t, y=None, u=float(value))
+        u_percent = _u_human_to_percent(value)
+        self.buff.append(t, y=None, u=float(u_percent))
         self._auto_axes(); self._redraw()
 
     @Slot(float)
