@@ -8,6 +8,47 @@ from react.react_factory import ReactFactory
 from db.db_types import DBState, DBModel
 from ctrl.simul_tf import SimulTf
 from functools import partial
+
+from db.db_types import DBState
+
+def bind_slider_to_reactvar(slider, reactVar, sync_call):
+    """Vínculo bidirecional entre slider e ReactVar em humanValue (0..100%).
+    - Slider -> ReactVar via setValue(..., DBState.humanValue, True)
+    - ReactVar -> Slider via valueChangedSignal (bloqueando sinais para evitar loop)
+    sync_call: função que executa corotinas (ex.: self._sync)
+    """
+    # Slider -> ReactVar
+    def _on_slider(val: int):
+        try:
+            reactVar.setValue(val, stateAtual=DBState.humanValue, isWidgetValueChanged=True)
+        except Exception as e:
+            print(f"[bind] setValue failed: {e}")
+    if hasattr(slider, 'valueChanged'):
+        slider.valueChanged.connect(_on_slider)
+
+    # ReactVar -> Slider
+    def _on_var_changed(data):
+        if data is not reactVar:
+            return
+        try:
+            hv = sync_call(reactVar.getValue(DBState.humanValue))
+        except Exception:
+            # best-effort fallback to internal value
+            try:
+                hv = int(getattr(reactVar, '_value', 0))
+            except Exception:
+                return
+        try:
+            if hasattr(slider, 'blockSignals'):
+                prev = slider.blockSignals(True)
+            slider.setValue(int(hv))
+        finally:
+            if hasattr(slider, 'blockSignals'):
+                slider.blockSignals(prev if 'prev' in locals() else False)
+    try:
+        reactVar.valueChangedSignal.connect(_on_var_changed)
+    except Exception as e:
+        print(f"[bind] connect valueChangedSignal failed: {e}")
 from img.imgCaldeira import imagem_base64
 from mb.mb_server import ModbusServer
 from react.react_var import ReactVar
@@ -233,7 +274,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 varW = self.reactFactory.df["MODBUS"].at[f'W_{device}', "CLP100"]
                 slider.setValue(int(self._sync(varW.getValue(DBState.humanValue))))
                 slider.valueChanged.connect(partial(atualizaValue, varW))
-            botao = getattr(self, f'pbAM{device}', None)
+                # Bind ReactVar -> Slider as well
+                try:
+                    bind_slider_to_reactvar(slider, varW, self._sync)
+                except Exception as e:
+                    print(f"[bind] Failed to bind slider {device}: {e}")
+                botao = getattr(self, f'pbAM{device}', None)
             if botao:
                 varAM = self.reactFactory.df["MODBUS"].at[f'AM_{device}', "CLP100"]
                 botao.setChecked(bool(self._sync(varAM.getValue(DBState.humanValue))))
