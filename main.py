@@ -11,7 +11,7 @@ from functools import partial
 from img.imgCaldeira import imagem_base64
 from mb.mb_server import ModbusServer
 from react.react_var import ReactVar
-from plant_viewer_reactVar import PlantViewerWindow
+from ctrl.plant_viewer import PlantViewerWindow
 
 import os
 import shutil
