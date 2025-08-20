@@ -45,7 +45,6 @@ def _u_percent_to_human(p: float) -> float:
 
 from PySide6.QtCore import Slot
 from PySide6.QtWidgets import QAbstractSpinBox, QApplication, QMainWindow, QWidget, QFormLayout, QHBoxLayout, QVBoxLayout, QDoubleSpinBox, QComboBox, QGroupBox, QPushButton, QSpinBox, QLabel, QTabWidget
-
 from ctrl.mpl_canvas import *
 class PlantViewerWindow(QMainWindow):
     simStartStop = QtCore.Signal(bool)
