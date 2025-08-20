@@ -114,8 +114,8 @@ class PVToolbar(NavigationToolbar):
         self.act_v = self.addAction("📏 V")
         self.act_h = self.addAction("📐 H")
         self.act_kp = self.addAction("🧭 Kp")
-        self.act_clear = self.addAction("❌ Limpar")
-        self.act_reset = self.addAction("🧹 Reset")
+        self.act_clear = self.addAction("❌ Limpar Cursores")
+        self.act_reset = self.addAction("🧹 Limpar Tela")
 
         # Checkables
         self.act_v.setCheckable(True)
@@ -184,14 +184,15 @@ class MplCanvas(FigureCanvas):
         self.cursor_mode: Optional[str] = None      # None | 'v' | 'h'
         self.cursor_points: List[Tuple[float, float]] = []  # cliques
         self.cursor_artists: List = []
-        self.cursor_v_text_box = self.ax_y.text(
+        self.cursor_text_box_v = self.ax_y.text(
+            0.01, 0.98, "", transform=self.ax_y.transAxes, va='top', ha='left',
+            bbox=dict(boxstyle="round", fc="w", ec="0.5", alpha=0.9), fontsize=9, visible=False, zorder=5
+        )
+        self.cursor_text_box_h = self.ax_y.text(
             0.01, 0.02, "", transform=self.ax_y.transAxes, va='bottom', ha='left',
-            bbox=dict(boxstyle="round", fc="w", ec="0.5", alpha=0.9), fontsize=9, visible=False
+            bbox=dict(boxstyle="round", fc="w", ec="0.5", alpha=0.9), fontsize=9, visible=False, zorder=5
         )
-        self.cursor_h_text_box = self.ax_y.text(
-            0.01, 0.08, "", transform=self.ax_y.transAxes, va='bottom', ha='left',
-            bbox=dict(boxstyle="round", fc="w", ec="0.5", alpha=0.9), fontsize=9, visible=False
-        )
+
         # Kp (hipotenusa)
         self.kp_mode: bool = False
         self.kp_points: List[Tuple[float, float]] = []   # (x,y) em eixo y
@@ -316,8 +317,8 @@ class MplCanvas(FigureCanvas):
                 pass
         self.cursor_artists.clear()
         self.cursor_points.clear()
-        self.cursor_v_text_box.set_visible(False)
-        self.cursor_h_text_box.set_visible(False)
+        self.cursor_text_box_v.set_visible(False)
+        self.cursor_text_box_h.set_visible(False)
         self.kp_clear()
         self.draw_idle()
 
@@ -361,8 +362,8 @@ class MplCanvas(FigureCanvas):
         l2 = self.ax_y.axvline(x2, lw=1.4, ls="-.", alpha=0.9, color='k')
         self.cursor_artists += [l1, l2]
         txt = f"V: x1={x1:.4g}s  x2={x2:.4g}s  Δt={dt:.4g}s"
-        self.cursor_v_text_box.set_text(txt)
-        self.cursor_v_text_box.set_visible(True)
+        self.cursor_text_box_v.set_text(txt)
+        self.cursor_text_box_v.set_visible(True)
         self.draw_idle()
 
     def _calc_horizontal_cursors(self, p1: Tuple[float, float], p2: Tuple[float, float]):
@@ -377,8 +378,8 @@ class MplCanvas(FigureCanvas):
         lh2 = self.ax_y.axhline(y2, lw=1.4, ls="-.", alpha=0.9, color='k')
         self.cursor_artists += [lh1, lh2]
         txt = f"H: y1={y1:.4g}  y2={y2:.4g}  |Δy|={dy:.4g}   |Δu|={du:.4g}"
-        self.cursor_h_text_box.set_text(txt)
-        self.cursor_h_text_box.set_visible(True)
+        self.cursor_text_box_h.set_text(txt)
+        self.cursor_text_box_h.set_visible(True)
         self.draw_idle()
 
     # -------------------- Kp (hipotenusa) --------------------

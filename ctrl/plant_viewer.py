@@ -206,16 +206,24 @@ class PlantViewerWindow(QMainWindow):
         self.canvas.clear_cursors()
 
     def on_reset_toolbar(self):
-        self.on_stop_clicked()
-        self.on_sim_stop_clicked()
-
+        # Limpar Tela: apenas limpa os traçados e sobreposições; não para a simulação nem reseta eixos.
+        # 1) Limpa buffers e linhas
         self.buff.clear()
-        self.canvas.clear_overlays()
-        self.canvas.clear_cursors()
-        self.canvas.ax_y.set_xlim(0, 10); self.canvas.ax_y.set_ylim(-1, 1)
-        self.canvas.ax_u.set_ylim(-1, 1)
+        self.canvas.line_y.set_data([], [])
+        self.canvas.line_u.set_data([], [])
+        # 2) Limpa overlays/cursores/Kp
+        try:
+            self.canvas.clear_overlays()
+        except Exception:
+            pass
+        try:
+            self.canvas.clear_cursors()
+        except Exception:
+            pass
+        # 3) Mantém limites atuais: não altera ax.set_xlim/ylim; apenas redesenha
         self._redraw()
 
+        # Desmarca botões de V/H/Kp (modo de edição), pois os overlays foram limpos
         self.toolbar.act_v.setChecked(False)
         self.toolbar.act_h.setChecked(False)
         self.toolbar.act_kp.setChecked(False)
