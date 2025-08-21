@@ -21,7 +21,7 @@ Onde:
 
 ## 2) Como medir **K**, **L** e **T**
 
-1. Coloque o sistema em **manual/malha aberta** e aplique um degrau conhecido de amplitude $\Delta u no instante $t_0$.  
+1. Coloque o sistema em **manual/malha aberta** e aplique um degrau conhecido de amplitude $\Delta u$ no instante $t_0$.  
 2. Meça a variação final da saída $\Delta y$ e calcule:
    $
    K = \frac{\Delta y}{\Delta u}

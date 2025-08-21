@@ -63,6 +63,12 @@ class PlantViewerWindow(QMainWindow):
         self.t0: Optional[float] = None
         self.buff = DataBuffers(200_000)
 
+
+        # >>> NOVO: Modo Real — cache e timer de polling
+        self._last_u_percent: Optional[float] = None
+        self._last_y: Optional[float] = None
+        self.real_timer = QtCore.QTimer(self)
+        self.real_timer.timeout.connect(self._on_real_tick)
         # Simulador FOPDT
         self.sim_running = False
         self.sim_Kp = 1.0
@@ -142,7 +148,6 @@ class PlantViewerWindow(QMainWindow):
         self.sb_sim_Kp = QDoubleSpinBox(); self.sb_sim_Kp.setDecimals(4); self.sb_sim_Kp.setRange(-1e6, 1e6); self.sb_sim_Kp.setValue(1.0)
         self.sb_sim_tau = QDoubleSpinBox(); self.sb_sim_tau.setDecimals(4); self.sb_sim_tau.setRange(1e-6, 1e6); self.sb_sim_tau.setValue(1.0)
         self.sb_sim_L   = QDoubleSpinBox(); self.sb_sim_L.setDecimals(4); self.sb_sim_L.setRange(0.0, 1e6); self.sb_sim_L.setValue(0.0)
-        self.sb_sim_dt  = QSpinBox(); self.sb_sim_dt.setRange(1, 2000); self.sb_sim_dt.setValue(50)  # ms
         self.btn_sim_start = QPushButton("Start (Sim)")
         self.btn_sim_stop  = QPushButton("Stop (Sim)")
         self.btn_sim_start.clicked.connect(self.on_sim_start_clicked)
@@ -151,14 +156,18 @@ class PlantViewerWindow(QMainWindow):
         sim_lay.addRow("Kp:", self.sb_sim_Kp)
         sim_lay.addRow("τ (tau):", self.sb_sim_tau)
         sim_lay.addRow("Atraso (L) [s]:", self.sb_sim_L)
-        sim_lay.addRow("Tempo de integração [ms]:", self.sb_sim_dt)
         sim_lay.addRow(self.btn_sim_start)
         sim_lay.addRow(self.btn_sim_stop)
-
         self.tabs_adj.addTab(self.tab_real, "Real")
         self.tabs_adj.addTab(self.tab_sim, "Simulado")
-        adj_lay.addWidget(self.tabs_adj)
 
+        # >>> NOVO: Período global (Real & Sim) fora das abas
+        w_dt = QWidget(self); lay_dt = QFormLayout(w_dt)
+        self.sb_sim_dt = QSpinBox(); self.sb_sim_dt.setRange(1, 2000); self.sb_sim_dt.setValue(50)  # ms
+        lay_dt.addRow("Período de atualização [ms] (Real & Sim):", self.sb_sim_dt)
+        adj_lay.addWidget(w_dt)
+
+        adj_lay.addWidget(self.tabs_adj)
         # Entrada (u): A, +A, -A (último bloco)
         g_u = QGroupBox("Entrada (u)")
         lay_u = QHBoxLayout(g_u)
@@ -179,6 +188,12 @@ class PlantViewerWindow(QMainWindow):
         # Estilo inicial
         self._set_running_visual(False)
 
+
+        # >>> NOVO: manter timer do Real sincronizado ao SpinBox
+        try:
+            self.sb_sim_dt.valueChanged.connect(lambda v: self.real_timer.setInterval(int(max(1, v))))
+        except Exception:
+            pass
     # ----------------------- Exclusividade dos modos -----------------------
     def set_cursor_mode(self, mode: Optional[str]):
         if mode == 'v':
@@ -283,18 +298,51 @@ class PlantViewerWindow(QMainWindow):
             self.on_connect_clicked()
             if not (hasattr(self, "rv_u") and hasattr(self, "rv_y")):
                 return
-        self.running = True
+
+        # Ler valores atuais e semear t=0 com y0/u0
+        try:
+            cur_h_u = self.rv_u.read_sync()
+        except Exception:
+            cur_h_u = None
+        try:
+            cur_y = self.rv_y.read_sync()
+        except Exception:
+            cur_y = None
+        if cur_h_u is None: cur_h_u = 0.0
+        if cur_y   is None: cur_y   = 0.0
+        self._last_u_percent = _u_human_to_percent(cur_h_u)
+        self._last_y = float(cur_y)
+
         self.t0 = time.monotonic()
+        self.buff.clear()
+        self.buff.append(0.0, y=self._last_y, u=self._last_u_percent)
+        self._auto_axes(); self._redraw()
+
+        self.running = True
         self._set_running_visual(True)
         self.simStartStop.emit(True)
+
+        # Inicia polling do modo Real com período = sb_sim_dt
+        try:
+            self.real_timer.start(int(max(1, self.sb_sim_dt.value())))
+        except Exception:
+            self.real_timer.start(50)
 
     def on_stop_clicked(self):
         self.running = False
         self._set_running_visual(False)
         self.simStartStop.emit(False)
+        try:
+            self.real_timer.stop()
+        except Exception:
+            pass
 
     def on_reset_clicked(self):
         self.on_stop_clicked()
+        try:
+            self.real_timer.stop()
+        except Exception:
+            pass
         self.buff.clear(); self.canvas.clear_overlays()
         self.canvas.ax_y.set_xlim(0, 10); self.canvas.ax_y.set_ylim(-1, 1)
         self.canvas.ax_u.set_ylim(-1, 1)
@@ -362,19 +410,35 @@ class PlantViewerWindow(QMainWindow):
     # -------------------------- Callbacks (Real) --------------------------
     @Slot(float)
     def _on_u_external(self, value: float):
-        if not self.running or self.t0 is None:
-            return
-        t = time.monotonic() - self.t0
-        u_percent = _u_human_to_percent(value)
-        self.buff.append(t, y=None, u=float(u_percent))
-        self._auto_axes(); self._redraw()
+        # Cache apenas; desenho via _on_real_tick()
+        self._last_u_percent = _u_human_to_percent(value)
 
     @Slot(float)
     def _on_y_external(self, value: float):
+        # Cache apenas; desenho via _on_real_tick()
+        self._last_y = float(value)
+    def _on_real_tick(self):
         if not self.running or self.t0 is None:
             return
+        # Se ainda não chegaram valores, tenta leitura síncrona
+        if self._last_u_percent is None and hasattr(self, "rv_u"):
+            try:
+                cur_h_u = self.rv_u.read_sync()
+                if cur_h_u is not None:
+                    self._last_u_percent = _u_human_to_percent(cur_h_u)
+            except Exception:
+                pass
+        if self._last_y is None and hasattr(self, "rv_y"):
+            try:
+                cur_y = self.rv_y.read_sync()
+                if cur_y is not None:
+                    self._last_y = float(cur_y)
+            except Exception:
+                pass
+        u_val = 0.0 if self._last_u_percent is None else float(self._last_u_percent)
+        y_val = 0.0 if self._last_y is None else float(self._last_y)
         t = time.monotonic() - self.t0
-        self.buff.append(t, y=float(value), u=None)
+        self.buff.append(t, y=y_val, u=u_val)
         self._auto_axes(); self._redraw()
 
     # -------------------------- Simulador FOPDT --------------------------
