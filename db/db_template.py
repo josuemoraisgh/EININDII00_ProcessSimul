@@ -16,7 +16,8 @@ mb_banco: Dict[str, Tuple[str, str, str, str]] = {
     'FIT100A'   : (4, 'UNSIGNED', 'ir', '08','@int(65535*HART.FIT100A.percent_of_range)'),
     'W_FV100CA' : (4, 'UNSIGNED', 'ir', '09','3F000000'),         
     'W_FV100AR' : (4, 'UNSIGNED', 'ir', '10','3F000000'),   
-    'W_FV100A'  : (4, 'UNSIGNED', 'ir', '11','3F000000'),      
+    'W_FV100A'  : (4, 'UNSIGNED', 'ir', '11','3F000000'), 
+    'W_AUX'     : (4, 'UNSIGNED', 'ir', '12','3F000000'),        
     
     'FV100CA' : (4, 'UNSIGNED', 'hr', '01', '3F000000'),   
     'FV100AR' : (4, 'UNSIGNED', 'hr', '02', '3F000000'), 
