@@ -6,11 +6,15 @@ import numpy as np
 import time
 import json
 import ast
+import os
 
 from PySide6.QtCore import QObject, Slot
 from react.react_var import ReactVar
 from react.repeatFunction import RepeatFunction
 import control as ctrl
+
+
+__VERSION__ = "SimulTf 2025-08-22 r4 (input-normalization + safer clip)"
 
 
 # ------------------------- utilidades de forma -------------------------
@@ -72,22 +76,17 @@ class DiscreteSS:
         """Interpolação linear de u(t_query) no histórico com timestamps."""
         if not self.hist:
             return self.last_u
-
-        # Mantém deque enxuta: remove amostras MUITO antigas (não subtrai L novamente!)
         keep_after = t_query - 2.0 * max(self.Ts, 1e-6)
         while len(self.hist) >= 3 and self.hist[1][0] < keep_after:
             self.hist.popleft()
-
         if t_query <= self.hist[0][0]:
             return float(self.hist[0][1])
         if t_query >= self.hist[-1][0]:
             return float(self.hist[-1][1])
-
         for i in range(len(self.hist) - 1):
             t0, u0 = self.hist[i]; t1, u1 = self.hist[i + 1]
             if t0 <= t_query <= t1:
-                if t1 == t0:
-                    return float(u1)
+                if t1 == t0: return float(u1)
                 a = (t_query - t0) / (t1 - t0)
                 return float((1 - a) * u0 + a * u1)
         return float(self.hist[-1][1])
@@ -95,7 +94,6 @@ class DiscreteSS:
     def step(self, u: float, t_now: float) -> float:
         u = float(u)
         self.last_u = u
-        # registra amostra atual (garante ordem crescente)
         if not self.hist or t_now >= self.hist[-1][0]:
             self.hist.append((t_now, u))
         else:
@@ -125,6 +123,30 @@ def _parse_tfunc(tfunc: str):
     return num, den, delay
 
 
+# ------------------------- util: normalização de entrada -------------------------
+
+def _normalize_input(u_raw: float) -> float:
+    """
+    Converte u para [0,1] a partir de heurística:
+    - u > 1000 → assume 0..65535  → u/65535
+    - 1 < u <= 1000 → assume 0..100 → u/100
+    - caso contrário → já em 0..1
+    Clipa em [0, 1] por segurança.
+    """
+    try:
+        u = float(u_raw)
+    except Exception:
+        return 0.0
+    if u > 1000.0:
+        u = u / 65535.0
+    elif u > 1.0:
+        u = u / 100.0
+    # já [0..1] ou negativo → clip
+    if not np.isfinite(u):
+        u = 0.0
+    return float(np.clip(u, 0.0, 1.0))
+
+
 # ------------------------- motor de simulação -------------------------
 
 class SimulTf(QObject):
@@ -140,9 +162,14 @@ class SimulTf(QObject):
 
         self.dictDB: Dict[Tuple[str, str, str], ReactVar] = {}
         self.systems: Dict[Tuple[str, str, str], DiscreteSS] = {}
+        self._system_models: Dict[Tuple[str, str, str], Tuple[list, list, float]] = {}
 
         self._repeated_function = RepeatFunction(self._simulation_step, self.stepTime)
         self._t0_wall: Optional[float] = None  # base do relógio monotônico
+
+        # DEBUG opcional (setar env SIMUL_TF_DEBUG=1)
+        self._debug = os.environ.get("SIMUL_TF_DEBUG", "0") == "1"
+        self._dbg_tick = 0
 
     @Slot(object, bool)
     def tfConnect(self, data: ReactVar, isConnect: bool):
@@ -157,24 +184,33 @@ class SimulTf(QObject):
                 return
             try:
                 dsys = DiscreteSS.from_tf(num, den, Ts=self.Ts)
-                seed_u = float(data.inputValue) if data.inputValue is not None else 0.0
+                # Usa heurística também para o seed
+                seed_u_raw = float(data.inputValue) if data.inputValue is not None else 0.0
+                seed_u = _normalize_input(seed_u_raw)
                 dsys.set_delay(seconds=delay, seed_u=seed_u)
             except Exception as e:
                 print(f"[SimulTf] Erro ao montar sistema: {e}")
                 return
             self.systems[key] = dsys
+            self._system_models[key] = (list(num), list(den), float(delay))
         else:
             self.dictDB.pop(key, None)
             self.systems.pop(key, None)
+            self._system_models.pop(key, None)
 
     def start(self, state: bool):
         if state:
-            self.load_states()
+            # defensivo: se a versão antiga estiver carregada, não quebrar
+            if hasattr(self, "load_states"):
+                try: self.load_states()
+                except Exception as e: print("[SimulTf] load_states falhou:", e)
             self._t0_wall = time.monotonic()
             self._repeated_function.start()
         else:
             self._repeated_function.stop()
-            self.save_states()
+            if hasattr(self, "save_states"):
+                try: self.save_states()
+                except Exception as e: print("[SimulTf] save_states falhou:", e)
             self._t0_wall = None
 
     def reset(self):
@@ -192,15 +228,66 @@ class SimulTf(QObject):
 
     def _simulation_step(self):
         t_now = self._now()
+        self._dbg_tick += 1
         for key, dsys in self.systems.items():
             var = self.dictDB.get(key)
             if var is None:
                 continue
-            u = float(var.inputValue) if var.inputValue is not None else 0.0
+            u_raw = float(var.inputValue) if var.inputValue is not None else 0.0
+            u = _normalize_input(u_raw)   # <<< normalização robusta
             y = dsys.step(u, t_now)
-            new_val = float(np.clip(y, 0.0001, 1.0))
+
+            # Clipa a saída em [0,1] (sem piso 0.0001 para não "travar" visualmente)
+            new_val = float(np.clip(y, 0.0, 1.0))
+
+            # DEBUG opcional a cada ~20 ticks
+            if self._debug and (self._dbg_tick % 20 == 0):
+                print(f"[SimulTf][{key}] t={t_now:.3f}  u_raw={u_raw:.2f} -> u={u:.3f}  y={new_val:.3f}")
+
+            # Emite alteração
             var._value = new_val
             var.valueChangedSignal.emit(var)
+
+    # ------------------------- sincronismo de StepTimer -------------------------
+    def set_step_time_ms(self, step_ms: int):
+        """Atualiza o passo do simulador e re‑discretiza os sistemas (preservando estado)."""
+        try:
+            step_ms = int(step_ms)
+        except Exception:
+            return
+        if step_ms < 1: step_ms = 1
+        was_running = False
+        try:
+            was_running = getattr(self._repeated_function, "running", False) or getattr(self._repeated_function, "_running", False)
+        except Exception:
+            pass
+        try:
+            self._repeated_function.stop()
+        except Exception:
+            pass
+        self.stepTime = step_ms
+        self.Ts = max(1e-6, self.stepTime / 1000.0)
+        try:
+            self._repeated_function = RepeatFunction(self._simulation_step, self.stepTime)
+        except Exception as e:
+            print(f"[SimulTf] Falha ao recriar RepeatFunction: {e}")
+
+        for key, old_dsys in list(self.systems.items()):
+            model = getattr(self, "_system_models", {}).get(key)
+            if not model:
+                old_dsys.Ts = self.Ts
+                continue
+            num, den, delay = model
+            try:
+                new_dsys = DiscreteSS.from_tf(num, den, Ts=self.Ts, x0=old_dsys.x)
+                new_dsys.set_delay(seconds=old_dsys.delay_L, seed_u=old_dsys.last_u)
+                self.systems[key] = new_dsys
+            except Exception as e:
+                print(f"[SimulTf] Falha ao re-discretizar {key}: {e}")
+        self._t0_wall = time.monotonic()
+        if was_running:
+            try: self._repeated_function.start()
+            except Exception as e: print(f"[SimulTf] Falha ao reiniciar RepeatFunction: {e}")
 
     # ------------------------- persistência -------------------------
 
@@ -215,7 +302,7 @@ class SimulTf(QObject):
                     "A": dsys.A.tolist(), "B": dsys.B.tolist(), "C": dsys.C.tolist(),
                     "D": dsys.D, "x": dsys.x.tolist(),
                     "delay_L": dsys.delay_L, "last_u": dsys.last_u,
-                    "hist": list(dsys.hist)[-64:],  # salva só um trecho curto
+                    "hist": list(dsys.hist)[-64:],
                 }
                 s = json.dumps(payload)
                 var.reactFactory.storage.setRawData("TFSTATES", row, col, s)

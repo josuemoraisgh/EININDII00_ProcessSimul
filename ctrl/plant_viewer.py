@@ -2,14 +2,11 @@
 """
 Plant Viewer (ReactVar) • PySide6
 
-Regras implementadas:
-• Se estiver em Start, o gráfico desenha imediatamente as variáveis selecionadas.
-• Se a janela abrir com o sistema em Start, ela detecta e começa a pintar.
-• Ao trocar a variável (u ou y) durante a execução, o traçado segue contínuo,
-  sem apagar, com uma linha vertical suave marcando a troca.
-• "Limpar Tela" replanta t=0 com os últimos valores reais de y e u (sem saltos).
-• Modo Simulado usa atraso puro contínuo (histórico com timestamp + interpolação),
-  agora com integração por Δt real (sem depender do período nominal do QTimer).
+Correções/recursos:
+• Timer do modo Real conectado ao método _on_real_tick (presente nesta classe).
+• StepTimer [ms] sincroniza gráfico, simulador local (Sim) e SimulTf global.
+• "Limpar Tela" replanta t=0 com o último ponto (y,u) e segue contínuo.
+• A janela abre já lendo o step do SimulTf, se disponível.
 """
 
 from __future__ import annotations
@@ -95,6 +92,13 @@ class PlantViewerWindow(QMainWindow):
 
         self._build_ui()
         self._populate_from_factory()
+
+        # Inicializa StepTimer com o valor do simulador global (se houver)
+        try:
+            if self.simul_tf is not None and hasattr(self.simul_tf, 'stepTime'):
+                self.sb_sim_dt.setValue(int(self.simul_tf.stepTime))
+        except Exception:
+            pass
 
     # Ativa pintura segura após a janela estar visível
     def showEvent(self, ev):
@@ -200,7 +204,8 @@ class PlantViewerWindow(QMainWindow):
         main.addWidget(right_container)
 
         self._set_running_visual(False)
-        self.sb_sim_dt.valueChanged.connect(lambda v: self.real_timer.setInterval(int(max(1, v))))
+        # Conecta StepTimer ao handler que sincroniza todos os relógios
+        self.sb_sim_dt.valueChanged.connect(self._on_step_timer_changed)
 
     # ----------------------- Exclusividade dos modos -----------------------
     def set_cursor_mode(self, mode: Optional[str]):
@@ -643,6 +648,27 @@ class PlantViewerWindow(QMainWindow):
 
     def sync_reset(self):
         self.on_reset_clicked()
+
+    # -------------------------- StepTimer sincronizado --------------------------
+    def _on_step_timer_changed(self, v: int):
+        """Mantém todos os relógios sincronizados ao StepTimer [ms]."""
+        ms = int(max(1, v))
+        try:
+            self.real_timer.setInterval(ms)
+        except Exception:
+            pass
+        try:
+            if self.sim_running:
+                self.sim_dt = ms / 1000.0
+                self.sim_timer.setInterval(ms)
+                self._sim_last_wall_t = time.monotonic()
+        except Exception:
+            pass
+        try:
+            if self.simul_tf is not None and hasattr(self.simul_tf, 'set_step_time_ms'):
+                self.simul_tf.set_step_time_ms(ms)
+        except Exception as e:
+            print("[PV] set_step_time_ms falhou:", e)
 
 
 def main():
