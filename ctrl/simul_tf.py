@@ -1,3 +1,4 @@
+
 from dataclasses import dataclass, field
 from collections import deque
 from typing import Dict, Tuple, Optional, Iterable, List
@@ -61,20 +62,19 @@ class DiscreteSS:
         x = _as_col(np.zeros((n, 1)) if x0 is None else np.array(x0, dtype=float), n)
         return cls(A=A, B=B, C=C, D=D, x=x, Ts=float(Ts))
 
-    # ----- atraso puro contínuo -----
     def set_delay(self, seconds: float, seed_u: float = 0.0):
         self.delay_L = max(0.0, float(seconds))
         self.last_u = float(seed_u)
         self.hist.clear()
-        self.hist.append((0.0, self.last_u))  # semente
+        self.hist.append((0.0, self.last_u))
 
     def _u_at(self, t_query: float) -> float:
         """Interpolação linear de u(t_query) no histórico com timestamps."""
         if not self.hist:
             return self.last_u
 
-        # Janela mínima a manter (mantém deque curta)
-        keep_after = t_query - self.delay_L - 2.0 * max(self.Ts, 1e-6)
+        # Mantém deque enxuta: remove amostras MUITO antigas (não subtrai L novamente!)
+        keep_after = t_query - 2.0 * max(self.Ts, 1e-6)
         while len(self.hist) >= 3 and self.hist[1][0] < keep_after:
             self.hist.popleft()
 
@@ -83,22 +83,18 @@ class DiscreteSS:
         if t_query >= self.hist[-1][0]:
             return float(self.hist[-1][1])
 
-        # Busca local (deque pequena)
         for i in range(len(self.hist) - 1):
-            t0, u0 = self.hist[i]
-            t1, u1 = self.hist[i + 1]
+            t0, u0 = self.hist[i]; t1, u1 = self.hist[i + 1]
             if t0 <= t_query <= t1:
-                if t1 == t0:  # degenerate
+                if t1 == t0:
                     return float(u1)
                 a = (t_query - t0) / (t1 - t0)
                 return float((1 - a) * u0 + a * u1)
-
         return float(self.hist[-1][1])
 
     def step(self, u: float, t_now: float) -> float:
         u = float(u)
         self.last_u = u
-
         # registra amostra atual (garante ordem crescente)
         if not self.hist or t_now >= self.hist[-1][0]:
             self.hist.append((t_now, u))
@@ -189,7 +185,6 @@ class SimulTf(QObject):
             dsys.x[:] = 0.0
             dsys.set_delay(seconds=dsys.delay_L, seed_u=dsys.last_u)
 
-    # relógio relativo à partida atual
     def _now(self) -> float:
         if self._t0_wall is None:
             self._t0_wall = time.monotonic()
@@ -203,7 +198,6 @@ class SimulTf(QObject):
                 continue
             u = float(var.inputValue) if var.inputValue is not None else 0.0
             y = dsys.step(u, t_now)
-            # clamp leve (ajuste se precisar de outras faixas)
             new_val = float(np.clip(y, 0.0001, 1.0))
             var._value = new_val
             var.valueChangedSignal.emit(var)
@@ -240,7 +234,6 @@ class SimulTf(QObject):
                     continue
                 data = json.loads(raw)
 
-                # compat antigo: lista simples = apenas x
                 if isinstance(data, list):
                     dsys.x = _as_col(np.array(data, dtype=float), dsys.A.shape[0])
                     continue
