@@ -1,25 +1,10 @@
-""""
+"""
 Plant Viewer (ReactVar) • PySide6
 ---------------------------------
-• Modo Real: desenha quando chegam sinais das ReactVars.
-• Entrada (u) por incremento A com botões +A e -A (funciona em Real e Simulado).
-• Toolbar: 📏 V | 📐 H | 🧭 Kp | ❌ Limpar | 🧹 Reset
-  - V: duas barras verticais → Δt.
-  - H: duas barras horizontais → |Δy| e |Δu|.
-  - Kp (hipotenusa):
-      • Ao ativar (se não existir): P1 é colocado automaticamente no início da variação de y;
-        P2 é onde a tangente em P1 “toca” (encosta) a curva u(t) (mapeada para o eixo esquerdo).
-      • Existindo: clique perto de um endpoint (≤12 px) para “pegar”; mova o mouse (linha pontilhada);
-        clique novamente para “soltar” (linha sólida). Clique longe dos endpoints → ignora.
-      • ESC ou botão direito: cancela a edição/colocação e volta ao estado anterior.
-      • Caixa mostra Δt, |Δy|, |Δu| e atualiza em tempo real.
-  - Limpar: remove apenas cursores/Kp (não mexe nos dados).
-  - Reset: zera buffers, t=0, desativa cursores/Kp.
-• Eixos Y independentes: y (esquerda) e u (direita).
-• Ajuste (Real × Simulado): aba Simulado roda FOPDT (Kp, τ, L) com tempo de integração ajustável.
-• Seleção de Variáveis Reais: apenas dois seletores visíveis:
-    - Entrada (u): linha/dispositivo da tabela MODBUS (coluna fixa: CLP100)
-    - Saída (y):   coluna/variável da tabela HART (linha fixa: PROCESS_VARIABLE)
+Regras:
+• Se estiver em Start, ao limpar a tela o gráfico reinicia no tempo 0
+  já com o último valor real de y e u (sem “pulos”).
+• Se cache estiver vazio, tenta leitura síncrona das ReactVars para semear.
 """
 
 from __future__ import annotations
@@ -29,6 +14,13 @@ from typing import Optional
 from collections import deque
 
 from PySide6 import QtCore
+from PySide6.QtCore import Slot, QTimer
+from PySide6.QtWidgets import (
+    QAbstractSpinBox, QApplication, QMainWindow, QWidget, QFormLayout, QHBoxLayout, QVBoxLayout,
+    QDoubleSpinBox, QComboBox, QGroupBox, QPushButton, QSpinBox, QLabel, QTabWidget
+)
+
+from ctrl.mpl_canvas import *  # UIConfig, MplCanvas, PVToolbar, ReactVarAdapter, DataBuffers, etc.
 
 # -------------------------- Conversões u: human (0..65535) <-> percent (0..100) --------------------------
 def _u_human_to_percent(h: float) -> float:
@@ -43,9 +35,7 @@ def _u_percent_to_human(p: float) -> float:
     except Exception:
         return 0.0
 
-from PySide6.QtCore import Slot
-from PySide6.QtWidgets import QAbstractSpinBox, QApplication, QMainWindow, QWidget, QFormLayout, QHBoxLayout, QVBoxLayout, QDoubleSpinBox, QComboBox, QGroupBox, QPushButton, QSpinBox, QLabel, QTabWidget
-from ctrl.mpl_canvas import *
+
 class PlantViewerWindow(QMainWindow):
     simStartStop = QtCore.Signal(bool)
     simReset = QtCore.Signal()
@@ -58,18 +48,23 @@ class PlantViewerWindow(QMainWindow):
         self.factory = react_factory
         self.simul_tf = simul_tf
 
-        # Real
-        self.running = False
-        self.t0: Optional[float] = None
+        # ----------------- Estado Real -----------------
+        self.running = False                   # estado lógico (start/stop)
+        self.t0: Optional[float] = None        # referência de tempo
         self.buff = DataBuffers(200_000)
 
-
-        # >>> NOVO: Modo Real — cache e timer de polling
+        # Cache dos últimos valores (consumidos no timer)
         self._last_u_percent: Optional[float] = None
         self._last_y: Optional[float] = None
+
+        # Flag de pintura segura
+        self._ready_to_paint = False
+
+        # Timer do modo Real
         self.real_timer = QtCore.QTimer(self)
         self.real_timer.timeout.connect(self._on_real_tick)
-        # Simulador FOPDT
+
+        # ----------------- Estado Simulado -----------------
         self.sim_running = False
         self.sim_Kp = 1.0
         self.sim_tau = 1.0
@@ -84,6 +79,12 @@ class PlantViewerWindow(QMainWindow):
 
         self._build_ui()
         self._populate_from_factory()
+
+    # Ativa pintura segura após a janela estar visível
+    def showEvent(self, ev):
+        super().showEvent(ev)
+        self._ready_to_paint = True
+        QTimer.singleShot(0, self._redraw)
 
     # -------------------------- UI --------------------------
     def _build_ui(self):
@@ -105,16 +106,14 @@ class PlantViewerWindow(QMainWindow):
         right_container = QWidget(self); right_container.setFixedWidth(UIConfig.CONTROL_PANEL_WIDTH)
         right = QVBoxLayout(right_container)
 
-        # Seleção de variáveis (apenas 2 seletores visíveis)
+        # Seleção de variáveis (2 combos)
         g_sel = QGroupBox("Seleção de Variáveis Reais")
-        lay = QFormLayout(g_sel)
+        lay_sel = QFormLayout(g_sel)
         self.cb_u_row = QComboBox()  # Entrada (u): MODBUS rows
         self.cb_y_col = QComboBox()  # Saída (y):  HART columns
-        lay.addRow("Entrada (u):", self.cb_u_row)
-        lay.addRow("Saída (y):", self.cb_y_col)
-        self.btn_connect = QPushButton("Ativar seleção (u  &  y)")
-        self.btn_connect.clicked.connect(self.on_connect_clicked)
-        lay.addRow(self.btn_connect)
+        lay_sel.addRow("Entrada (u):", self.cb_u_row)
+        lay_sel.addRow("Saída (y):", self.cb_y_col)
+        right.addWidget(g_sel)
 
         # Ajuste (Real × Simulado)
         g_adj = QGroupBox("Ajuste")
@@ -131,17 +130,13 @@ class PlantViewerWindow(QMainWindow):
 
         self.btn_start = QPushButton("Start"); self.btn_stop = QPushButton("Stop"); self.btn_reset = QPushButton("reset")
         self.btn_start.setCheckable(True); self.btn_stop.setCheckable(True)
-
         self.btn_start.clicked.connect(self.on_start_clicked)
         self.btn_stop.clicked.connect(self.on_stop_clicked)
         self.btn_reset.pressed.connect(lambda: self.btn_reset.setStyleSheet("background:#2980b9; color:white; font-weight:bold;"))
         self.btn_reset.released.connect(lambda: self.btn_reset.setStyleSheet("background:yellow; color:black; font-weight:bold;"))
         self.btn_reset.setStyleSheet("background:yellow; color:black; font-weight:bold;")
         self.btn_reset.clicked.connect(self.on_reset_clicked)
-
-        real_lay.addWidget(self.btn_start)
-        real_lay.addWidget(self.btn_stop)
-        real_lay.addWidget(self.btn_reset)
+        real_lay.addWidget(self.btn_start); real_lay.addWidget(self.btn_stop); real_lay.addWidget(self.btn_reset)
 
         # Aba Simulado
         self.tab_sim = QWidget(); sim_lay = QFormLayout(self.tab_sim)
@@ -152,23 +147,27 @@ class PlantViewerWindow(QMainWindow):
         self.btn_sim_stop  = QPushButton("Stop (Sim)")
         self.btn_sim_start.clicked.connect(self.on_sim_start_clicked)
         self.btn_sim_stop.clicked.connect(self.on_sim_stop_clicked)
-
         sim_lay.addRow("Kp:", self.sb_sim_Kp)
         sim_lay.addRow("τ (tau):", self.sb_sim_tau)
         sim_lay.addRow("Atraso (L) [s]:", self.sb_sim_L)
         sim_lay.addRow(self.btn_sim_start)
         sim_lay.addRow(self.btn_sim_stop)
+
         self.tabs_adj.addTab(self.tab_real, "Real")
         self.tabs_adj.addTab(self.tab_sim, "Simulado")
 
-        # >>> NOVO: Período global (Real & Sim) fora das abas
+        # StepTimer global fora das abas
         w_dt = QWidget(self); lay_dt = QFormLayout(w_dt)
         self.sb_sim_dt = QSpinBox(); self.sb_sim_dt.setRange(1, 2000); self.sb_sim_dt.setValue(50)  # ms
-        lay_dt.addRow("Período de atualização [ms] (Real & Sim):", self.sb_sim_dt)
-        adj_lay.addWidget(w_dt)
+        lay_dt.addRow("StepTimer [ms]:", self.sb_sim_dt)
+        info = QLabel("Atualização do gráfico (Real) e passo de integração (Sim).")
+        info.setWordWrap(True)
+        lay_dt.addRow(info)
 
+        adj_lay.addWidget(w_dt)
         adj_lay.addWidget(self.tabs_adj)
-        # Entrada (u): A, +A, -A (último bloco)
+
+        # Entrada (u): A, +A, -A
         g_u = QGroupBox("Entrada (u)")
         lay_u = QHBoxLayout(g_u)
         self.sb_A = QDoubleSpinBox(); self.sb_A.setDecimals(3); self.sb_A.setRange(-1e9, 1e9); self.sb_A.setValue(1.0); self.sb_A.setButtonSymbols(QAbstractSpinBox.NoButtons)
@@ -177,7 +176,6 @@ class PlantViewerWindow(QMainWindow):
         self.btn_step_neg.clicked.connect(lambda: self._inc_u(-self.sb_A.value()))
         lay_u.addWidget(QLabel("A:")); lay_u.addWidget(self.sb_A, 1); lay_u.addWidget(self.btn_step_pos); lay_u.addWidget(self.btn_step_neg)
 
-        # Monta colunas
         for w in (g_sel, g_adj, g_u):
             right.addWidget(w)
         right.addStretch(1)
@@ -185,23 +183,15 @@ class PlantViewerWindow(QMainWindow):
         main.addLayout(left, 1)
         main.addWidget(right_container)
 
-        # Estilo inicial
         self._set_running_visual(False)
+        self.sb_sim_dt.valueChanged.connect(lambda v: self.real_timer.setInterval(int(max(1, v))))
 
-
-        # >>> NOVO: manter timer do Real sincronizado ao SpinBox
-        try:
-            self.sb_sim_dt.valueChanged.connect(lambda v: self.real_timer.setInterval(int(max(1, v))))
-        except Exception:
-            pass
     # ----------------------- Exclusividade dos modos -----------------------
     def set_cursor_mode(self, mode: Optional[str]):
         if mode == 'v':
             self.toolbar.act_h.blockSignals(True); self.toolbar.act_h.setChecked(False); self.toolbar.act_h.blockSignals(False)
-            self.set_kp_mode(False)
         elif mode == 'h':
             self.toolbar.act_v.blockSignals(True); self.toolbar.act_v.setChecked(False); self.toolbar.act_v.blockSignals(False)
-            self.set_kp_mode(False)
         else:
             self.toolbar.act_v.blockSignals(True); self.toolbar.act_h.blockSignals(True)
             self.toolbar.act_v.setChecked(False); self.toolbar.act_h.setChecked(False)
@@ -214,44 +204,65 @@ class PlantViewerWindow(QMainWindow):
             self.toolbar.act_v.setChecked(False); self.toolbar.act_h.setChecked(False)
             self.toolbar.act_v.blockSignals(False); self.toolbar.act_h.blockSignals(False)
         self.toolbar.act_kp.blockSignals(True); self.toolbar.act_kp.setChecked(enabled); self.toolbar.act_kp.blockSignals(False)
-        self.canvas.set_kp_mode(enabled)
+        # (Kp opcional desativado por padrão neste build)
 
     # ----------------------- Toolbar: Limpar / Reset -----------------------
+    def _seed_after_clear(self):
+        """
+        Replanta t=0 com os últimos valores conhecidos de y e u.
+        Se cache estiver vazio, tenta leitura síncrona das ReactVars.
+        """
+        # tenta usar cache primeiro
+        y0 = self._last_y
+        u0 = self._last_u_percent
+
+        # fallback para leitura síncrona
+        if y0 is None and hasattr(self, "rv_y"):
+            try:
+                cur_y = self.rv_y.read_sync()
+                if cur_y is not None:
+                    y0 = float(cur_y)
+            except Exception:
+                pass
+        if u0 is None and hasattr(self, "rv_u"):
+            try:
+                cur_h = self.rv_u.read_sync()
+                if cur_h is not None:
+                    u0 = _u_human_to_percent(cur_h)
+            except Exception:
+                pass
+
+        # defaults seguros
+        if y0 is None: y0 = 0.0
+        if u0 is None: u0 = 0.0
+
+        # semeadura
+        self.t0 = time.monotonic()
+        self.buff.clear()
+        self.buff.append(0.0, y=float(y0), u=float(u0))
+        self._auto_axes()
+        self._safe_redraw()
+
     def on_clear_cursors_clicked(self):
         self.canvas.clear_cursors()
 
     def on_reset_toolbar(self):
-        # Limpar Tela: apenas limpa os traçados e sobreposições; não para a simulação nem reseta eixos.
-        # 1) Limpa buffers e linhas
-        self.buff.clear()
-        self.canvas.line_y.set_data([], [])
-        self.canvas.line_u.set_data([], [])
-        # 2) Limpa overlays/cursores/Kp
-        try:
-            self.canvas.clear_overlays()
-        except Exception:
-            pass
-        try:
-            self.canvas.clear_cursors()
-        except Exception:
-            pass
-        # 3) Mantém limites atuais: não altera ax.set_xlim/ylim; apenas redesenha
-        self._redraw()
+        """
+        Clique na toolbar (🧹 Limpar Tela):
+        limpa traçados/overlays/cursores e REPLANTA ponto inicial com y/u atuais.
+        Não para timers, não muda estado Start/Stop.
+        """
+        try: self.canvas.clear_overlays()
+        except Exception: pass
+        try: self.canvas.clear_cursors()
+        except Exception: pass
 
-        # Desmarca botões de V/H/Kp (modo de edição), pois os overlays foram limpos
-        self.toolbar.act_v.setChecked(False)
-        self.toolbar.act_h.setChecked(False)
-        self.toolbar.act_kp.setChecked(False)
-
-        self.t0 = time.monotonic()
-        self.sim_t = 0.0
+        # SEM mexer em _last_y/_last_u_percent — usa-os para semear
+        self._seed_after_clear()
+        self.sim_t = 0.0  # sim: reinicia tempo relativo apenas
 
     # ----------------------- Factory -> Combos -----------------------
     def _populate_from_factory(self):
-        """Carrega apenas dois seletores:
-        - Entrada (u): linhas de MODBUS (coluna fixa 'CLP100')
-        - Saída (y): colunas de HART (linha fixa 'PROCESS_VARIABLE'), PULANDO as 2 primeiras colunas.
-        """
         self._df = getattr(self.factory, "df", None)
         if not self._df:
             return
@@ -269,12 +280,15 @@ class PlantViewerWindow(QMainWindow):
             self.cb_y_col.clear()
             if df_y is not None:
                 cols = list(df_y.columns)
-                # >>> Ajuste pedido: começar a lista a partir do 3º termo
                 if len(cols) > 2:
                     cols = cols[2:]
-                else:
-                    cols = cols[:]  # fallback caso haja 2 ou menos
                 self.cb_y_col.addItems([str(c) for c in cols])
+        except Exception:
+            pass
+
+        try:
+            self.cb_u_row.currentIndexChanged.connect(lambda _: self.on_connect_clicked())
+            self.cb_y_col.currentIndexChanged.connect(lambda _: self.on_connect_clicked())
         except Exception:
             pass
 
@@ -292,6 +306,12 @@ class PlantViewerWindow(QMainWindow):
         self.btn_start.blockSignals(False); self.btn_stop.blockSignals(False)
 
     def on_start_clicked(self):
+        self._start_real_mode()
+
+    def on_stop_clicked(self):
+        self._stop_real_mode()
+
+    def _start_real_mode(self):
         if self.running:
             return
         if not hasattr(self, "rv_u") or not hasattr(self, "rv_y"):
@@ -299,7 +319,7 @@ class PlantViewerWindow(QMainWindow):
             if not (hasattr(self, "rv_u") and hasattr(self, "rv_y")):
                 return
 
-        # Ler valores atuais e semear t=0 com y0/u0
+        # lê atuais para semear
         try:
             cur_h_u = self.rv_u.read_sync()
         except Exception:
@@ -313,22 +333,18 @@ class PlantViewerWindow(QMainWindow):
         self._last_u_percent = _u_human_to_percent(cur_h_u)
         self._last_y = float(cur_y)
 
-        self.t0 = time.monotonic()
-        self.buff.clear()
-        self.buff.append(0.0, y=self._last_y, u=self._last_u_percent)
-        self._auto_axes(); self._redraw()
+        self._seed_after_clear()  # t0 novo + ponto inicial
 
         self.running = True
         self._set_running_visual(True)
         self.simStartStop.emit(True)
 
-        # Inicia polling do modo Real com período = sb_sim_dt
-        try:
-            self.real_timer.start(int(max(1, self.sb_sim_dt.value())))
-        except Exception:
-            self.real_timer.start(50)
+        self.real_timer.start(int(max(1, self.sb_sim_dt.value())))
+        self._on_real_tick()  # tick imediato
 
-    def on_stop_clicked(self):
+    def _stop_real_mode(self):
+        if not self.running:
+            return
         self.running = False
         self._set_running_visual(False)
         self.simStartStop.emit(False)
@@ -338,16 +354,16 @@ class PlantViewerWindow(QMainWindow):
             pass
 
     def on_reset_clicked(self):
-        self.on_stop_clicked()
-        try:
-            self.real_timer.stop()
-        except Exception:
-            pass
-        self.buff.clear(); self.canvas.clear_overlays()
-        self.canvas.ax_y.set_xlim(0, 10); self.canvas.ax_y.set_ylim(-1, 1)
-        self.canvas.ax_u.set_ylim(-1, 1)
-        self._redraw()
+        """
+        Botão 'reset' (painel):
+        limpa visuais e REPLANTA ponto inicial com y/u atuais.
+        Mantém timers conforme estado (rodando ou parado).
+        """
+        try: self.canvas.clear_overlays()
+        except Exception: pass
+        self._seed_after_clear()
         self.simReset.emit()
+        self.sim_t = 0.0
 
     # -------------------------- Conectar ReactVars --------------------------
     def _disconnect_current(self):
@@ -366,11 +382,14 @@ class PlantViewerWindow(QMainWindow):
                     pass
 
     def on_connect_clicked(self):
+        """Troca de variáveis em voo; mantém traçado e timers."""
         if ReactVarClass is None or self._df is None:
             return
+        t_now = time.monotonic()
+        t_rel = (t_now - self.t0) if (self.t0 is not None) else 0.0
+
         self._disconnect_current()
         try:
-            # Fixos conforme pedido
             t_u = 'MODBUS'
             r_u = self.cb_u_row.currentText()
             c_u = 'CLP100'
@@ -386,6 +405,36 @@ class PlantViewerWindow(QMainWindow):
 
             self.rv_u.changed.connect(self._on_u_external)
             self.rv_y.changed.connect(self._on_y_external)
+
+            if self.running:
+                if not self.real_timer.isActive():
+                    self.real_timer.start(int(max(1, self.sb_sim_dt.value())))
+
+                try:
+                    cur_h_u = self.rv_u.read_sync()
+                    if cur_h_u is not None:
+                        self._last_u_percent = _u_human_to_percent(cur_h_u)
+                except Exception:
+                    pass
+                try:
+                    cur_y = self.rv_y.read_sync()
+                    if cur_y is not None:
+                        self._last_y = float(cur_y)
+                except Exception:
+                    pass
+
+                # planta um ponto de continuidade e marca troca (suave)
+                self.buff.append(t_rel,
+                                 y=self._last_y if self._last_y is not None else 0.0,
+                                 u=self._last_u_percent if self._last_u_percent is not None else 0.0)
+                try:
+                    self.canvas.add_vline(t_rel, color='k', ls=':', lw=1.0, alpha=0.25)
+                except Exception:
+                    pass
+
+                self._auto_axes(); self._safe_redraw()
+                self._on_real_tick()
+
         except Exception as e:
             print("[PV] ERRO CONNECT:", e)
             return
@@ -393,10 +442,8 @@ class PlantViewerWindow(QMainWindow):
     # -------------------------- Entrada u (A, +A, -A) --------------------------
     def _inc_u(self, delta: float):
         if self.tabs_adj.currentWidget() is self.tab_sim:
-            # Simulado: step em porcentagem diretamente
             self.sim_u = float(self.sim_u) + float(delta)
         else:
-            # Real: ler human (0..65535) -> converter para percent -> somar delta(%) -> converter para human -> escrever
             if not hasattr(self, "rv_u"):
                 return
             cur_h = self.rv_u.read_sync()  # human 0..65535
@@ -410,17 +457,15 @@ class PlantViewerWindow(QMainWindow):
     # -------------------------- Callbacks (Real) --------------------------
     @Slot(float)
     def _on_u_external(self, value: float):
-        # Cache apenas; desenho via _on_real_tick()
         self._last_u_percent = _u_human_to_percent(value)
 
     @Slot(float)
     def _on_y_external(self, value: float):
-        # Cache apenas; desenho via _on_real_tick()
         self._last_y = float(value)
+
     def _on_real_tick(self):
         if not self.running or self.t0 is None:
             return
-        # Se ainda não chegaram valores, tenta leitura síncrona
         if self._last_u_percent is None and hasattr(self, "rv_u"):
             try:
                 cur_h_u = self.rv_u.read_sync()
@@ -435,11 +480,13 @@ class PlantViewerWindow(QMainWindow):
                     self._last_y = float(cur_y)
             except Exception:
                 pass
+
         u_val = 0.0 if self._last_u_percent is None else float(self._last_u_percent)
         y_val = 0.0 if self._last_y is None else float(self._last_y)
+
         t = time.monotonic() - self.t0
         self.buff.append(t, y=y_val, u=u_val)
-        self._auto_axes(); self._redraw()
+        self._auto_axes(); self._safe_redraw()
 
     # -------------------------- Simulador FOPDT --------------------------
     def _init_sim_delay_buf(self):
@@ -462,6 +509,7 @@ class PlantViewerWindow(QMainWindow):
         self.canvas.ax_y.set_ylim(-1, 1)
         self.canvas.ax_u.set_ylim(-1, 1)
         self.sim_timer.start(int(max(1, self.sb_sim_dt.value())))  # ms
+        self._on_sim_tick()  # tick imediato
 
     def on_sim_stop_clicked(self):
         self.sim_running = False
@@ -471,7 +519,6 @@ class PlantViewerWindow(QMainWindow):
         if not self.sim_running:
             return
         dt = self.sim_dt
-        # atraso puro via buffer circular
         if len(self.sim_delay_buf) == 0:
             u_delay = self.sim_u
         else:
@@ -487,14 +534,21 @@ class PlantViewerWindow(QMainWindow):
         self.sim_t += dt
 
         self.buff.append(self.sim_t, y=self.sim_y, u=self.sim_u)
-        self._auto_axes(); self._redraw()
+        self._auto_axes(); self._safe_redraw()
 
     # -------------------------- Desenho --------------------------
     def _auto_axes(self):
-        if len(self.buff.t) < 2:
+        n = len(self.buff.t)
+        if n == 0:
             return
-        tmin, tmax = self.buff.t[0], self.buff.t[-1]
-        self.canvas.ax_y.set_xlim(tmin, tmax)
+        if n == 1:
+            t0 = self.buff.t[0]
+            self.canvas.ax_y.set_xlim(t0, t0 + 1e-6)  # evita singularidade
+        else:
+            tmin, tmax = self.buff.t[0], self.buff.t[-1]
+            if tmax <= tmin:
+                tmax = tmin + 1e-6
+            self.canvas.ax_y.set_xlim(tmin, tmax)
 
         y_min, y_max = min(self.buff.y), max(self.buff.y)
         if y_min == y_max:
@@ -508,18 +562,35 @@ class PlantViewerWindow(QMainWindow):
         u_pad = 0.06 * (u_max - u_min)
         self.canvas.ax_u.set_ylim(u_min - u_pad, u_max + u_pad)
 
+    def _safe_redraw(self):
+        if not self._ready_to_paint:
+            return
+        try:
+            self._redraw()
+        except Exception:
+            pass
+
     def _redraw(self):
         self.canvas.line_y.set_data(self.buff.t, self.buff.y)
         self.canvas.line_u.set_data(self.buff.t, self.buff.u)
-        self.canvas.draw_idle()
+        # usar método seguro do canvas, se existir; senão, draw_idle
+        if hasattr(self.canvas, "request_draw"):
+            self.canvas.request_draw()
+        else:
+            self.canvas.draw_idle()
 
     # ----------------------- Compatibilidade (espelhamento) -----------------------
     def sync_running_state(self, running: bool):
-        self.running = bool(running)
-        self._set_running_visual(self.running)
+        """Se o main disser que está rodando, inicia; se disser que parou, para."""
+        if running and not self.running:
+            self._start_real_mode()
+        elif (not running) and self.running:
+            self._stop_real_mode()
+        else:
+            self._set_running_visual(running)
 
     def sync_reset(self):
-        self.on_reset_toolbar()
+        self.on_reset_clicked()
 
 
 def main():
