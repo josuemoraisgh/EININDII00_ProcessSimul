@@ -2,117 +2,116 @@ from dataclasses import dataclass, field
 from collections import deque
 from typing import Dict, Tuple, Optional, Iterable, List
 import numpy as np
+import time
+import json
+import ast
 
 from PySide6.QtCore import QObject, Slot
 from react.react_var import ReactVar
 from react.repeatFunction import RepeatFunction
 import control as ctrl
-import json
-import ast
 
+
+# ------------------------- utilidades de forma -------------------------
 
 def _as_col(x: np.ndarray, n: Optional[int] = None) -> np.ndarray:
     arr = np.array(x, dtype=float)
-    if arr.ndim == 0:
-        arr = arr.reshape(1, 1)
-    elif arr.ndim == 1:
-        arr = arr.reshape(-1, 1)
+    if arr.ndim == 0: arr = arr.reshape(1, 1)
+    elif arr.ndim == 1: arr = arr.reshape(-1, 1)
     if n is not None:
-        if arr.shape[0] > n:
-            arr = arr[:n, :]
-        elif arr.shape[0] < n:
-            pad = np.zeros((n - arr.shape[0], 1), dtype=float)
-            arr = np.vstack([arr, pad])
+        if arr.shape[0] > n: arr = arr[:n, :]
+        elif arr.shape[0] < n: arr = np.vstack([arr, np.zeros((n - arr.shape[0], 1))])
     return arr
-
 
 def _as_row(x: np.ndarray, n: Optional[int] = None) -> np.ndarray:
     arr = np.array(x, dtype=float)
-    if arr.ndim == 0:
-        arr = arr.reshape(1, 1)
-    elif arr.ndim == 1:
-        arr = arr.reshape(1, -1)
+    if arr.ndim == 0: arr = arr.reshape(1, 1)
+    elif arr.ndim == 1: arr = arr.reshape(1, -1)
     if n is not None:
-        if arr.shape[1] > n:
-            arr = arr[:, :n]
-        elif arr.shape[1] < n:
-            pad = np.zeros((1, n - arr.shape[1]), dtype=float)
-            arr = np.hstack([arr, pad])
+        if arr.shape[1] > n: arr = arr[:, :n]
+        elif arr.shape[1] < n: arr = np.hstack([arr, np.zeros((1, n - arr.shape[1]))])
     return arr
 
-
 def _scalar(x) -> float:
-    arr = np.array(x, dtype=float)
-    return float(arr.squeeze())
+    return float(np.array(x, dtype=float).squeeze())
 
+
+# ------------------------- sistema discreto + atraso puro contínuo -------------------------
 
 @dataclass
 class DiscreteSS:
-    A: np.ndarray
-    B: np.ndarray
-    C: np.ndarray
-    D: float
+    """
+    Sistema discreto (c2d Tustin) com **atraso puro contínuo L** implementado por
+    histórico (t,u) + **interpolação** de u(t-L). Robusto a jitter e a L fracionário.
+    """
+    A: np.ndarray; B: np.ndarray; C: np.ndarray; D: float
     x: np.ndarray  # (n,1)
 
-    delay_steps: int = 0
-    delay_buf: deque = field(default_factory=lambda: deque([0.0], maxlen=1))
+    Ts: float
+    delay_L: float = 0.0
+    hist: deque = field(default_factory=lambda: deque(maxlen=4096))  # deque[(t,u)]
+    last_u: float = 0.0
 
     @classmethod
     def from_tf(cls, num: Iterable[float], den: Iterable[float], Ts: float, x0: Optional[np.ndarray] = None):
         sys_ss = ctrl.tf2ss(ctrl.TransferFunction(num, den))
         sysd = ctrl.c2d(sys_ss, Ts, method='tustin')
-        A = np.array(sysd.A, dtype=float)
-        n = A.shape[0]
-        B = _as_col(sysd.B, n)
-        C = _as_row(sysd.C, n)
-        D = _scalar(sysd.D)
-        x = _as_col(np.zeros((n, 1), dtype=float) if x0 is None else np.array(x0, dtype=float), n)
-        return cls(A=A, B=B, C=C, D=D, x=x, delay_steps=0, delay_buf=deque([0.0], maxlen=1))
+        A = np.array(sysd.A, dtype=float); n = A.shape[0]
+        B = _as_col(sysd.B, n); C = _as_row(sysd.C, n); D = _scalar(sysd.D)
+        x = _as_col(np.zeros((n, 1)) if x0 is None else np.array(x0, dtype=float), n)
+        return cls(A=A, B=B, C=C, D=D, x=x, Ts=float(Ts))
 
-    def set_delay(self, seconds: float, Ts: float, seed_u: float = 0.0):
-        steps = int(round(max(0.0, float(seconds)) / float(Ts))) if Ts > 0 else 0
-        self.delay_steps = steps
-        maxlen = max(1, steps)  # nunca 0
-        seed = float(seed_u)
-        self.delay_buf = deque([seed] * maxlen, maxlen=maxlen)
+    # ----- atraso puro contínuo -----
+    def set_delay(self, seconds: float, seed_u: float = 0.0):
+        self.delay_L = max(0.0, float(seconds))
+        self.last_u = float(seed_u)
+        self.hist.clear()
+        self.hist.append((0.0, self.last_u))  # semente
 
-    def ensure_delay_buf(self, fallback_u: float = 0.0):
-        """Garante que delay_buf sempre tenha pelo menos 1 elemento e maxlen válido."""
-        if self.delay_steps <= 0:
-            # mesmo sem atraso, garantimos um elemento para acesso seguro
-            if (self.delay_buf is None) or (self.delay_buf.maxlen is None) or (self.delay_buf.maxlen < 1):
-                self.delay_buf = deque([float(fallback_u)], maxlen=1)
-            if len(self.delay_buf) == 0:
-                self.delay_buf.append(float(fallback_u))
-            return
-        # atraso > 0
-        needed = max(1, self.delay_steps)
-        if (self.delay_buf is None) or (self.delay_buf.maxlen is None) or (self.delay_buf.maxlen < 1):
-            self.delay_buf = deque([float(fallback_u)] * needed, maxlen=needed)
-        elif self.delay_buf.maxlen != needed:
-            # reconstroi preservando os mais recentes
-            buf = list(self.delay_buf)[-needed:] if len(self.delay_buf) else [float(fallback_u)] * needed
-            self.delay_buf = deque(buf, maxlen=needed)
-        if len(self.delay_buf) == 0:
-            self.delay_buf.append(float(fallback_u))
+    def _u_at(self, t_query: float) -> float:
+        """Interpolação linear de u(t_query) no histórico com timestamps."""
+        if not self.hist:
+            return self.last_u
 
-    def step(self, u: float) -> float:
+        # Janela mínima a manter (mantém deque curta)
+        keep_after = t_query - self.delay_L - 2.0 * max(self.Ts, 1e-6)
+        while len(self.hist) >= 3 and self.hist[1][0] < keep_after:
+            self.hist.popleft()
+
+        if t_query <= self.hist[0][0]:
+            return float(self.hist[0][1])
+        if t_query >= self.hist[-1][0]:
+            return float(self.hist[-1][1])
+
+        # Busca local (deque pequena)
+        for i in range(len(self.hist) - 1):
+            t0, u0 = self.hist[i]
+            t1, u1 = self.hist[i + 1]
+            if t0 <= t_query <= t1:
+                if t1 == t0:  # degenerate
+                    return float(u1)
+                a = (t_query - t0) / (t1 - t0)
+                return float((1 - a) * u0 + a * u1)
+
+        return float(self.hist[-1][1])
+
+    def step(self, u: float, t_now: float) -> float:
         u = float(u)
-        self.ensure_delay_buf(fallback_u=u)
+        self.last_u = u
 
-        if self.delay_steps > 0:
-            # acesso seguro
-            u_delay = self.delay_buf[0] if len(self.delay_buf) else u
-            self.delay_buf.append(u)
-            if len(self.delay_buf) > 0:
-                self.delay_buf.popleft()
+        # registra amostra atual (garante ordem crescente)
+        if not self.hist or t_now >= self.hist[-1][0]:
+            self.hist.append((t_now, u))
         else:
-            u_delay = u
+            self.hist.append((self.hist[-1][0] + 1e-12, u))
 
-        y = float(self.C @ self.x + self.D * u_delay)
-        self.x = self.A @ self.x + self.B * u_delay
+        u_eff = self._u_at(t_now - self.delay_L) if self.delay_L > 0 else u
+        y = float(self.C @ self.x + self.D * u_eff)
+        self.x = self.A @ self.x + self.B * u_eff
         return y
 
+
+# ------------------------- parsing do tFunc -------------------------
 
 def _parse_tfunc(tfunc: str):
     if not tfunc:
@@ -126,13 +125,18 @@ def _parse_tfunc(tfunc: str):
         content = s.strip().strip('[]').replace(' ', ',')
         return ast.literal_eval(f"[{content}]")
 
-    num = _to_list(parts[0])
-    den = _to_list(parts[1])
-    delay = float(delay_str)
+    num = _to_list(parts[0]); den = _to_list(parts[1]); delay = float(delay_str)
     return num, den, delay
 
 
+# ------------------------- motor de simulação -------------------------
+
 class SimulTf(QObject):
+    """
+    Simulador de TF(s) com **atraso puro contínuo** (sem Padé):
+    • discretização por Tustin (c2d)
+    • atraso via histórico (t,u) + interpolação linear (independente de jitter)
+    """
     def __init__(self, stepTime_ms: int):
         super().__init__()
         self.stepTime = int(stepTime_ms)
@@ -142,6 +146,7 @@ class SimulTf(QObject):
         self.systems: Dict[Tuple[str, str, str], DiscreteSS] = {}
 
         self._repeated_function = RepeatFunction(self._simulation_step, self.stepTime)
+        self._t0_wall: Optional[float] = None  # base do relógio monotônico
 
     @Slot(object, bool)
     def tfConnect(self, data: ReactVar, isConnect: bool):
@@ -157,7 +162,7 @@ class SimulTf(QObject):
             try:
                 dsys = DiscreteSS.from_tf(num, den, Ts=self.Ts)
                 seed_u = float(data.inputValue) if data.inputValue is not None else 0.0
-                dsys.set_delay(seconds=delay, Ts=self.Ts, seed_u=seed_u)
+                dsys.set_delay(seconds=delay, seed_u=seed_u)
             except Exception as e:
                 print(f"[SimulTf] Erro ao montar sistema: {e}")
                 return
@@ -169,49 +174,54 @@ class SimulTf(QObject):
     def start(self, state: bool):
         if state:
             self.load_states()
-            # confere buffers após carregar
-            for dsys in self.systems.values():
-                dsys.ensure_delay_buf()
+            self._t0_wall = time.monotonic()
             self._repeated_function.start()
         else:
             self._repeated_function.stop()
             self.save_states()
+            self._t0_wall = None
 
     def reset(self):
         self._repeated_function.stop()
+        base = time.monotonic()
+        self._t0_wall = base
         for dsys in self.systems.values():
             dsys.x[:] = 0.0
-            # re-semeia o buffer com o último valor válido (ou 0)
-            last = dsys.delay_buf[0] if len(dsys.delay_buf) else 0.0
-            dsys.set_delay(seconds=dsys.delay_steps * self.Ts, Ts=self.Ts, seed_u=last)
+            dsys.set_delay(seconds=dsys.delay_L, seed_u=dsys.last_u)
+
+    # relógio relativo à partida atual
+    def _now(self) -> float:
+        if self._t0_wall is None:
+            self._t0_wall = time.monotonic()
+        return time.monotonic() - self._t0_wall
 
     def _simulation_step(self):
+        t_now = self._now()
         for key, dsys in self.systems.items():
             var = self.dictDB.get(key)
             if var is None:
                 continue
             u = float(var.inputValue) if var.inputValue is not None else 0.0
-            y = dsys.step(u)
+            y = dsys.step(u, t_now)
+            # clamp leve (ajuste se precisar de outras faixas)
             new_val = float(np.clip(y, 0.0001, 1.0))
             var._value = new_val
             var.valueChangedSignal.emit(var)
+
+    # ------------------------- persistência -------------------------
 
     def save_states(self):
         for key, dsys in self.systems.items():
             var = self.dictDB.get(key)
             if not var:
                 continue
-            row = "|".join(key[:-1])
-            col = key[-1]
+            row = "|".join(key[:-1]); col = key[-1]
             try:
                 payload = {
-                    "A": dsys.A.tolist(),
-                    "B": dsys.B.tolist(),
-                    "C": dsys.C.tolist(),
-                    "D": dsys.D,
-                    "x": dsys.x.tolist(),
-                    "delay_steps": dsys.delay_steps,
-                    "delay_buf": list(dsys.delay_buf),
+                    "A": dsys.A.tolist(), "B": dsys.B.tolist(), "C": dsys.C.tolist(),
+                    "D": dsys.D, "x": dsys.x.tolist(),
+                    "delay_L": dsys.delay_L, "last_u": dsys.last_u,
+                    "hist": list(dsys.hist)[-64:],  # salva só um trecho curto
                 }
                 s = json.dumps(payload)
                 var.reactFactory.storage.setRawData("TFSTATES", row, col, s)
@@ -223,31 +233,35 @@ class SimulTf(QObject):
             dsys = self.systems.get(key)
             if not dsys:
                 continue
-            row = "|".join(key[:-1])
-            col = key[-1]
+            row = "|".join(key[:-1]); col = key[-1]
             try:
                 raw = var.reactFactory.storage.getRawData("TFSTATES", row, col)
                 if not raw:
                     continue
                 data = json.loads(raw)
+
                 # compat antigo: lista simples = apenas x
                 if isinstance(data, list):
                     dsys.x = _as_col(np.array(data, dtype=float), dsys.A.shape[0])
-                elif isinstance(data, dict):
+                    continue
+
+                if isinstance(data, dict):
                     if "x" in data:
                         dsys.x = _as_col(np.array(data["x"], dtype=float), dsys.A.shape[0])
-                    if "delay_steps" in data:
-                        dsys.delay_steps = int(data["delay_steps"])
-                    # reconstrói delay_buf com tamanho correto; se vier vazio, semeia com 0
-                    if "delay_buf" in data:
-                        buf = [float(v) for v in data["delay_buf"]]
+                    if "delay_L" in data:
+                        dsys.delay_L = float(data["delay_L"])
+                    if "last_u" in data:
+                        dsys.last_u = float(data["last_u"])
+                    dsys.hist.clear()
+                    hist = data.get("hist", [])
+                    if isinstance(hist, list) and hist:
+                        for item in hist:
+                            try:
+                                t_i, u_i = float(item[0]), float(item[1])
+                                dsys.hist.append((t_i, u_i))
+                            except Exception:
+                                pass
                     else:
-                        buf = []
-                    needed = max(1, dsys.delay_steps)
-                    if not buf:
-                        buf = [0.0] * needed
-                    else:
-                        buf = buf[-needed:]
-                    dsys.delay_buf = deque(buf, maxlen=needed)
+                        dsys.hist.append((0.0, dsys.last_u))
             except Exception as e:
                 print(f"[SimulTf] Erro ao carregar estado {key}: {e}")
