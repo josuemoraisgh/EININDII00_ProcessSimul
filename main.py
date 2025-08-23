@@ -69,7 +69,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         # Configura simulador
         print("🔄 Configurando Simulador...")
-        self.simulTf = SimulTf(500)
+        self.simulTf = SimulTf(50)
         print("✅ Simulador configurado.")
 
         # Conecta sinal de tFunc
