@@ -1,6 +1,7 @@
 import sys
 import traceback
 import asyncio
+
 from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox, QPushButton
 from PySide6.QtCore import Qt
 from uis.ui_main import Ui_MainWindow
@@ -8,7 +9,10 @@ from react.react_factory import ReactFactory
 from db.db_types import DBState, DBModel
 from ctrl.simul_tf import SimulTf
 from functools import partial
-
+from img.imgCaldeira import imagem_base64
+from mb.mb_server import ModbusServer
+from react.react_var import ReactVar
+from ctrl.view import PlantViewerWindow
 from db.db_types import DBState
 
 def bind_slider_to_reactvar(slider, reactVar, sync_call):
@@ -48,15 +52,7 @@ def bind_slider_to_reactvar(slider, reactVar, sync_call):
         reactVar.valueChangedSignal.connect(_on_var_changed)
     except Exception as e:
         print(f"[bind] connect valueChangedSignal failed: {e}")
-from img.imgCaldeira import imagem_base64
-from mb.mb_server import ModbusServer
-from react.react_var import ReactVar
-from ctrl.plant_viewer import PlantViewerWindow
-
-import os
-import shutil
-import platform
-
+        
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super().__init__()

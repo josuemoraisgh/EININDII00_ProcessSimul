@@ -1,135 +1,21 @@
+# ctrl/plotting/canvas.py
 from __future__ import annotations
 
-from dataclasses import dataclass
 from typing import Optional, List, Tuple
-
 import numpy as np
 
 from PySide6 import QtCore
 from PySide6.QtCore import Slot
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as NavigationToolbar
 from matplotlib.figure import Figure
 
-
-# =============================================================================
-# Config
-# =============================================================================
-
-@dataclass
-class UIConfig:
-    CONTROL_PANEL_WIDTH: int = 340
-    LEFT_MARGIN: float = 0.08   # margem esquerda (0..1)
-    RIGHT_MARGIN: float = 0.94  # margem direita (0..1)
-    LABELPAD: int = 3           # distância label-eixo
-    TICK_PAD: int = 2           # distância ticks-eixo
+from ..ui_config import UIConfig
+from .toolbar import PVToolbar  # apenas para manter coesão do módulo (usado na View)
 
 
 # =============================================================================
-# ReactVar adapter (sincroniza sinais/leituras)
+# Mpl Canvas (View pura de plotagem: cursores V/H, Kp e overlays)
 # =============================================================================
-
-ReactVarClass = None
-try:
-    from react.react_var import ReactVar as _RV
-    ReactVarClass = _RV
-except Exception:
-    try:
-        from react_var import ReactVar as _RV
-        ReactVarClass = _RV
-    except Exception:
-        ReactVarClass = None
-
-
-class ReactVarAdapter(QtCore.QObject):
-    changed = QtCore.Signal(float)
-
-    def __init__(self, rv_obj):
-        super().__init__()
-        self._rv = rv_obj
-        self._rv.valueChangedSignal.connect(self._on_raw)
-
-    @Slot(object)
-    def _on_raw(self, payload):
-        try:
-            v = float(getattr(payload, "_value"))
-            self.changed.emit(v)
-        except Exception:
-            pass
-
-    def write(self, v: float):
-        try:
-            self._rv.setValue(float(v), isWidgetValueChanged=True)
-        except Exception:
-            pass
-
-    def read_sync(self) -> Optional[float]:
-        try:
-            return float(self._rv._value)
-        except Exception:
-            return None
-
-
-# =============================================================================
-# Utilidades: buffers
-# =============================================================================
-
-class DataBuffers:
-    def __init__(self, maxlen: int = 200_000):
-        self.maxlen = maxlen
-        self.t: List[float] = []
-        self.y: List[float] = []
-        self.u: List[float] = []
-
-    def clear(self):
-        self.t.clear()
-        self.y.clear()
-        self.u.clear()
-
-    def append(self, t: float, y: Optional[float], u: Optional[float]):
-        if self.t and t < self.t[-1]:
-            return
-        self.t.append(t)
-        if len(self.t) > self.maxlen:
-            self.t.pop(0)
-            if self.y: self.y.pop(0)
-            if self.u: self.u.pop(0)
-        y_last = self.y[-1] if self.y else 0.0
-        u_last = self.u[-1] if self.u else 0.0
-        self.y.append(y if y is not None else y_last)
-        self.u.append(u if u is not None else u_last)
-
-
-# =============================================================================
-# Mpl Canvas + Toolbar
-# =============================================================================
-
-class PVToolbar(NavigationToolbar):
-    """Toolbar do Matplotlib com botões extras."""
-    def __init__(self, canvas, parent):
-        super().__init__(canvas, parent)
-
-        # Ordem: V | H | Kp | Limpar | Reset
-        self.addSeparator()
-        self.act_v = self.addAction("📏 V")
-        self.act_h = self.addAction("📐 H")
-        self.act_kp = self.addAction("🧭 Kp")
-        self.act_clear = self.addAction("❌ Limpar Cursores")
-        self.act_reset = self.addAction("🧹 Limpar Tela")
-
-        # Checkables
-        self.act_v.setCheckable(True)
-        self.act_h.setCheckable(True)
-        self.act_kp.setCheckable(True)
-
-        # Conexões
-        self.act_v.triggered.connect(lambda checked: parent.set_cursor_mode('v' if checked else None))
-        self.act_h.triggered.connect(lambda checked: parent.set_cursor_mode('h' if checked else None))
-        self.act_kp.triggered.connect(lambda checked: parent.set_kp_mode(checked))
-        self.act_clear.triggered.connect(parent.on_clear_cursors_clicked)
-        self.act_reset.triggered.connect(parent.on_reset_toolbar)
-
-
 class MplCanvas(FigureCanvas):
     def __init__(self, parent=None):
         fig = Figure(figsize=(7, 4), constrained_layout=False)
@@ -598,93 +484,6 @@ class MplCanvas(FigureCanvas):
             px, py = self.ax_u.transData.transform((x_fin, u_val))
             y_fin = float(self.ax_y.transData.inverted().transform((px, py))[1])
             return x_fin, y_fin
-
-    # ---------- Auto-colocação inicial do Kp ao ativar (reta tangente) ----------
-    def _kp_auto_place(self):
-        tx = np.asarray(self.line_y.get_xdata(), dtype=float)
-        yy = np.asarray(self.line_y.get_ydata(), dtype=float)
-        uu_r = np.asarray(self.line_u.get_ydata(), dtype=float)
-        if tx.size < 8 or yy.size != tx.size or uu_r.size != tx.size:
-            return
-
-        # 1) Derivada e detecção robusta do início
-        try:
-            dydt = np.gradient(yy, tx)
-        except Exception:
-            return
-        absd = np.abs(dydt)
-        max_s = float(np.max(absd)) if absd.size else 0.0
-        if not np.isfinite(max_s) or max_s <= 0.0:
-            return
-        thr = 0.10 * max_s
-
-        sel = absd >= thr
-        if not np.any(sel):
-            return
-        sign_mean = np.sign(np.mean(dydt[sel]))
-        sign_mean = 1.0 if sign_mean >= 0 else -1.0
-
-        m_consec = 3
-        i0 = None
-        for k in range(0, tx.size - m_consec):
-            window = dydt[k:k+m_consec]
-            if np.all(np.abs(window) >= thr*0.8) and np.all(np.sign(window) == sign_mean):
-                i0 = k
-                break
-        if i0 is None:
-            cand = np.where(sel)[0]
-            if cand.size == 0:
-                return
-            i0 = int(cand[0])
-
-        # 2) Regressão linear local para slope e tangência
-        n_total = tx.size
-        n_win = max(5, min(50, int(0.03 * n_total)))
-        j1 = i0
-        j2 = min(n_total, i0 + n_win)
-        if j2 - j1 < 3:
-            j2 = min(n_total, i0 + 3)
-        try:
-            coeff = np.polyfit(tx[j1:j2], yy[j1:j2], 1)  # y ≈ s*x + b
-            s = float(coeff[0])
-            x0 = float(tx[i0]); y0 = float(yy[i0])
-            b = y0 - s * x0  # reancora a reta em P1
-        except Exception:
-            x0 = float(tx[i0]); y0 = float(yy[i0])
-            s = float(dydt[i0])
-            b = y0 - s * x0
-
-        # 3) P2: onde a reta tangente mais se aproxima de u(t) mapeado para o eixo y
-        best_j = None
-        best_px = None
-        for j in range(i0, tx.size):
-            xj = float(tx[j])
-            y_line = s * xj + b
-            y_u = self._u_to_ydata(xj, float(uu_r[j]))
-            py_line = self.ax_y.transData.transform((xj, y_line))[1]
-            py_u    = self.ax_y.transData.transform((xj, y_u))[1]
-            dist_px = abs(py_line - py_u)
-            if (best_px is None) or (dist_px < best_px):
-                best_px = dist_px
-                best_j = j
-
-        if best_j is None:
-            return
-
-        x2 = float(tx[best_j])
-        y2 = float(s * x2 + b)
-
-        self.kp_points = [(x0, y0), (x2, y2)]
-        if self.kp_line is None:
-            (self.kp_line,) = self.ax_y.plot([x0, x2], [y0, y2], linestyle='-', color='k', lw=1.5, label='Kp')
-        else:
-            self.kp_line.set_data([x0, x2], [y0, y2])
-            self.kp_line.set_linestyle('-')
-            self.kp_line.set_color('k')
-            self.kp_line.set_linewidth(1.5)
-        self._kp_update_text()
-        self.draw_idle()
-
     # ---- helpers overlays ----
     def clear_overlays(self):
         for a in self.overlays:
@@ -703,3 +502,96 @@ class MplCanvas(FigureCanvas):
 
     def add_text(self, x, y, s, **kw):
         a = self.ax_y.text(x, y, s, **kw); self.overlays.append(a); return a
+        
+    # ---------- Auto-colocação inicial do Kp ao ativar (reta tangente) ----------
+    def _kp_auto_place(self):
+        tx = np.asarray(self.line_y.get_xdata(), dtype=float)
+        yy = np.asarray(self.line_y.get_ydata(), dtype=float)
+        uu_r = np.asarray(self.line_u.get_ydata(), dtype=float)
+        if tx.size < 8 or yy.size != tx.size or uu_r.size != tx.size:
+            return
+
+        # 1) Derivada e início robusto
+        try:
+            dydt = np.gradient(yy, tx)
+        except Exception:
+            return
+        absd = np.abs(dydt)
+        max_s = float(np.max(absd)) if absd.size else 0.0
+        if not np.isfinite(max_s) or max_s <= 0.0:
+            return
+        thr = 0.10 * max_s
+        sel = absd >= thr
+        if not np.any(sel):
+            return
+        sign_mean = np.sign(np.mean(dydt[sel])); sign_mean = 1.0 if sign_mean >= 0 else -1.0
+        m_consec = 3
+        i0 = None
+        for k in range(0, tx.size - m_consec):
+            window = dydt[k:k+m_consec]
+            if np.all(np.abs(window) >= thr*0.8) and np.all(np.sign(window) == sign_mean):
+                i0 = k; break
+        if i0 is None:
+            cand = np.where(sel)[0]
+            if cand.size == 0: return
+            i0 = int(cand[0])
+
+        # 2) Reta tangente local em P1
+        n_total = tx.size
+        n_win = max(5, min(50, int(0.03 * n_total)))
+        j1 = i0; j2 = min(n_total, i0 + n_win)
+        if j2 - j1 < 3: j2 = min(n_total, i0 + 3)
+        try:
+            coeff = np.polyfit(tx[j1:j2], yy[j1:j2], 1)  # y ≈ s*x + b
+            s = float(coeff[0]); x0 = float(tx[i0]); y0 = float(yy[i0])
+            b = y0 - s * x0
+        except Exception:
+            x0 = float(tx[i0]); y0 = float(yy[i0]); s = float(dydt[i0]); b = y0 - s * x0
+
+        # 3) P2: onde reta tangente cruza u(t) mapeado → resolver erro(x) = y_line - y_u = 0
+        #    y_u é u(t) mapeado ao eixo esquerdo.
+        def _err_at(ix):
+            x = float(tx[ix])
+            y_line = s * x + b
+            y_u    = self._u_to_ydata(x, float(uu_r[ix]))
+            return y_line - y_u
+
+        # procure mudança de sinal do erro após i0
+        root_x = None
+        last_e = _err_at(i0)
+        for j in range(i0+1, tx.size):
+            e = _err_at(j)
+            if np.isfinite(last_e) and np.isfinite(e) and (last_e == 0 or e == 0 or (last_e * e) < 0):
+                # interpolação linear para raiz
+                xA, xB = float(tx[j-1]), float(tx[j])
+                if (e - last_e) != 0:
+                    root_x = xA - last_e * (xB - xA) / (e - last_e)
+                else:
+                    root_x = xA
+                break
+            last_e = e
+
+        if root_x is None:
+            # fallback: ponto de menor distância em pixels (como estava)
+            best_j = None; best_px = None
+            for j in range(i0, tx.size):
+                xj = float(tx[j]); y_line = s * xj + b
+                y_u = self._u_to_ydata(xj, float(uu_r[j]))
+                py_line = self.ax_y.transData.transform((xj, y_line))[1]
+                py_u    = self.ax_y.transData.transform((xj, y_u))[1]
+                dist_px = abs(py_line - py_u)
+                if (best_px is None) or (dist_px < best_px):
+                    best_px = dist_px; best_j = j
+            if best_j is None: return
+            x2 = float(tx[best_j]); y2 = float(s * x2 + b)
+        else:
+            x2 = float(root_x); y2 = float(s * x2 + b)
+
+        self.kp_points = [(x0, y0), (x2, y2)]
+        if self.kp_line is None:
+            (self.kp_line,) = self.ax_y.plot([x0, x2], [y0, y2], linestyle='-', color='k', lw=1.5, label='Kp')
+        else:
+            self.kp_line.set_data([x0, x2], [y0, y2]); self.kp_line.set_linestyle('-')
+            self.kp_line.set_color('k'); self.kp_line.set_linewidth(1.5)
+        self._kp_update_text()
+        self.draw_idle()
