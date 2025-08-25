@@ -9,7 +9,7 @@ class PVToolbar(NavigationToolbar):
         self.act_h = self.addAction("📐 H")
         self.act_kp = self.addAction("🧭 Kp")
         self.act_clear = self.addAction("❌ Limpar Cursores")
-        self.act_reset = self.addAction("🧹 Reset")
+        self.act_reset = self.addAction("🧹 Limpar Tela")
 
         for a in (self.act_v, self.act_h, self.act_kp):
             a.setCheckable(True)
@@ -33,5 +33,13 @@ class PVToolbar(NavigationToolbar):
         self.act_h.triggered.connect(lambda checked: _select("h"  if checked else None))
         self.act_kp.triggered.connect(lambda checked: _select("kp" if checked else None))
 
-        self.act_clear.triggered.connect(parent.on_clear_cursors_clicked)
+        self.act_clear.triggered.connect(lambda: (
+            parent.on_clear_cursors_clicked(),
+            self._uncheck_all()
+        ))
         self.act_reset .triggered.connect(parent.on_reset_toolbar)
+        
+    def _uncheck_all(self):
+        self.act_v.setChecked(False)
+        self.act_h.setChecked(False)
+        self.act_kp.setChecked(False)

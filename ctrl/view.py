@@ -94,10 +94,14 @@ class PlantViewerWindow(QMainWindow):
         right = QVBoxLayout(right_container)
 
         # Ajuste (colapsado)
-        g_adj = QGroupBox("Ajuste"); g_adj.setCheckable(True); g_adj.setChecked(False)
-        lay_adj = QVBoxLayout(g_adj); self._adj_inner = QWidget(g_adj); adj_form = QFormLayout(self._adj_inner)
+        g_adj = QGroupBox("Ajuste")
+        g_adj.setCheckable(True)
+        g_adj.setChecked(True)
+        lay_adj = QVBoxLayout(g_adj); 
+        self._adj_inner = QWidget(g_adj); 
+        adj_form = QFormLayout(self._adj_inner)
 
-        self.sb_sim_dt = QSpinBox(); self.sb_sim_dt.setRange(1, 5000); self.sb_sim_dt.setValue(500)
+        self.sb_sim_dt = QSpinBox(); self.sb_sim_dt.setRange(1, 5000); self.sb_sim_dt.setValue(50)
         adj_form.addRow("StepTimer [ms]:", self.sb_sim_dt)
 
         self.tabs_adj = QTabWidget(); adj_form.addRow(self.tabs_adj)
@@ -172,7 +176,8 @@ class PlantViewerWindow(QMainWindow):
         main.addWidget(right_container)
 
         g_adj.toggled.connect(self._adj_inner.setVisible)
-        self._adj_inner.setVisible(False)
+        self._adj_inner.setVisible(g_adj.isChecked())
+        # self._adj_inner.setVisible(False)
 
         # Interações
         self.cb_u_row.currentIndexChanged.connect(lambda *_: self.on_connect_clicked())
