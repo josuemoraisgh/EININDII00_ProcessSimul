@@ -736,6 +736,9 @@
                <property name="checkable">
                 <bool>true</bool>
                </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
               </widget>
              </item>
             </layout>
@@ -1291,6 +1294,9 @@
                <property name="checkable">
                 <bool>true</bool>
                </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
               </widget>
              </item>
             </layout>
@@ -1740,6 +1746,9 @@
                <property name="checkable">
                 <bool>true</bool>
                </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
               </widget>
              </item>
             </layout>
@@ -2060,7 +2069,7 @@
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="buttonGroupState"/>
   <buttongroup name="buttonGroupSimul"/>
+  <buttongroup name="buttonGroupState"/>
  </buttongroups>
 </ui>

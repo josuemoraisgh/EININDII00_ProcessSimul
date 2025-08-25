@@ -1,7 +1,5 @@
-
 from typing import Optional, Any, Tuple
 
-# Qt compat
 # Qt compat
 try:
     from PySide6.QtCore import Qt, Signal, Slot
@@ -40,6 +38,7 @@ class PlantViewerWindow(QMainWindow):
         except Exception: pass
 
     def on_clear_cursors_clicked(self):
+        # limpar overlays/cursores e manter toolbar em sincronia (toolbar faz uncheck via _uncheck_all())
         try: self.canvas.clear_cursors()
         except Exception: pass
 
@@ -74,6 +73,7 @@ class PlantViewerWindow(QMainWindow):
         self.model.restore_selection(self.cb_u_row, self.cb_y_col)
         self.on_connect_clicked()  # auto-connect + seed
         self._set_running_visual(False)
+        self._set_sim_running_visual(False)
 
     # ======================= UI =======================
     def _build_ui(self):
@@ -97,10 +97,11 @@ class PlantViewerWindow(QMainWindow):
         g_adj = QGroupBox("Ajuste")
         g_adj.setCheckable(True)
         g_adj.setChecked(True)
-        lay_adj = QVBoxLayout(g_adj); 
-        self._adj_inner = QWidget(g_adj); 
+        lay_adj = QVBoxLayout(g_adj)
+        self._adj_inner = QWidget(g_adj)
         adj_form = QFormLayout(self._adj_inner)
 
+        # StepTimer default = 50 ms
         self.sb_sim_dt = QSpinBox(); self.sb_sim_dt.setRange(1, 5000); self.sb_sim_dt.setValue(50)
         adj_form.addRow("StepTimer [ms]:", self.sb_sim_dt)
 
@@ -118,6 +119,7 @@ class PlantViewerWindow(QMainWindow):
         self.btn_start.setCheckable(True); self.btn_stop.setCheckable(True)
         self.btn_reset = QPushButton("reset"); self._style_btn_reset_idle()
 
+        # feedback de "press"
         self.btn_start.pressed.connect(lambda: self.btn_start.setStyleSheet("background:#2980b9; color:white; font-weight:bold;"))
         self.btn_stop.pressed.connect(lambda: self.btn_stop.setStyleSheet("background:#2980b9; color:white; font-weight:bold;"))
         self.btn_reset.pressed.connect(lambda: self.btn_reset.setStyleSheet("background:#2980b9; color:white; font-weight:bold;"))
@@ -128,7 +130,8 @@ class PlantViewerWindow(QMainWindow):
         self.btn_reset.clicked.connect(self.on_reset_clicked)
 
         real_lay.addWidget(self.btn_start); real_lay.addWidget(self.btn_stop); real_lay.addWidget(self.btn_reset)
-        
+
+        # Seleção de variáveis reais dentro da aba Real
         g_sel = QGroupBox("Seleção de Variáveis Reais", self.tab_real)
         lay_sel = QFormLayout(g_sel)
         self.cb_u_row = QComboBox(); self.cb_y_col = QComboBox()
@@ -145,15 +148,24 @@ class PlantViewerWindow(QMainWindow):
         self.sb_sim_Kp = QDoubleSpinBox(); self.sb_sim_Kp.setDecimals(4); self.sb_sim_Kp.setRange(-1e6, 1e6); self.sb_sim_Kp.setValue(1.0)
         self.sb_sim_tau = QDoubleSpinBox(); self.sb_sim_tau.setDecimals(4); self.sb_sim_tau.setRange(1e-6, 1e6); self.sb_sim_tau.setValue(1.0)
         self.sb_sim_L   = QDoubleSpinBox(); self.sb_sim_L.setDecimals(4); self.sb_sim_L.setRange(0.0, 1e6); self.sb_sim_L.setValue(0.0)
-        self.btn_sim_start = QPushButton("Start (Sim)")
-        self.btn_sim_stop  = QPushButton("Stop (Sim)")
-        self.btn_sim_start.clicked.connect(self.on_sim_start_clicked)
-        self.btn_sim_stop.clicked.connect(self.on_sim_stop_clicked)
+
+        self.btn_start_sim = QPushButton("Start (Sim)")
+        self.btn_stop_sim  = QPushButton("Stop (Sim)")
+        self.btn_start_sim.setCheckable(True)
+        self.btn_stop_sim.setCheckable(True)
+
+        # feedback de "press" igual aos do Real
+        self.btn_start_sim.pressed.connect(lambda: self.btn_start_sim.setStyleSheet("background:#2980b9; color:white; font-weight:bold;"))
+        self.btn_stop_sim.pressed.connect(lambda: self.btn_stop_sim.setStyleSheet("background:#2980b9; color:white; font-weight:bold;"))
+
+        self.btn_start_sim.clicked.connect(self.on_sim_start_clicked)
+        self.btn_stop_sim.clicked.connect(self.on_sim_stop_clicked)
+
         sim_lay.addRow("Kp:", self.sb_sim_Kp)
         sim_lay.addRow("τ (tau):", self.sb_sim_tau)
         sim_lay.addRow("Atraso (L) [s]:", self.sb_sim_L)
-        sim_lay.addRow(self.btn_sim_start)
-        sim_lay.addRow(self.btn_sim_stop)
+        sim_lay.addRow(self.btn_start_sim)
+        sim_lay.addRow(self.btn_stop_sim)
         self.tabs_adj.addTab(self.tab_sim, "Simulado")
 
         lay_adj.addWidget(self._adj_inner)
@@ -175,9 +187,9 @@ class PlantViewerWindow(QMainWindow):
         main.addLayout(left, 1)
         main.addWidget(right_container)
 
+        # Toggle do grupo Ajuste -> controla visibilidade do conteúdo
         g_adj.toggled.connect(self._adj_inner.setVisible)
         self._adj_inner.setVisible(g_adj.isChecked())
-        # self._adj_inner.setVisible(False)
 
         # Interações
         self.cb_u_row.currentIndexChanged.connect(lambda *_: self.on_connect_clicked())
@@ -247,7 +259,7 @@ class PlantViewerWindow(QMainWindow):
             self.ctrl._auto_axes(); self.ctrl._redraw()
 
     # proxy for controller's private read (kept for compat)
-    def _read_sync(self, rv): 
+    def _read_sync(self, rv):
         return self.ctrl._read_sync(rv)
 
     # ======================= Start/Stop/Reset (Real) =======================
@@ -276,6 +288,17 @@ class PlantViewerWindow(QMainWindow):
         self.ctrl.reset()
 
     # ======================= Simulador =======================
+    def _set_sim_running_visual(self, running: bool):
+        self.btn_start_sim.blockSignals(True); self.btn_stop_sim.blockSignals(True)
+        self.btn_start_sim.setChecked(running); self.btn_stop_sim.setChecked(not running)
+        if running:
+            self.btn_start_sim.setStyleSheet("background:#2ecc71; color:white; font-weight:bold;")
+            self.btn_stop_sim.setStyleSheet("")
+        else:
+            self.btn_start_sim.setStyleSheet("")
+            self.btn_stop_sim.setStyleSheet("background:#ff2d2d; color:white; font-weight:bold;")
+        self.btn_start_sim.blockSignals(False); self.btn_stop_sim.blockSignals(False)
+
     def _on_dt_changed(self, v):
         iv = int(max(1, v))
         if self.ctrl.running: self.ctrl.real_timer.setInterval(iv)
@@ -288,9 +311,11 @@ class PlantViewerWindow(QMainWindow):
         dt = float(self.sb_sim_dt.value()) / 1000.0
         y0 = self.ctrl.buff.y[-1] if self.ctrl.buff.y else 0.0
         self.ctrl.sim_start(Kp, tau, L, dt, self.sb_sim_dt.value(), y0)
+        self._set_sim_running_visual(True)
 
     def on_sim_stop_clicked(self):
         self.ctrl.sim_stop()
+        self._set_sim_running_visual(False)
 
     def _on_plus_minus_A(self, sgn: int):
         A = float(self.ds_A.value()); delta = sgn * A

@@ -338,6 +338,7 @@ class Ui_MainWindow(object):
         self.pbAMFV100AR.setMinimumSize(QSize(30, 30))
         self.pbAMFV100AR.setStyleSheet(u"")
         self.pbAMFV100AR.setCheckable(True)
+        self.pbAMFV100AR.setChecked(True)
 
         self.verticalLayout_11.addWidget(self.pbAMFV100AR)
 
@@ -585,6 +586,7 @@ class Ui_MainWindow(object):
         self.pbAMFV100CA.setMinimumSize(QSize(30, 30))
         self.pbAMFV100CA.setStyleSheet(u"")
         self.pbAMFV100CA.setCheckable(True)
+        self.pbAMFV100CA.setChecked(True)
 
         self.verticalLayout_14.addWidget(self.pbAMFV100CA)
 
@@ -768,6 +770,7 @@ class Ui_MainWindow(object):
         self.pbAMFV100A.setMinimumSize(QSize(30, 30))
         self.pbAMFV100A.setStyleSheet(u"")
         self.pbAMFV100A.setCheckable(True)
+        self.pbAMFV100A.setChecked(True)
 
         self.verticalLayout_18.addWidget(self.pbAMFV100A)
 

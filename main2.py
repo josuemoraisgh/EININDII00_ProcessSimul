@@ -15,11 +15,6 @@ from react.react_var import ReactVar
 from ctrl.view import PlantViewerWindow
 from db.db_types import DBState
 
-STYLE_AM = """
-QPushButton {}
-QPushButton:checked { background:#2980b9; color:white; font-weight:bold; }
-"""
-
 def bind_slider_to_reactvar(slider, reactVar, sync_call):
     """Vínculo bidirecional entre slider e ReactVar em humanValue (0..100%).
     - Slider -> ReactVar via setValue(..., DBState.humanValue, True)
@@ -68,7 +63,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.reactFactory = asyncio.run(ReactFactory.create(["HART", "MODBUS"]))
         print("✅ ReactFactory criado com sucesso!")
 
-        # Configura simulador
+        # Configura simulador (default 50 ms)
         print("🔄 Configurando Simulador...")
         self.simulTf = SimulTf(50)
         print("✅ Simulador configurado.")
@@ -96,6 +91,26 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         print("🔄 Configurando UI...")
         self.resize(800, 500)
         self.setupUi(self)
+
+        # --- Estilo/feedback dos botões principais (mesmo padrão da View/Real) ---
+        try:
+            # garantir comportamento de toggle
+            self.pushButtonStart.setCheckable(True)
+            self.pushButtonStop.setCheckable(True)
+
+            # estilo "pressed" azul temporário (volta ao estilo pelo visual de running/stop)
+            self.pushButtonStart.pressed.connect(lambda: self.pushButtonStart.setStyleSheet("background:#2980b9; color:white; font-weight:bold;"))
+            self.pushButtonStop.pressed.connect(lambda: self.pushButtonStop.setStyleSheet("background:#2980b9; color:white; font-weight:bold;"))
+            self.pushButtonReset.pressed.connect(lambda: self.pushButtonReset.setStyleSheet("background:#2980b9; color:white; font-weight:bold;"))
+
+            # estilo idle do Reset = amarelo (igual ao view)
+            self._style_reset_idle_main()
+            self.pushButtonReset.released.connect(self._style_reset_idle_main)
+
+            # aplica visual inicial coerente (parado)
+            self._set_main_running_visual(False)
+        except Exception as e:
+            print("[WARN] Estilização inicial dos botões falhou:", e)
 
         # Hex view
         print("🔄 Conectando hex view...")
@@ -151,7 +166,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.pushButtonReset.clicked.connect(resetTf)
         print("✅ Botão de reset configurado.")
 
-        # Imagem de fundo (mantido)
+        # Imagem de fundo
         print("🔄 Configurando imagem de fundo...")
         self.processTab1.setBackgroundImageFromBase64(imagem_base64)
         print("✅ Imagem de fundo configurada.")
@@ -186,20 +201,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if app:
             app.aboutToQuit.connect(lambda: (self.plantViewer and self.plantViewer.close()))
 
-        # Aplica estilos visuais (igual ao View Real)
-        self._wire_main_button_styles()
-
     # ----- estilos VISUAIS dos botões do MAIN -----
-    def _wire_main_button_styles(self):
-        # efeito azul enquanto pressionado
-        self.pushButtonStart.pressed.connect(lambda: self.pushButtonStart.setStyleSheet("background:#2980b9; color:white; font-weight:bold;"))
-        self.pushButtonStop.pressed.connect(lambda: self.pushButtonStop.setStyleSheet("background:#2980b9; color:white; font-weight:bold;"))
-        self.pushButtonReset.pressed.connect(lambda: self.pushButtonReset.setStyleSheet("background:#2980b9; color:white; font-weight:bold;"))
-        # reset volta ao amarelo quando solta
-        self.pushButtonReset.released.connect(lambda: self.pushButtonReset.setStyleSheet("background:yellow; color:black; font-weight:bold;"))
-        # estado inicial: parado
-        self._set_main_running_visual(False)
-
     def _set_main_running_visual(self, running: bool):
         if running:
             # Start verde, Stop default
@@ -209,9 +211,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             # Stop vermelho, Start default
             self.pushButtonStart.setStyleSheet("")
             self.pushButtonStop.setStyleSheet("background:#ff2d2d; color:white; font-weight:bold;")
-        # Reset permanece amarelo quando não pressionado
-        if "background:yellow" not in self.pushButtonReset.styleSheet():
+
+    def _style_reset_idle_main(self):
+        try:
             self.pushButtonReset.setStyleSheet("background:yellow; color:black; font-weight:bold;")
+        except Exception:
+            pass
 
     # ----- espelhamento VISUAL para o viewer (sem lógica) -----
     def _mirror_start_visual_to_viewer(self, checked: bool):
@@ -276,12 +281,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         def atualizaValue(varWrite, value):
             varWrite.setValue(value, DBState.humanValue, True)
-            
+
         def atualizaBotao(botao, varWrite):
             value = botao.isChecked()
             varWrite.setValue(str(value), DBState.humanValue, True)
             botao.setText("M" if value is True else "A")
-            
+
         for device in sliders:
             slider = getattr(self, f'slider{device}', None)
             if slider:
@@ -295,8 +300,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     bind_slider_to_reactvar(slider, varW, self._sync)
                 except Exception as e:
                     print(f"[bind] Failed to bind slider {device}: {e}")
-            # A/M button binding (sempre fora do if slider)
-            botao = getattr(self, f'pbAM{device}', None)
+                botao = getattr(self, f'pbAM{device}', None)
             if botao:
                 varAM = self.reactFactory.df["MODBUS"].at[f'AM_{device}', "CLP100"]
                 varAM.setValue("True", DBState.humanValue, True)
