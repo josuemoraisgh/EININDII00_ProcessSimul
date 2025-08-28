@@ -81,16 +81,16 @@ hrt_banco: Dict[str, Tuple[Union[int, float], str, str]] = {
     ),  # 50
     'percent_of_range': (4, 'FLOAT', 
         '@(MODBUS.CLP100.FV100CA / 65535)', # FV100CA -> 0@100% esta em 50%
-        '$[1.0],[2.5 1.0], 1,@HART.FV100CA.percent_of_range', # FIT100CA  -> 0.00001@0.0227kg/s
+        '$[1.0],[3.0 1.0], 1,@HART.FV100CA.percent_of_range', # FIT100CA  -> 0.00001@0.0227kg/s
         '@MODBUS.CLP100.FV100AR/65535', # FV100AR -> 0@100% esta em 50%
-        '$[1.0],[1.25 1.0], 1,@HART.FV100AR.percent_of_range', #FIT100AR -> 0.00001@0.15kg/s        
-        '$[1.0],[500.0 1.0], 1.2,@exp(-0.05*((15.0*HART.FIT100AR.percent_of_range/HART.FIT100CA.percent_of_range)-15.0)**2.0)', # TIT100 -> 0@1000ºC
+        '$[1.0],[1.5 1.0], 0.5,@HART.FV100AR.percent_of_range', #FIT100AR -> 0.00001@0.15kg/s        
+        '$[1.0],[5.0 1.0], 1.2,@exp(-0.05*((15.0*HART.FIT100AR.percent_of_range/HART.FIT100CA.percent_of_range)-15.0)**2.0)', # TIT100 -> 0@1000ºC
         '@MODBUS.CLP100.FIT100V/65535', # FIT100V -> 0@0.35kg/s esta em 0.175 (50%)
-        '$[1.0],[100 0.000001], 1,@HART.TIT100.percent_of_range - 0.5*HART.FIT100V.percent_of_range', # PIT100V -> 0@10Bar
-        '$[1.0],[100 0.000001], 0.5,@HART.FIT100A.percent_of_range - HART.FIT100V.percent_of_range', # LIT100 -> 0@100%
+        '$[1.0],[4.0 0.000001], 0.8,@HART.TIT100.percent_of_range - 0.5*HART.FIT100V.percent_of_range', # PIT100V -> 0@10Bar
+        '$[1.0],[4.0 0.000001], 0.8,@HART.FIT100A.percent_of_range - HART.FIT100V.percent_of_range', # LIT100 -> 0@100%
         '@MODBUS.CLP100.PIT100A/65535', # PIT100A -> 0@600kPa esta em 400 (66,66%)  
         '@MODBUS.CLP100.FV100A/65535', # FV100A -> 0@100% esta em 50% 
-        '$[1.0],[1.25 1.0], 2,@math.sqrt(HART.PIT100A.percent_of_range/0.6666)*HART.FV100A.percent_of_range' # FIT100A -> 0@0.55kg/s
+        '$[1.0],[6.0 1.0], 2,@math.sqrt(HART.PIT100A.percent_of_range/0.6666)*HART.FV100A.percent_of_range' # FIT100A -> 0@0.55kg/s
     ),
     'loop_current_mode': (1, 'ENUM00', '00', '00', '00', '00', '00', '00', '00', '00', '00', '00', '00'),
     'loop_current': (4, 'FLOAT', 
