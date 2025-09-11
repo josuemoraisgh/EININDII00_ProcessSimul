@@ -54,7 +54,7 @@ class HrtTransmitter:
         if command == '00':  # Identity Command
             self._hrt_frame_write.body  = hrt_data.get_variable('error_code')
             self._hrt_frame_write.body += "FE"
-            self._hrt_frame_write.body += hrt_data.get_variable('manufacturer_id')
+            self._hrt_frame_write.body += hrt_data.get_variable('master_address | manufacturer_id')
             self._hrt_frame_write.body += hrt_data.get_variable('device_type')
             self._hrt_frame_write.body += hrt_data.get_variable('request_preambles')
             self._hrt_frame_write.body += hrt_data.get_variable('hart_revision')
@@ -66,7 +66,7 @@ class HrtTransmitter:
 
         elif command == '01':  # Read Primary Variable
             self._hrt_frame_write.body  = hrt_data.get_variable('error_code')
-            self._hrt_frame_write.body += hrt_data.get_variable('process_variable_unit_code')
+            self._hrt_frame_write.body += hrt_data.get_variable('unit_code')
             self._hrt_frame_write.body += hrt_data.get_variable('PROCESS_VARIABLE')
 
         elif command == '02':  # Read Loop Current And Percent Of Range
@@ -78,13 +78,13 @@ class HrtTransmitter:
             self._hrt_frame_write.body  = hrt_data.get_variable('error_code')
             self._hrt_frame_write.body += hrt_data.get_variable('loop_current')
             # Para HART5, frequentemente apenas PV está ativo; se quiser, repita PV nas 4 posições ou use 0xFA/NaN nas demais.
-            self._hrt_frame_write.body += hrt_data.get_variable('process_variable_unit_code')
+            self._hrt_frame_write.body += hrt_data.get_variable('unit_code')
             self._hrt_frame_write.body += hrt_data.get_variable('PROCESS_VARIABLE')
-            self._hrt_frame_write.body += hrt_data.get_variable('process_variable_unit_code')
+            self._hrt_frame_write.body += hrt_data.get_variable('unit_code')
             self._hrt_frame_write.body += hrt_data.get_variable('PROCESS_VARIABLE')
-            self._hrt_frame_write.body += hrt_data.get_variable('process_variable_unit_code')
+            self._hrt_frame_write.body += hrt_data.get_variable('unit_code')
             self._hrt_frame_write.body += hrt_data.get_variable('PROCESS_VARIABLE')
-            self._hrt_frame_write.body += hrt_data.get_variable('process_variable_unit_code')
+            self._hrt_frame_write.body += hrt_data.get_variable('unit_code')
             self._hrt_frame_write.body += hrt_data.get_variable('PROCESS_VARIABLE')
 
         elif command == '04':  # reservado
@@ -110,8 +110,10 @@ class HrtTransmitter:
 
         elif command == '08':  # Read Dynamic Variable Classifications
             self._hrt_frame_write.body  = hrt_data.get_variable('error_code')
-            # Sem variáveis de classificação no DB: retorno padrão 4x '00'
-            self._hrt_frame_write.body += '00' * 4
+            self._hrt_frame_write.body += hrt_data.get_variable('primary_variable_classification')
+            self._hrt_frame_write.body += hrt_data.get_variable('secondary_variable_classification')
+            self._hrt_frame_write.body += hrt_data.get_variable('tertiary_variable_classification')
+            self._hrt_frame_write.body += hrt_data.get_variable('quaternary_variable_classification')
 
         elif command == '09':  # Read Device Variables with Status (HART6/7)
             self._hrt_frame_write.body = hrt_data.get_variable('error_code')
@@ -122,7 +124,7 @@ class HrtTransmitter:
         elif command == '0B':  # Read Unique Identifier Associated With Tag (11 dec)
             self._hrt_frame_write.body = "00" if (hrt_frame_read.body == hrt_data.get_variable('tag')) else '01'
             self._hrt_frame_write.body += "FE"
-            self._hrt_frame_write.body += hrt_data.get_variable('manufacturer_id')
+            self._hrt_frame_write.body += hrt_data.get_variable('master_slave | manufacturer_id')
             self._hrt_frame_write.body += hrt_data.get_variable('device_type')
             self._hrt_frame_write.body += hrt_data.get_variable('request_preambles')
             self._hrt_frame_write.body += hrt_data.get_variable('hart_revision')
@@ -144,23 +146,23 @@ class HrtTransmitter:
 
         elif command == '0E':  # Read Primary Variable Transducer Information (14)
             self._hrt_frame_write.body  = hrt_data.get_variable('error_code')
-            self._hrt_frame_write.body += hrt_data.get_variable('sensor1_serial_number')     # 3 bytes
-            self._hrt_frame_write.body += hrt_data.get_variable('process_variable_unit_code')     # 1 byte
-            self._hrt_frame_write.body += hrt_data.get_variable('pressure_upper_range_limit') # 4 bytes
-            self._hrt_frame_write.body += hrt_data.get_variable('pressure_lower_range_limit') # 4 bytes
-            self._hrt_frame_write.body += hrt_data.get_variable('pressure_minimum_span')      # 4 bytes
+            self._hrt_frame_write.body += hrt_data.get_variable('sensor_serial_number')     # 3 bytes
+            self._hrt_frame_write.body += hrt_data.get_variable('pv_sensor_units_code')     # 1 byte
+            self._hrt_frame_write.body += hrt_data.get_variable('sensor_upper_range_limit') # 4 bytes
+            self._hrt_frame_write.body += hrt_data.get_variable('sensor_lower_range_limit') # 4 bytes
+            self._hrt_frame_write.body += hrt_data.get_variable('sensor_minimum_span')      # 4 bytes
 
         elif command == '0F':  # Read Device / PV Output Information (15)
             self._hrt_frame_write.body  = hrt_data.get_variable('error_code')
-            self._hrt_frame_write.body += hrt_data.get_variable('alarm_selection_code')       # 1
-            self._hrt_frame_write.body += hrt_data.get_variable('transfer_function_code')     # 1
-            self._hrt_frame_write.body += hrt_data.get_variable('process_variable_unit_code')     # 1
-            self._hrt_frame_write.body += hrt_data.get_variable('upper_range_value')     # 4
-            self._hrt_frame_write.body += hrt_data.get_variable('lower_range_value')     # 4
-            self._hrt_frame_write.body += hrt_data.get_variable('pressure_damping_value')       # 4
-            self._hrt_frame_write.body += hrt_data.get_variable('write_protect_code')     # 1
+            self._hrt_frame_write.body += hrt_data.get_variable('pv_alarm_selection')       # 1
+            self._hrt_frame_write.body += hrt_data.get_variable('pv_transfer_function')     # 1
+            self._hrt_frame_write.body += hrt_data.get_variable('pv_engineering_units')     # 1
+            self._hrt_frame_write.body += hrt_data.get_variable('pv_upper_range_value')     # 4
+            self._hrt_frame_write.body += hrt_data.get_variable('pv_lower_range_value')     # 4
+            self._hrt_frame_write.body += hrt_data.get_variable('pv_damping_seconds')       # 4
+            self._hrt_frame_write.body += hrt_data.get_variable('write_protect_status')     # 1
             self._hrt_frame_write.body += hrt_data.get_variable('manufacturer_id')          # 1
-            self._hrt_frame_write.body += hrt_data.get_variable('analog_output_numbers_code')      # 1
+            self._hrt_frame_write.body += hrt_data.get_variable('analog_channel_flag')      # 1
 
         elif command == '10':  # Read Final Assembly Number (16)
             self._hrt_frame_write.body  = hrt_data.get_variable('error_code')
@@ -205,21 +207,18 @@ class HrtTransmitter:
             self._hrt_frame_write.body = hrt_data.get_variable('error_code')
             for code_hex in codes:
                 if code_hex == '00':  # PV
-                    self._hrt_frame_write.body += hrt_data.get_variable('process_variable_unit_code')
+                    self._hrt_frame_write.body += hrt_data.get_variable('unit_code')
                     self._hrt_frame_write.body += hrt_data.get_variable('PROCESS_VARIABLE')
                 else:
-                    # fallback genérico: unidade "não usada" + NaN float
-                    self._hrt_frame_write.body += 'FA' + '7FC00000'
+                    self._hrt_frame_write.body += 'FA' + '7FC00000' # fallback genérico: unidade "não usada" + NaN float
 
         elif command == '26':  # Resetar as Flags de Erro (38)
-            # Formato observado/esperado: '02' + error_code(2B) + response_code(1B) + device_status(1B) + comm_status(1B)
             self._hrt_frame_write.body  = '02'
             self._hrt_frame_write.body += hrt_data.get_variable('error_code')     # '0000'
             self._hrt_frame_write.body += hrt_data.get_variable('response_code')  # ex. 'E6' p/ este cmd
             self._hrt_frame_write.body += hrt_data.get_variable('device_status')  # ex. '3F'
             self._hrt_frame_write.body += hrt_data.get_variable('comm_status')    # ex. '3F'
-            # efeito do reset no banco, se quiser
-            hrt_data.set_variable('config_changed', '00')
+            hrt_data.set_variable('config_changed', '00') # efeito do reset no banco, se quiser
 
         elif command == '28':  # Enter/Exit Fixed Current Mode (40)
             # request: 4 bytes float (mA) em hex -> ecoa nível alcançado
@@ -244,12 +243,14 @@ class HrtTransmitter:
             self._hrt_frame_write.body += hrt_data.get_variable('device_status')
 
         elif command == '50':  # Read Dynamic Variable Assignments (80)
+            # retorna códigos PV,SV,TV,QV; se não houver no banco, devolve 0xFA (not used)
             self._hrt_frame_write.body  = hrt_data.get_variable('error_code')
             self._hrt_frame_write.body += (hrt_data.get_variable('pv_code') if hrt_data.has('pv_code') else 'FA')
             self._hrt_frame_write.body += (hrt_data.get_variable('sv_code') if hrt_data.has('sv_code') else 'FA')
             self._hrt_frame_write.body += (hrt_data.get_variable('tv_code') if hrt_data.has('tv_code') else 'FA')
             self._hrt_frame_write.body += (hrt_data.get_variable('qv_code') if hrt_data.has('qv_code') else 'FA')
 
+        # ===================== Device-specific abaixo (mantidos conforme seu banco/traces) =====================
         elif command == '82':  # Write Device Variable Trim Point (130)
             self._hrt_frame_write.body = '00000201020101'
         elif command == '84':  # 132
