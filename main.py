@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 
 """
 db_app_tk.py
@@ -52,69 +51,6 @@ if not hasattr(DBTableWidgetTk, "_fmt_machine_hex"):
 # -------------------------------------------------------------------------------
 
 class MainWindowTk(tk.Tk):
-=======
-import sys
-import traceback
-import asyncio
-
-from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox, QPushButton
-from PySide6.QtCore import Qt
-from uis.ui_main import Ui_MainWindow
-from react.react_factory import ReactFactory
-from db.db_types import DBState, DBModel
-from ctrl.simul_tf import SimulTf
-from functools import partial
-from img.imgCaldeira import imagem_base64
-from mb.mb_server import ModbusServer
-from react.react_var import ReactVar
-from ctrl.view import PlantViewerWindow
-from db.db_types import DBState
-
-STYLE_AM = """
-QPushButton {}
-QPushButton:checked { background:#2980b9; color:white; font-weight:bold; }
-"""
-
-def bind_slider_to_reactvar(slider, reactVar, sync_call):
-    """Vínculo bidirecional entre slider e ReactVar em humanValue (0..100%).
-    - Slider -> ReactVar via setValue(..., DBState.humanValue, True)
-    - ReactVar -> Slider via valueChangedSignal (bloqueando sinais para evitar loop)
-    sync_call: função que executa corotinas (ex.: self._sync)
-    """
-    # Slider -> ReactVar
-    def _on_slider(val: int):
-        try:
-            reactVar.setValue(val, stateAtual=DBState.humanValue, isWidgetValueChanged=True)
-        except Exception as e:
-            print(f"[bind] setValue failed: {e}")
-    if hasattr(slider, 'valueChanged'):
-        slider.valueChanged.connect(_on_slider)
-
-    # ReactVar -> Slider
-    def _on_var_changed(data):
-        if data is not reactVar:
-            return
-        try:
-            hv = sync_call(reactVar.getValue(DBState.humanValue))
-        except Exception:
-            try:
-                hv = int(getattr(reactVar, '_value', 0))
-            except Exception:
-                return
-        try:
-            if hasattr(slider, 'blockSignals'):
-                prev = slider.blockSignals(True)
-            slider.setValue(int(hv))
-        finally:
-            if hasattr(slider, 'blockSignals'):
-                slider.blockSignals(prev if 'prev' in locals() else False)
-    try:
-        reactVar.valueChangedSignal.connect(_on_var_changed)
-    except Exception as e:
-        print(f"[bind] connect valueChangedSignal failed: {e}")
-        
-class MainWindow(QMainWindow, Ui_MainWindow):
->>>>>>> 00d4c1443074401b5152a1f726c9a82a1e096775
     def __init__(self):
         super().__init__()
         print("🚀 Iniciando MainWindow...")
@@ -162,48 +98,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self._build_ui()
         print("✅ UI configurada.")
 
-<<<<<<< HEAD
-=======
-        # Hex view
-        print("🔄 Conectando hex view...")
-        self.radioButtonHex.clicked[bool].connect(self.hrtDBTableWidget.changeType)
-
-        # Start/Stop simulação
-        print("🔄 Conectando Start/Stop simulação...")
-        def startSimul(state: bool):
-            if state:
-                print("🔄 Iniciando servidor Modbus...")
-                self.servidor_thread.start(port=int(self.lineEditMBPort.text().strip()))
-            else:
-                print("🔄 Parando servidor Modbus...")
-                self.servidor_thread.stop()
-            self.simulTf.start(state)
-
-            # VISUAL do MAIN (fonte da verdade)
-            self._set_main_running_visual(state)
-
-            # Espelha VISUAL no viewer (se aberto)
-            if self.plantViewer:
-                self.plantViewer.sync_running_state(state)
-
-        # Quando Start é pressionado/solto
-        self.pushButtonStart.toggled.connect(startSimul)
-
-        # Quando Stop é pressionado, força estado "parado"
-        def stopSimul(checked: bool):
-            if checked:           # reage quando Stop fica selecionado
-                startSimul(False) # reusa a mesma lógica de parar
-        self.pushButtonStop.toggled.connect(stopSimul)
-        print("✅ Start/Stop simulação configurado.")
-
-        # Carrega tabelas
->>>>>>> 00d4c1443074401b5152a1f726c9a82a1e096775
         print("🔄 Carregando tabelas...")
         self.hrtTable.setBaseData(self.reactFactory, "HART")
         self.mbTable.setBaseData(self.reactFactory, "MODBUS")
         print("✅ Tabelas carregadas.")
 
-<<<<<<< HEAD
     # --------------------- UI construction ---------------------
     def _build_ui(self):
         # Top bar
@@ -213,28 +112,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # Human/Hex selector
         view_lbl = ttk.Label(top, text="Visualização:")
         view_lbl.pack(side="left")
-=======
-        # Botão reset
-        print("🔄 Configurando botão de reset...")
-        def resetTf():
-            self.buttonGroupSimul.exclusive = False
-            self.pushButtonStart.setChecked(False)
-            self.pushButtonStop.setChecked(True)
-            self.buttonGroupSimul.exclusive = True
-            self.simulTf.reset()
-
-            # VISUAL parado
-            self._set_main_running_visual(False)
-            if self.plantViewer:
-                self.plantViewer.sync_reset()
-        self.pushButtonReset.clicked.connect(resetTf)
-        print("✅ Botão de reset configurado.")
-
-        # Imagem de fundo (mantido)
-        print("🔄 Configurando imagem de fundo...")
-        self.processTab1.setBackgroundImageFromBase64(imagem_base64)
-        print("✅ Imagem de fundo configurada.")
->>>>>>> 00d4c1443074401b5152a1f726c9a82a1e096775
 
         self.view_var = tk.StringVar(value="human")
         rb_human = ttk.Radiobutton(top, text="Humano", value="human", variable=self.view_var,
@@ -244,112 +121,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         rb_human.pack(side="left", padx=(6, 2))
         rb_hex.pack(side="left")
 
-<<<<<<< HEAD
         # spacing
         ttk.Separator(top, orient="vertical").pack(side="left", fill="y", padx=10)
-=======
-        # ---------- Plant Viewer ----------
-        self.plantViewer = None
-        self.btnOpenPlantViewer = QPushButton("Abrir Plant Viewer", self.groupBoxSimul)
-        _layout = self.groupBoxSimul.layout()
-        if _layout is not None:
-            _layout.addWidget(self.btnOpenPlantViewer)
-        else:
-            # se não tiver layout, posiciona abaixo do Reset (fallback)
-            y = self.pushButtonReset.y() + self.pushButtonReset.height() + 6
-            self.btnOpenPlantViewer.move(self.pushButtonReset.x(), y)
-        self.btnOpenPlantViewer.clicked.connect(self._openPlantViewer)
-
-        # Espelhamento VISUAL para o viewer (sem lógica)
-        self.pushButtonStart.toggled.connect(self._mirror_start_visual_to_viewer)
-        self.pushButtonStop.toggled.connect(self._mirror_stop_visual_to_viewer)
-        self.pushButtonReset.clicked.connect(self._mirror_reset_visual_to_viewer)
-        # ----------------------------------
-
-        # Fecha o PlantViewer quando a aplicação encerrar (extra segurança)
-        app = QApplication.instance()
-        if app:
-            app.aboutToQuit.connect(lambda: (self.plantViewer and self.plantViewer.close()))
-
-        # Aplica estilos visuais (igual ao View Real)
-        self._wire_main_button_styles()
-
-    # ----- estilos VISUAIS dos botões do MAIN -----
-    def _wire_main_button_styles(self):
-        # efeito azul enquanto pressionado
-        self.pushButtonStart.pressed.connect(lambda: self.pushButtonStart.setStyleSheet("background:#2980b9; color:white; font-weight:bold;"))
-        self.pushButtonStop.pressed.connect(lambda: self.pushButtonStop.setStyleSheet("background:#2980b9; color:white; font-weight:bold;"))
-        self.pushButtonReset.pressed.connect(lambda: self.pushButtonReset.setStyleSheet("background:#2980b9; color:white; font-weight:bold;"))
-        # reset volta ao amarelo quando solta
-        self.pushButtonReset.released.connect(lambda: self.pushButtonReset.setStyleSheet("background:yellow; color:black; font-weight:bold;"))
-        # estado inicial: parado
-        self._set_main_running_visual(False)
-
-    def _set_main_running_visual(self, running: bool):
-        if running:
-            # Start verde, Stop default
-            self.pushButtonStart.setStyleSheet("background:#2ecc71; color:white; font-weight:bold;")
-            self.pushButtonStop.setStyleSheet("")  # default
-        else:
-            # Stop vermelho, Start default
-            self.pushButtonStart.setStyleSheet("")
-            self.pushButtonStop.setStyleSheet("background:#ff2d2d; color:white; font-weight:bold;")
-        # Reset permanece amarelo quando não pressionado
-        if "background:yellow" not in self.pushButtonReset.styleSheet():
-            self.pushButtonReset.setStyleSheet("background:yellow; color:black; font-weight:bold;")
-
-    # ----- espelhamento VISUAL para o viewer (sem lógica) -----
-    def _mirror_start_visual_to_viewer(self, checked: bool):
-        if self.plantViewer:
-            self.plantViewer.sync_running_state(checked)
-
-    def _mirror_stop_visual_to_viewer(self, checked: bool):
-        if self.plantViewer and checked:
-            self.plantViewer.sync_running_state(False)
-
-    def _mirror_reset_visual_to_viewer(self, *args):
-        if self.plantViewer:
-            self.plantViewer.sync_reset()
-    # ----------------------------------------------------------
-
-    def _openPlantViewer(self):
-        if self.plantViewer is None:
-            self.plantViewer = PlantViewerWindow(
-                react_factory=self.reactFactory,
-                simul_tf=self.simulTf,   # <- mesma simulação da tela principal
-            )
-            # Viewer -> MAIN: quando o usuário clica lá, o MAIN aplica a lógica padrão
-            self.plantViewer.simStartStop.connect(self._apply_running_from_viewer)  # bool
-            self.plantViewer.simReset.connect(lambda: self.pushButtonReset.click())
-
-            # Limpa a referência quando fechar a janela
-            self.plantViewer.setAttribute(Qt.WA_DeleteOnClose)
-            self.plantViewer.destroyed.connect(lambda *_: setattr(self, "plantViewer", None))
-
-            # Espelha estado atual no viewer
-            self.plantViewer.sync_running_state(self.pushButtonStart.isChecked())
-
-        self.plantViewer.show()
-        self.plantViewer.raise_()
-        self.plantViewer.activateWindow()
-
-    # Viewer pediu start/stop -> aciona fluxo "padrão" do MAIN (liga Modbus, etc.)
-    def _apply_running_from_viewer(self, running: bool):
-        if self.pushButtonStart.isChecked() != running:
-            # isso aciona startSimul/stopSimul via toggled
-            self.pushButtonStart.setChecked(running)
-            if not running:
-                self.pushButtonStop.setChecked(True)
-        else:
-            # já coerente; só garante visual
-            self._set_main_running_visual(running)
-
-    def connectLCDs(self):
-        print("🔄 Conectando LCDs...")
-        self.isSliderChangeValue = False
-        sliders = ['FV100CA', 'FV100AR', 'FV100A', 'FIT100V', 'PIT100A']
-        displays = ['PIT100V', 'FIT100V','PIT100A', 'FIT100CA','FV100CA', 'TIT100', 'LIT100', 'FIT100AR', 'FV100AR', 'FIT100A', 'FV100A']
->>>>>>> 00d4c1443074401b5152a1f726c9a82a1e096775
 
         # Modbus port + Start/Stop
         ttk.Label(top, text="Porta Modbus:").pack(side="left")
@@ -357,49 +130,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.port_entry = ttk.Entry(top, width=8, textvariable=self.port_var)
         self.port_entry.pack(side="left", padx=(4, 8))
 
-<<<<<<< HEAD
         self.btn_start = ttk.Button(top, text="Start", command=lambda: self._startStop(True))
         self.btn_stop = ttk.Button(top, text="Stop", command=lambda: self._startStop(False))
         self.btn_start.pack(side="left", padx=(0, 4))
         self.btn_stop.pack(side="left")
         # --- objetos de backend (ajuste se já existirem) ---
         self.hart_comm = HrtComm(func_read=self._on_hart_frame)
-=======
-        for display in displays:
-            lcd = getattr(self, f'lcd{display}')
-            varR = self.reactFactory.df["HART"].at["PROCESS_VARIABLE", display]
-            varR.valueChangedSignal.connect(partial(atualizaDisplay, lcd))
-            lcd.display(self._sync(varR.getValue(DBState.humanValue)))
-
-        def atualizaValue(varWrite, value):
-            varWrite.setValue(value, DBState.humanValue, True)
-            
-        def atualizaBotao(botao, varWrite):
-            value = botao.isChecked()
-            varWrite.setValue(str(value), DBState.humanValue, True)
-            botao.setText("M" if value is True else "A")
-            
-        for device in sliders:
-            slider = getattr(self, f'slider{device}', None)
-            if slider:
-                slider.setMinimum(0)
-                slider.setMaximum(65535)
-                varW = self.reactFactory.df["MODBUS"].at[f'W_{device}', "CLP100"]
-                slider.setValue(int(self._sync(varW.getValue(DBState.humanValue))))
-                slider.valueChanged.connect(partial(atualizaValue, varW))
-                # Bind ReactVar -> Slider
-                try:
-                    bind_slider_to_reactvar(slider, varW, self._sync)
-                except Exception as e:
-                    print(f"[bind] Failed to bind slider {device}: {e}")
-            # A/M button binding (sempre fora do if slider)
-            botao = getattr(self, f'pbAM{device}', None)
-            if botao:
-                varAM = self.reactFactory.df["MODBUS"].at[f'AM_{device}', "CLP100"]
-                varAM.setValue("True", DBState.humanValue, True)
-                botao.clicked.connect(partial(atualizaBotao, botao, varAM))
-                botao.setChecked(bool(self._sync(varAM.getValue(DBState.humanValue))))
->>>>>>> 00d4c1443074401b5152a1f726c9a82a1e096775
 
         # self.server já deve existir; se não, crie como você faz hoje
         # --- variáveis de UI ---
@@ -411,42 +147,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if not hasattr(self, "topbar"):
             topbar.pack(fill="x", padx=8, pady=6)
 
-<<<<<<< HEAD
         # supondo que você já criou:
         # self.e_modbus  -> Entry da Porta Modbus
         # self.btn_start -> Botão Start  |  self.btn_stop -> Botão Stop
-=======
-    def closeEvent(self, event):
-        print("🔄 Verificando se deseja sair...")
-        reply = QMessageBox.question(
-            self, "Sair", "Tem certeza?", QMessageBox.Yes|QMessageBox.No, QMessageBox.No
-        )
-        if reply == QMessageBox.Yes:
-            # Para simulação / servidor
-            try:
-                self.simulTf.start(False)
-            except Exception as e:
-                print("⚠️ simulTf.start(False) falhou:", e)
-            try:
-                self.servidor_thread.stop()
-            except Exception as e:
-                print("⚠️ servidor_thread.stop() falhou:", e)
-
-            # Fecha o Plant Viewer se estiver aberto
-            try:
-                if self.plantViewer:
-                    self.plantViewer.blockSignals(True)
-                    self.plantViewer.close()
-                    self.plantViewer = None
-            except Exception as e:
-                print("⚠️ Falha ao fechar PlantViewer:", e)
-
-            print("🔒 Salvando dados...")
-            event.accept()
-        else:
-            event.ignore()
-        print("✅ Evento de fechamento concluído.")
->>>>>>> 00d4c1443074401b5152a1f726c9a82a1e096775
 
         # ====== PORTA COM (HART) — label + combobox + refresh ======
         # coloque AO LADO dos botões: usamos a próxima coluna livre
@@ -587,7 +290,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 )
                 return
 
-<<<<<<< HEAD
             self._toggle_comm_inputs(True)
         else:
             try:
@@ -625,16 +327,3 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 if __name__ == "__main__":
     app = MainWindowTk()
     app.mainloop()
-=======
-
-if __name__ == '__main__':
-    try:
-        print("🚀 Iniciando a aplicação...")
-        app = QApplication(sys.argv)
-        win = MainWindow()
-        win.show()
-        sys.exit(app.exec())
-    except Exception:
-        traceback.print_exc()
-        input("Erro ocorrido. Pressione Enter para sair...")
->>>>>>> 00d4c1443074401b5152a1f726c9a82a1e096775
