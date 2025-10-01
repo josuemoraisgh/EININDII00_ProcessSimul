@@ -8,7 +8,11 @@ import json
 import ast
 import os
 
+<<<<<<< HEAD
 from react.qt_compat import QObject, Slot
+=======
+from PySide6.QtCore import QObject, Slot
+>>>>>>> 00d4c1443074401b5152a1f726c9a82a1e096775
 from react.react_var import ReactVar
 from react.repeatFunction import RepeatFunction
 import control as ctrl

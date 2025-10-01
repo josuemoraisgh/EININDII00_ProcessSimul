@@ -1,7 +1,12 @@
 
 from typing import Optional
+<<<<<<< HEAD
 from react.qt_compat import Slot
 from react.qt_compat import QObject, Signal, Slot
+=======
+from PySide6 import QtCore
+from PySide6.QtCore import Slot
+>>>>>>> 00d4c1443074401b5152a1f726c9a82a1e096775
 
 # Try to import ReactVar from different locations (keeps backward compat)
 ReactVarClass = None
@@ -15,8 +20,13 @@ except Exception:
     except Exception:
         ReactVarClass = None
 
+<<<<<<< HEAD
 class ReactVarAdapter(QObject):
     changed = Signal(float)
+=======
+class ReactVarAdapter(QtCore.QObject):
+    changed = QtCore.Signal(float)
+>>>>>>> 00d4c1443074401b5152a1f726c9a82a1e096775
 
     def __init__(self, rv_obj):
         super().__init__()
