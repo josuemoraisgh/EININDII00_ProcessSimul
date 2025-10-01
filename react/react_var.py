@@ -1,5 +1,5 @@
 import asyncio
-from PySide6.QtCore import QObject, Signal, Slot
+from .qt_compat import QObject, Signal, Slot
 from hrt.hrt_type import hrt_type_hex_to, hrt_type_hex_from
 from db.db_types import DBState, DBModel
 from asteval import Interpreter
@@ -112,25 +112,49 @@ class ReactVar(QObject):
 
     def setValue(self, value, stateAtual: DBState = DBState.humanValue, isWidgetValueChanged: bool = False):
         self.isWidgetValueChanged = isWidgetValueChanged
+
+        # 1) Valor "humano" para a UI (_value)
         if self.colName in ['NAME', 'TYPE', 'BYTE_SIZE', 'MB_POINT', 'ADDRESS']:
             valueAux = value
+            storage_value = value  # meta-campos gravam como texto puro
         else:
             self._checkModel(DBModel.Value)
-            valueAux = self.translate(value, self.type(), self.byteSize(), DBState.humanValue, stateAtual)
+            valueAux = self.translate(value, self.type(), self.byteSize(),
+                                    DBState.humanValue, stateAtual)
+            # 2) Valor "machine" para o banco
+            storage_value = self.translate(value, self.type(), self.byteSize(),
+                                        DBState.machineValue, stateAtual)
+
         self._func = None
         self._tFunc = None
-        isChanged = self._value != valueAux
+        isChanged = (self._value != valueAux)
         self._value = valueAux
         self.model = DBModel.Value
+
+        # 3) PERSISTE no SQLite
+        try:
+            self.reactFactory.storage.setRawData(self.tableName, self.rowName, self.colName, storage_value)
+        except Exception as e:
+            print(f"[WARN] Persistência Value falhou em {self.tableName}.{self.colName}.{self.rowName}: {e}")
+
         if isChanged:
             self.valueChangedSignal.emit(self)
-            
+
+
     def setFunc(self, func: str):
         if self._func != func:
             self._checkModel(DBModel.Func)
             self._tFunc = None
             self.model = DBModel.Func
+
+            # PERSISTE com prefixo '@'
+            try:
+                self.reactFactory.storage.setRawData(self.tableName, self.rowName, self.colName, '@' + (func or ''))
+            except Exception as e:
+                print(f"[WARN] Persistência Func falhou em {self.tableName}.{self.colName}.{self.rowName}: {e}")
+
             self._startFunc(func)
+
 
     def setTFunc(self, tFunc: str):
         if self._tFunc != tFunc:
@@ -138,9 +162,18 @@ class ReactVar(QObject):
             self.model = DBModel.tFunc
             self._value = 0
             self._tFunc = tFunc
+
+            # PERSISTE com prefixo '$'
+            try:
+                self.reactFactory.storage.setRawData(self.tableName, self.rowName, self.colName, '$' + (tFunc or ''))
+            except Exception as e:
+                print(f"[WARN] Persistência TFunc falhou em {self.tableName}.{self.colName}.{self.rowName}: {e}")
+
+            # Mantém a lógica original
             _, __, ___, inp = tFunc.split(',')
             self._startFunc(inp[1:])
             self.isTFuncSignal.emit(self, True)
+
 
     def _checkModel(self, newModel: DBModel):
         oldModel = self.model

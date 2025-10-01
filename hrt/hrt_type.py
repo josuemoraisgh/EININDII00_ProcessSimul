@@ -1,8 +1,14 @@
 from datetime import date, time, datetime
-from hrt.hrt_enum import hrt_enum
-from hrt.hrt_bitenum import hrt_bitEnum
+try:
+    from hrt.hrt_enum import hrt_enum
+    from hrt.hrt_bitenum import hrt_bitEnum
+except Exception:
+    from hrt_enum import hrt_enum
+    from hrt_bitenum import hrt_bitEnum    
 from typing import Union
 import math
+import unittest
+import re
 
 def format_number(num):
     if abs(num) >= 0.0001:  # Se for maior ou igual a 0.0001, formata normal
@@ -192,9 +198,15 @@ def _hrt_type_sreal2_hex(valor_float: float, byte_size: int) -> str:
     return format(bits_array, f'0{2*byte_size}X').upper()
 
 def _hrt_type_pascii2_hex(valor: str, byte_size: int) -> str:
+    # Cada caractere vira 6 bits; total de bytes = ceil(6 * len / 8) = (6*len + 7)//8
+    def _packed_len_in_bytes(nchars: int) -> int:
+        return (6 * nchars + 7) // 8
+    # Completa com espaços até o empacotamento atingir pelo menos byte_size bytes
+    while _packed_len_in_bytes(len(valor)) < byte_size:
+        valor += ' '    
     encoded_values = [ord(c) for c in valor]
     binary_values = [bin(get_bits(e, 0, 6))[2:].zfill(6) for e in encoded_values]
-    binary_str = ''.join(binary_values).zfill((6*len(encoded_values))+8-(6*len(encoded_values))%8)
+    binary_str = ''.join(binary_values).zfill(6*len(encoded_values) + (-(6*len(encoded_values)) % 8))
     eight_bit_chunks = split_by_length(binary_str, 8)
     hex_str = ''.join(f"{int(chunk, 2):02X}" for chunk in eight_bit_chunks)
     return hex_str.zfill(2*byte_size)
@@ -221,9 +233,77 @@ def hrt_type_hex_from(valor, type_str: str, byte_size: int) -> str:
     elif t.find('FLOAT') != -1:
         return _hrt_type_sreal2_hex(float(valor), byte_size)
     elif t.find("ENUM") != -1:
-        return next((k[:2] for k, v in hrt_enum[int(t[-2:])].items() if v == valor), None)        
-    elif t.find("BIT_ENUM") != -1:
-        return next((k[:2] for k, v in hrt_bitEnum[int(t[-2:])].items() if v == valor), None)         
+        return f'{next((k[:2] for k, v in hrt_enum[int(t[-2:])].items() if v == valor), None)}'.zfill(2*byte_size)        
+    elif "BIT_ENUM" in t:
+        # Extrai o índice do tipo, aceitando qualquer quantidade de dígitos no final (ex.: BIT_ENUM0, BIT_ENUM05, BIT_ENUM99)
+        m = re.search(r'(\d+)$', t)
+        if not m:
+            return None
+        enum_idx = int(m.group(1))
+
+        # Busca o dicionário de mapeamento para este BIT_ENUM
+        d = hrt_bitEnum.get(enum_idx)
+        if not d:
+            return None
+
+        # valor pode vir como "A|B|C" (rótulos), número (int/str) ou string hex ("01", "00FF", "0x1F" ou "01 02")
+        if isinstance(valor, str) and "|" in valor:
+            # Mapa nome -> código inteiro
+            name2code = {}
+            for code_key, name in d.items():
+                s = str(code_key).strip()
+                try:
+                    # base=0 aceita "0x..", "0b..", decimal etc.
+                    c = int(s, 0)
+                except Exception:
+                    # tenta como hex puro
+                    try:
+                        c = int(s, 16)
+                    except Exception:
+                        continue
+                name2code[name] = c
+
+            mask = 0
+            for part in (s.strip() for s in valor.split("|") if s.strip()):
+                if part in name2code:
+                    mask |= name2code[part]
+                else:
+                    # resiliente: ignora rótulos desconhecidos
+                    pass
+            return f"{mask:0{byte_size*2}X}"
+
+        if isinstance(valor, str):
+            v = valor.strip()
+
+            # "0x.." (qualquer caixa)
+            if v.lower().startswith("0x"):
+                try:
+                    mask = int(v, 16)
+                    return f"{mask:0{byte_size*2}X}"
+                except Exception:
+                    return None
+
+            # HEX com espaços "01 02 0A"
+            if re.fullmatch(r"[0-9A-Fa-f ]+", v):
+                try:
+                    mask = int(v.replace(" ", ""), 16)
+                    return f"{mask:0{byte_size*2}X}"
+                except Exception:
+                    return None
+
+            # Decimal em string
+            try:
+                mask = int(v, 10)
+                return f"{mask:0{byte_size*2}X}"
+            except Exception:
+                return None
+
+        # Caso geral: veio como inteiro
+        try:
+            mask = int(valor)
+            return f"{mask:0{byte_size*2}X}"
+        except Exception:
+            return None
     elif t.find('DATE') != -1:
         return _hrt_type_date2_hex(valor, byte_size)
     elif t.find('TIME') != -1:
@@ -236,124 +316,124 @@ def hrt_type_hex_from(valor, type_str: str, byte_size: int) -> str:
         return str(valor)
     else:
         return "INVALID TYPE"
+    
 
-# import unittest
-# class TestHrtType(unittest.TestCase):
-#     # Teste para Int
-#     def test_valor_hex_vazio(self):
-#         with self.assertRaises(ValueError):
-#             hrt_type_hex_to('', 'Int')
+class TestHrtType(unittest.TestCase):
+    # # Teste para Int
+    # def test_valor_hex_vazio(self):
+    #     with self.assertRaises(ValueError):
+    #         hrt_type_hex_to('', 'Int')
 
-#     def test_valor_hex_maior_4_caracteres(self):
-#         with self.assertRaises(ValueError):
-#             hrt_type_hex_to('00FFF', 'Int')
+    # def test_valor_hex_maior_4_caracteres(self):
+    #     with self.assertRaises(ValueError):
+    #         hrt_type_hex_to('00FFF', 'Int')
 
-#     def test_valor_hex_caracteres_invalidos(self):
-#         with self.assertRaises(ValueError):
-#             hrt_type_hex_to('AZF', 'Int')
+    # def test_valor_hex_caracteres_invalidos(self):
+    #     with self.assertRaises(ValueError):
+    #         hrt_type_hex_to('AZF', 'Int')
 
-#     def test_valor_hex_00FF_para_255(self):
-#         self.assertEqual(hrt_type_hex_to('00FF', 'Int'), 255)
+    # def test_valor_hex_00FF_para_255(self):
+    #     self.assertEqual(hrt_type_hex_to('00FF', 'Int'), 255)
 
-#     def test_valor_hex_80FF_para_negativo_32513(self):
-#         self.assertEqual(hrt_type_hex_to('80FF', 'Int'), -32513)
+    # def test_valor_hex_80FF_para_negativo_32513(self):
+    #     self.assertEqual(hrt_type_hex_to('80FF', 'Int'), -32513)
 
-#     def test_valor_hex_0BCD_para_3021(self):
-#         self.assertEqual(hrt_type_hex_to('0BCD', 'Int'), 3021)
+    # def test_valor_hex_0BCD_para_3021(self):
+    #     self.assertEqual(hrt_type_hex_to('0BCD', 'Int'), 3021)
         
-#     def test_valor_negativo_32513_para_hex(self):
-#         resultado = _hrt_type_int2_hex(-32513)
-#         self.assertEqual(resultado, '80FF')
+    # def test_valor_negativo_32513_para_hex(self):
+    #     resultado = _hrt_type_int2_hex(-32513)
+    #     self.assertEqual(resultado, '80FF')
 
-#     def test_valor_int_maior_65535_erro(self):
-#         with self.assertRaises(ValueError):
-#             _hrt_type_int2_hex(65536)       
+    # def test_valor_int_maior_65535_erro(self):
+    #     with self.assertRaises(ValueError):
+    #         _hrt_type_int2_hex(65536)       
     
-#     # Teste para data
-#     def test_valor_date_para_hex_12032024(self):
-#         valor_date = datetime(2024, 3, 12)
-#         resultado = hrt_type_hex_from(valor_date, 'Date', 3)
-#         self.assertEqual(resultado, '0C037C')
+    # # Teste para data
+    # def test_valor_date_para_hex_12032024(self):
+    #     valor_date = datetime(2024, 3, 12)
+    #     resultado = hrt_type_hex_from(valor_date, 'Date', 3)
+    #     self.assertEqual(resultado, '0C037C')
 
-#     def test_valor_hex_para_date_12032024(self):
-#         valor_hex = '0C037C'
-#         resultado = hrt_type_hex_to(valor_hex, 'Date')
-#         self.assertEqual(resultado, datetime(2024, 3, 12, 0, 0).date())     
+    # def test_valor_hex_para_date_12032024(self):
+    #     valor_hex = '0C037C'
+    #     resultado = hrt_type_hex_to(valor_hex, 'Date')
+    #     self.assertEqual(resultado, datetime(2024, 3, 12, 0, 0).date())     
     
-#     # Teste para PASCII
-#     def test_transmissor_para_hex(self):
-#         valor = 'TRANSMISSOR DE TEMPERATURA'
-#         self.assertEqual(hrt_type_hex_from(valor, 'PAscii', 20), '051204E4CD2534CF4A010581414D405481515481')
+    # Teste para PASCII
+    def test_transmissor_para_hex(self):
+        valor = 'TRANSMISSOR DE TEMPERATURA'
+        self.assertEqual(hrt_type_hex_from(valor, 'PACKED', 20), '051204E4CD2534CF4A010581414D405481515481')
      
-#     def test_transmissor_para_hex(self):
-#         valor_hex = '051204E4CD2534CF4A010581414D405481515481' 
-#         self.assertEqual(hrt_type_hex_to(valor_hex, 'PAscii'), 'TRANSMISSOR DE TEMPERATURA')
+    def test_transmissor_para_hex(self):
+        valor_hex = '051204E4CD2534CF4A010581414D405481515481' 
+        self.assertEqual(hrt_type_hex_to(valor_hex, 'PACKED'), 'TRANSMISSOR DE TEMPERATURA')
                     
-#     def test_abacate_para_hex(self):
-#         valor = 'ABACATE'
-#         self.assertEqual(hrt_type_hex_from(valor, 'PAscii', 6), '0010810C1505')
+    def test_abacate_para_hex(self):
+        valor = 'ABACATE'
+        self.assertEqual(hrt_type_hex_from(valor, 'PACKED', 6), '0010810C1505')
 
-#     def test_hex_para_abacate(self):
-#         valor_hex = '0010810C1505'
-#         self.assertEqual(hrt_type_hex_to(valor_hex, 'PAscii'), 'ABACATE')
+    def test_hex_para_abacate(self):
+        valor_hex = '0010810C1505'
+        self.assertEqual(hrt_type_hex_to(valor_hex, 'PACKED'), 'ABACATE')
 
-#     # Teste para SREAL
-#     def test_double_para_hex(self):
-#         valor = 1.4861602783203125
-#         self.assertEqual(hrt_type_hex_from(valor, 'SReal', 4), '3fbe3a80')
+    # # Teste para SREAL
+    # def test_double_para_hex(self):
+    #     valor = 1.4861602783203125
+    #     self.assertEqual(hrt_type_hex_from(valor, 'SReal', 4), '3fbe3a80')
 
-#     def test_hex_para_double(self):
-#         valor_hex = '3FBE3A80'
-#         self.assertAlmostEqual(hrt_type_hex_to(valor_hex, 'SReal'), 1.4861602783203125)
+    # def test_hex_para_double(self):
+    #     valor_hex = '3FBE3A80'
+    #     self.assertAlmostEqual(hrt_type_hex_to(valor_hex, 'SReal'), 1.4861602783203125)
 
-#     # Teste para TIME
-#     def test_datetime_para_hex(self):
-#         valor = datetime.strptime('1900-01-01 00:23:18.526', '%Y-%m-%d %H:%M:%S.%f')
-#         self.assertEqual(hrt_type_hex_from(valor, 'Time', 4), '02AADFC0')
+    # # Teste para TIME
+    # def test_datetime_para_hex(self):
+    #     valor = datetime.strptime('1900-01-01 00:23:18.526', '%Y-%m-%d %H:%M:%S.%f')
+    #     self.assertEqual(hrt_type_hex_from(valor, 'Time', 4), '02AADFC0')
 
-#     def test_hex_para_datetime(self):
-#         valor_esperado = datetime.strptime('1900-01-01 00:23:18.526', '%Y-%m-%d %H:%M:%S.%f')
-#         self.assertEqual(hrt_type_hex_to('02AADFC0', 'Time'), valor_esperado)
+    # def test_hex_para_datetime(self):
+    #     valor_esperado = datetime.strptime('1900-01-01 00:23:18.526', '%Y-%m-%d %H:%M:%S.%f')
+    #     self.assertEqual(hrt_type_hex_to('02AADFC0', 'Time'), valor_esperado)
 
-#     # Teste para UINT
-#     def test_int_maior_65535_deve_erro(self):
-#         valor_int = 65536
-#         with self.assertRaises(ValueError):
-#             hrt_type_hex_from(valor_int, 'UInt', 1)
+    # # Teste para UINT
+    # def test_int_maior_65535_deve_erro(self):
+    #     valor_int = 65536
+    #     with self.assertRaises(ValueError):
+    #         hrt_type_hex_from(valor_int, 'UInt', 1)
 
-#     def test_int_para_hex(self):
-#         valor_int = 255
-#         self.assertEqual(hrt_type_hex_from(valor_int, 'UInt', 2), '00FF')
+    # def test_int_para_hex(self):
+    #     valor_int = 255
+    #     self.assertEqual(hrt_type_hex_from(valor_int, 'UInt', 2), '00FF')
 
-#     def test_hex_vazio_deve_erro(self):
-#         valor_hex = ''
-#         with self.assertRaises(ValueError):
-#             hrt_type_hex_to(valor_hex, 'UInt')
+    # def test_hex_vazio_deve_erro(self):
+    #     valor_hex = ''
+    #     with self.assertRaises(ValueError):
+    #         hrt_type_hex_to(valor_hex, 'UInt')
 
-#     def test_hex_maior_4_caracteres_deve_erro(self):
-#         valor_hex = '00FFF'
-#         with self.assertRaises(ValueError):
-#             hrt_type_hex_to(valor_hex, 'UInt')
+    # def test_hex_maior_4_caracteres_deve_erro(self):
+    #     valor_hex = '00FFF'
+    #     with self.assertRaises(ValueError):
+    #         hrt_type_hex_to(valor_hex, 'UInt')
 
-#     def test_hex_caracteres_invalidos_deve_erro(self):
-#         valor_hex = 'AZF'
-#         with self.assertRaises(ValueError):
-#             hrt_type_hex_to(valor_hex, 'UInt')
+    # def test_hex_caracteres_invalidos_deve_erro(self):
+    #     valor_hex = 'AZF'
+    #     with self.assertRaises(ValueError):
+    #         hrt_type_hex_to(valor_hex, 'UInt')
 
-#     def test_hex_para_int(self):
-#         valor_hex = '00FF'
-#         self.assertEqual(hrt_type_hex_to(valor_hex, 'UInt'), 255)
+    # def test_hex_para_int(self):
+    #     valor_hex = '00FF'
+    #     self.assertEqual(hrt_type_hex_to(valor_hex, 'UInt'), 255)
 
-#     def test_hex_abcd_para_int(self):
-#         valor_hex = 'ABCD'
-#         self.assertEqual(hrt_type_hex_to(valor_hex, 'UInt'), 43981)    
+    # def test_hex_abcd_para_int(self):
+    #     valor_hex = 'ABCD'
+    #     self.assertEqual(hrt_type_hex_to(valor_hex, 'UInt'), 43981)    
 
-# if __name__ == '__main__':
-#     unittest.main()
-#     def processar_valor(valor):
-#         return ''.join(map(_hrt_type_hex2_uint, split_by_length(valor, 2)))
+if __name__ == '__main__':
+    unittest.main()
+    def processar_valor(valor):
+        return ''.join(map(_hrt_type_hex2_uint, split_by_length(valor, 2)))
 
-#     # Exemplo de uso:
-#     valor = "1A2B3C4D"
-#     resultado = processar_valor(valor)
-#     print(resultado)
+    # Exemplo de uso:
+    valor = "1A2B3C4D"
+    resultado = processar_valor(valor)
+    print(resultado)

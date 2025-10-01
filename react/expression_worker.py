@@ -1,11 +1,11 @@
-from PySide6.QtCore import QObject, Signal, QRunnable, Slot
+from .qt_compat import QObject, Signal, Slot
 from asteval import Interpreter
 import re, math, random, numpy as np
 
 class ExpressionWorkerSignals(QObject):
     finished = Signal(str, float)  # key_str, resultado
 
-class ExpressionWorker(QRunnable):
+class ExpressionWorker(object):
     def __init__(self, func: str, key: tuple, symtable: dict):
         super().__init__()
         self.func = func
@@ -44,3 +44,8 @@ class ExpressionWorker(QRunnable):
 
         # print(f"[Worker] Finalizado para key: {self.key}")
 
+
+
+    def start(self):
+        t = threading.Thread(target=self.run, daemon=True)
+        t.start()

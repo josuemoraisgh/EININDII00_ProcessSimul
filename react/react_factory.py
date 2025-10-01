@@ -1,5 +1,5 @@
 import asyncio
-from PySide6.QtCore import QObject, Signal, Slot
+from .qt_compat import QObject, Signal, Slot
 import pandas as pd
 from db.db_storage import DBStorage
 from react.react_var import ReactVar  # ajuste conforme seu pacote

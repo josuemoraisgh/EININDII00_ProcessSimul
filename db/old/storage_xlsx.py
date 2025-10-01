@@ -1,5 +1,5 @@
 from functools import reduce
-from PySide6.QtCore import Signal, QObject
+from react.qt_compat import Signal, QObject
 import pandas as pd
 import operator
 

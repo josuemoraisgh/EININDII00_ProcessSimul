@@ -22,3 +22,5 @@ CALL pip install PyOpenGL-accelerate
 @REM --onefile
 @REM python -m nuitka --standalone --output-dir=py_build --enable-plugin=pyside6 --include-qt-plugins=all --windows-console-mode=disable --include-data-file="db/banco.db=db/banco.db" --jobs=4 --output-filename=processSimul.exe main.py
 @REM python -m nuitka --standalone --output-dir=py_build --enable-plugin=pyside6 --include-qt-plugins=all --windows-console-mode=force --include-data-file="db/banco.db=db/banco.db" --jobs=4 --output-filename=processSimul.exe main.py
+
+@REM pyinstaller --onefile --noconsole --clean --name "EININDII00_ProcessSimulTk" main.py

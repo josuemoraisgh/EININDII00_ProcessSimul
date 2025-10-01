@@ -7,7 +7,7 @@ class HrtFrame:
         self.log: str = ""
         self.posIniFrame: int = 0
         self.preamble: str = "FFFFFFFFFF"
-        self.addressType: bool = False
+        self.addressType: bool = False # False - Frame Curto ou True - Frame Longo  
         self.frameType: str = "02"
         self.masterAddress: bool = True  # 1 - primary master; 0 - secondary master -> Pra quem ele esta mandando
         self.burstMode: bool = False  # 1 - in Burst Mode; 0 - not Burst Mode or Slave
@@ -34,14 +34,11 @@ class HrtFrame:
     @property
     def frame(self) -> str:
         """Returns the complete HART frame as a hexadecimal string."""
-        try:
-            self.log = ""
-            aux = self._pacialFrame()
-            ck = self.calcCheckSum(aux)
-            return f'{self.preamble}{aux}{ck}'.upper()
-        except Exception as e:
-            self.log = "Incorrect Value form Frame"
-            return ""
+        self.log = ""
+        aux = self._pacialFrame()
+        ck = self.calcCheckSum(aux)
+        return f'{self.preamble}{aux}{ck}'.upper()
+
 
     def _pacialFrame(self) -> str:
         """Returns the partial frame (delimiter, address, command, nBBody, body) as a hexadecimal string."""
@@ -129,22 +126,23 @@ class HrtFrame:
         """Sets the delimiter of the frame and updates the address type and frame type."""
         valueAux = int(newDelimiter, 16)
         # Extrai o address type
-        self.addressType = bit_field_get(valueAux, 7, 1) == 1
+        self.addressType = bit_field_get(valueAux, 7, 1) == 1 # False curto ou True Longo
         # Extrai o frame type
-        self.frameType = f'{bit_field_get(valueAux, 0, 3):02X}'
+        self.frameType = f'{bit_field_get(valueAux, 0, 3):02X}' # 02 Request ou 06 Response
 
     @property
     def address(self) -> str:
         """Returns the address of the frame."""
-        value_aux = 0
+        value_aux: int = 0
         if self.masterAddress:
-            value_aux = bit_field_set(value_aux, 7, 1)
+            value_aux = bit_field_set(value_aux, 7, 1) # Master (True primário, False secundário)
         if self.burstMode:
             value_aux = bit_field_set(value_aux, 6, 1)
         if not self.addressType:
             value_aux = bit_field_set(value_aux, 0, 6, int(self.pollingAddress, 16))
             address_str = f'{value_aux:02X}'
         else:
+            value_aux = bit_field_set(value_aux, 0, 6, int(self.manufacterId, 16))            
             address_str = f'{value_aux:02X}{self._deviceType}{self._deviceId}'
         return address_str
 
@@ -154,12 +152,12 @@ class HrtFrame:
         id_str = newAddress[:2]
         valueAux = int(id_str, 16)
         # Extrai o master_slave
-        self.masterAddress = bit_field_get(valueAux, 7, 1) == 1
+        self.masterAddress = bit_field_get(valueAux, 7, 1) == 1 # Master (True primário, False secundário)
         # Extrai o Burst Mode
         self.burstMode = bit_field_get(valueAux, 6, 1) == 1
-
+            
         if not self.addressType:
-            # Extrai o polling_address
+            # Extrai o polling_address            
             self._pollingAddress = f'{bit_field_get(valueAux, 0, 6):02X}'
             self._manufacterId = ""
             self._deviceType = ""
@@ -230,10 +228,10 @@ def bit_field_get(value: int, start_bit: int, length: int) -> int:
     return (value & mask) >> start_bit
 
 
-def bit_field_set(value: int, start_bit: int, length: int, new_value: int) -> int:
+def bit_field_set(value: int, start_bit: int, length: int, new_value: int = 1) -> int:
     """Sets a bit field in an integer value."""
     mask = ((1 << length) - 1) << start_bit
-    value &= ~mask  # Clear the bits to be set
+    value &= ~mask  
     value |= (new_value << start_bit) & mask  # Set the bits
     return value
 

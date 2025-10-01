@@ -2,6 +2,8 @@ import serial
 from typing import List, Optional, Callable
 from conn.comm_serial import CommSerial
 
+DEFAULT_CFG = {"port":"COM1","baudrate":1200,"bytesize":8,"parity":"N","stopbits":1}
+
 class HrtComm:
     def __init__(self, port: Optional[str] = None, func_read: Optional[Callable[[str], None]] = None):
         self._port: Optional[str] = port

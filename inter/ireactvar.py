@@ -1,5 +1,5 @@
 from inter.qobjectabcmeta import QObjectABCMeta
-from PySide6.QtCore import QObject, Signal, Slot
+from react.qt_compat import QObject, Signal, Slot
 from abc import ABC, abstractmethod
 
 class DBReactiveVariable(QObject, ABC, metaclass=QObjectABCMeta):

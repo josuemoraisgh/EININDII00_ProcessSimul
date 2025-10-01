@@ -1,4 +1,4 @@
-from PySide6.QtCore import QObject
+from react.qt_compat import QObject
 from abc import ABCMeta
 
 class QObjectABCMeta(ABCMeta, type(QObject)):

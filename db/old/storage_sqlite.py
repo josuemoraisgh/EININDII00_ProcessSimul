@@ -1,4 +1,4 @@
-from PySide6.QtCore import Signal, QObject
+from react.qt_compat import Signal, QObject
 from db.db_template import hrt_banco
 from functools import reduce
 import numpy as np

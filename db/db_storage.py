@@ -21,16 +21,19 @@ def get_persistent_db_path(relative_path="db/banco.db", app_name="processSimul")
     target_dir = get_app_data_dir(app_name)
     os.makedirs(target_dir, exist_ok=True)
     target_db_path = os.path.join(target_dir, os.path.basename(relative_path))
-    # Imprimir onde o banco está sendo copiado
-    print(f"Banco de dados será copiado para: {target_db_path}")
-    # Copia o banco apenas na primeira execução
+
     if not os.path.exists(target_db_path):
         if hasattr(sys, "_MEIPASS"):
-            source_path = os.path.join(sys._MEIPASS, *relative_path.split("/"))
+            source_path = os.path.join(sys._MEIPASS, *relative_path.replace('\\','/').split("/"))
         else:
             source_path = os.path.abspath(relative_path)
-        shutil.copy(source_path, target_db_path)
+        if not os.path.exists(source_path):
+            raise FileNotFoundError(f"Arquivo de banco não encontrado: {source_path}")
+        print(f"[INFO] Copiando banco para: {target_db_path}")
+        shutil.copy2(source_path, target_db_path)
+
     return target_db_path
+
 class DBStorage():
     # data_updated = Signal()  # Sinal emitido ao atualizar dados
         
@@ -71,9 +74,11 @@ class DBStorage():
             operation = None
         values = []
         for var in variables:
-            values.append(self.getRawData(tableName, rowName, colName))
-        if any(x in values for x in [None, "ERROR"]):
+            values.append(self.getRawData(tableName, var, colName))  # usar 'var' aqui
+
+        if any(v in (None, "ERROR") for v in values):
             return None
+
         if operation:
             return str(reduce(operation, map(int, values)))
         return str(values[0])
