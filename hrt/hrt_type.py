@@ -198,18 +198,51 @@ def _hrt_type_sreal2_hex(valor_float: float, byte_size: int) -> str:
     return format(bits_array, f'0{2*byte_size}X').upper()
 
 def _hrt_type_pascii2_hex(valor: str, byte_size: int) -> str:
-    # Cada caractere vira 6 bits; total de bytes = ceil(6 * len / 8) = (6*len + 7)//8
-    def _packed_len_in_bytes(nchars: int) -> int:
-        return (6 * nchars + 7) // 8
-    # Completa com espaços até o empacotamento atingir pelo menos byte_size bytes
-    while _packed_len_in_bytes(len(valor)) < byte_size:
-        valor += ' '    
-    encoded_values = [ord(c) for c in valor]
-    binary_values = [bin(get_bits(e, 0, 6))[2:].zfill(6) for e in encoded_values]
-    binary_str = ''.join(binary_values).zfill(6*len(encoded_values) + (-(6*len(encoded_values)) % 8))
-    eight_bit_chunks = split_by_length(binary_str, 8)
-    hex_str = ''.join(f"{int(chunk, 2):02X}" for chunk in eight_bit_chunks)
-    return hex_str.zfill(2*byte_size)
+    """
+    Converte string para HART PACKED ASCII (6 bits/char) em HEX com exatamente `byte_size` bytes.
+    Regras:
+      - a..z -> A..Z
+      - fora de 0x20..0x5F -> ' '
+      - se sobrar: corta do começo; se faltar: completa com espaço à direita
+      - sem padding de zeros em bits (requer byte_size % 3 == 0)
+    """
+    if byte_size <= 0:
+        return ""
+
+    # 8*byte_size precisa ser múltiplo de 6 -> byte_size múltiplo de 3
+    if byte_size % 3 != 0:
+        raise ValueError("byte_size deve ser múltiplo de 3 para PACKED ASCII sem padding de bits.")
+
+    # 4 chars pASCII = 3 bytes
+    n_chars = (byte_size * 8) // 6  # = byte_size * 4 // 3
+
+    s = (valor or "")
+    # corta do começo se for maior
+    if len(s) > n_chars:
+        s = s[-n_chars:]
+    # completa com espaços se for menor
+    elif len(s) < n_chars:
+        s = s.ljust(n_chars, " ")
+
+    # normalização: a..z -> A..Z; fora do intervalo -> ' '
+    norm_codes = []
+    for c in s:
+        oc = ord(c)
+        # a..z -> A..Z
+        if 0x61 <= oc <= 0x7A:  # 'a'..'z'
+            oc -= 0x20
+        # tudo que não estiver em 0x20..0x5F vira espaço
+        if not (0x20 <= oc <= 0x5F):
+            oc = 0x20
+        norm_codes.append(oc - 0x20)  # 0..63
+
+    # empacota 6 bits/char sem padding extra
+    bitstr = "".join(f"{code:06b}" for code in norm_codes)
+
+    # converte 8 em 8 para bytes -> hex
+    hex_str = "".join(f"{int(bitstr[i:i+8], 2):02X}" for i in range(0, len(bitstr), 8))
+    return hex_str
+
 
 def _hrt_type_date2_hex(valor: str, byte_size: int) -> str:
     aux = valor.split("/")
