@@ -224,25 +224,12 @@ def _hrt_type_pascii2_hex(valor: str, byte_size: int) -> str:
     elif len(s) < n_chars:
         s = s.ljust(n_chars, " ")
 
-    # normalização: a..z -> A..Z; fora do intervalo -> ' '
-    norm_codes = []
-    for c in s:
-        oc = ord(c)
-        # a..z -> A..Z
-        if 0x61 <= oc <= 0x7A:  # 'a'..'z'
-            oc -= 0x20
-        # tudo que não estiver em 0x20..0x5F vira espaço
-        if not (0x20 <= oc <= 0x5F):
-            oc = 0x20
-        norm_codes.append(oc - 0x20)  # 0..63
-
-    # empacota 6 bits/char sem padding extra
-    bitstr = "".join(f"{code:06b}" for code in norm_codes)
-
-    # converte 8 em 8 para bytes -> hex
-    hex_str = "".join(f"{int(bitstr[i:i+8], 2):02X}" for i in range(0, len(bitstr), 8))
-    return hex_str
-
+    encoded_values = [ord(c) for c in s]
+    binary_values = [bin(get_bits(e, 0, 6))[2:].zfill(6) for e in encoded_values]
+    binary_str = ''.join(binary_values)
+    eight_bit_chunks = split_by_length(binary_str, 8)
+    hex_str = ''.join(f"{int(chunk, 2):02X}" for chunk in eight_bit_chunks)
+    return hex_str.zfill(2*byte_size)
 
 def _hrt_type_date2_hex(valor: str, byte_size: int) -> str:
     aux = valor.split("/")
