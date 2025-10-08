@@ -57,26 +57,31 @@ jobs:
           if (Test-Path dist)  { Remove-Item dist  -Recurse -Force }
 
           $name = "${{ env.APP_NAME }}-${{ env.APP_VER }}"
-          $icon = ""
-          if (Test-Path "assets/app.ico") { $icon = "-i assets/app.ico" }
-
-          # IMPORTANTE: usar "db;db" (Windows) para embutir a pasta db/ no EXE
-          $cmd = @(
-            "pyinstaller",
+          $args = @(
             "--noconfirm",
             "--clean",
             "--onefile",
             "--windowed",
             "-n", $name
           )
-          if ($icon) { $cmd += $icon }
-          $cmd += @("--add-data", "db;db", "${{ env.ENTRY }}")
 
-          Write-Host "Running:" ($cmd -join " ")
-          & $cmd
+          if (Test-Path "assets/app.ico") {
+            $args += @("-i", "assets/app.ico")
+          }
+
+          # IMPORTANTE: "db;db" precisa estar entre aspas por causa do ';' no Windows
+          $args += @("--add-data", "db;db", "${{ env.ENTRY }}")
+
+          Write-Host "Python exe:" (Get-Command python).Path
+          python -c "import sys,PyInstaller; print('PyInstaller', PyInstaller.__version__); print(sys.version)"
+          Write-Host "Running: python -m PyInstaller $($args -join ' ')"
+
+          # Chamada correta usando array splatting
+          python -m PyInstaller @args
 
           Write-Host "Dist contents:"
           Get-ChildItem dist -Recurse | Format-Table -AutoSize
+
 
       - name: Ensure final exe name
         shell: pwsh
