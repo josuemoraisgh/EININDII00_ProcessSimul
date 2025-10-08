@@ -1,4 +1,5 @@
-
+# git tag v0.0.1
+# git push origin v0.0.1
 """
 db_app_tk.py
 ------------
