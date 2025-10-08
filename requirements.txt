@@ -1,8 +1,10 @@
 tk
 pandas
-pyserial
+pyserial>=3.5
 asteval
 control
 openpyxl
 xlrd
-pymodbus
+pymodbus==3.3.0
+pyinstaller>=6.4
+pyinstaller-hooks-contrib>=2024.6

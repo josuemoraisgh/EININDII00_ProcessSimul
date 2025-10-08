@@ -106,8 +106,21 @@ jobs:
             "-n", $name
           )
           if (Test-Path "assets/app.ico") { $args += @("-i","assets/app.ico") }
-          $args += @("--add-data","db;db","${{ env.ENTRY }}")
+          $args += @("--add-data","db;db")
 
+          $args += @(
+            "--collect-all","pymodbus",
+            "--hidden-import","pymodbus.server",
+            "--hidden-import","pymodbus.server.async_io",
+            "--hidden-import","pymodbus.server.tcp",
+            "--hidden-import","pymodbus.datastore",
+            "--hidden-import","pymodbus.transaction",
+            "--hidden-import","pymodbus.framer",
+            "--hidden-import","pymodbus.framer.rtu_framer",
+            "--hidden-import","pymodbus.framer.socket_framer"
+          )
+          # entrypoint
+          $args += @("${{ env.ENTRY }}")
           Write-Host "Running: python -m PyInstaller $($args -join ' ')"
           python -m PyInstaller @args
 
