@@ -1,0 +1,8 @@
+tk
+pandas
+pyserial
+asteval
+control
+openpyxl
+xlrd
+pymodbus

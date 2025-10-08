@@ -1,0 +1,11 @@
+/.venv
+/build
+/dist
+/Include
+/Lib
+/pyvenv.cfg
+/Scripts
+/EININDII00_ProcessSimul.spec
+/__pycache__
+__pycache__/
+*.spec
